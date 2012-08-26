@@ -103,7 +103,6 @@
 				$output["uploaded"] = $db_entry["uploaded"];
 				$output["user"] = array("name" => User::getName($db_entry["HEX(user)"]), "id" => $db_entry["HEX(user)"]);
 				$output["reviewed"] = $db_entry["reviewed"] == 1;
-				$output["default"] = $db_entry["default_include"] == 1;
 				$tag_list  = array();
 				foreach ($data["tags"] AS $tag)
 				{
