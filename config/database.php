@@ -8,6 +8,11 @@
 	# the names of the database tables
 	define('DB_TABLE_ITEMS', 'data'); # 
 	define('DB_TABLE_USERS', 'users'); # 
+	define('DB_TABLE_STDLIB', 'stdlib'); # 
+	define('DB_TABLE_STDLIB_RELEASES', 'stdlib_releases'); # 
+	define('DB_TABLE_STDLIB_PENDING', 'stdlib_pending'); # 
+	define('DB_TABLE_STDLIB_ACTIONS', 'stdlib_actions'); # 
+	define('DB_TABLE_UPDATE_TYPE', 'update_type'); # 
 
 	# the credentials for accessing the database
 	define('DB_USERNAME', 'root'); # the user name
