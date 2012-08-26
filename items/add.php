@@ -60,7 +60,7 @@
 				$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
 
 				# check if there's any version of the app
-				$db_query = "SELECT HEX(user) FROM $db_table_main WHERE name = '$escaped_name' LIMIT 1";
+				$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' LIMIT 1";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -78,7 +78,7 @@
 				}
 
 				# check if this specific version had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM $db_table_main WHERE name = '$escaped_name' AND version = '$escaped_version' LIMIT 1";
+				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' AND version = '$escaped_version' LIMIT 1";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -91,7 +91,7 @@
 				}
 
 				# check if item with this GUID had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM $db_table_main WHERE id = UNHEX('$pack_id')";
+				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$pack_id')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -104,7 +104,7 @@
 				}
 
 				# add the database entry
-				$db_query = "INSERT INTO $db_table_main (id, name, type, version, file, user, description, tags, uploaded)
+				$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags, uploaded)
 							VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags', '$datetime')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)

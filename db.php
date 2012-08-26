@@ -1,26 +1,19 @@
 <?php
 	require_once("HttpException.php");
-
-	# database tables
-	$db_table_main = "data";
-	$db_table_users = "users";
+	require_once("config/database.php"); # import database settings
 
 	function db_ensure_connection()
 	{
-		# settings for database
-		static $db_server = "localhost";
 		static $connection = false;
-
-		require("db_cred.php"); # contains variable declarations for $db_pw, $db_user and $db_main
 
 		if (!$connection)
 		{
-			$connection = mysql_connect($db_server, $db_user, $db_pw);
+			$connection = mysql_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD);
 			if (!$connection)
 			{
 				throw new HttpException(500);
 			}
-			if (!mysql_select_db($db_main, $connection))
+			if (!mysql_select_db(DB_NAME, $connection))
 			{
 				throw new HttpException(500);
 			}

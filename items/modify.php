@@ -17,7 +17,7 @@
 
 				if (!isset($_GET["id"]))
 				{
-					$db_query = "SELECT HEX(id) FROM $db_table_main WHERE name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "' AND version = '" . mysql_real_escape_string($_GET["version"], $db_connection) . "'";
+					$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "' AND version = '" . mysql_real_escape_string($_GET["version"], $db_connection) . "'";
 					$db_result = mysql_query($db_query, $db_connection);
 
 					if (!$db_result)
@@ -41,7 +41,7 @@
 				{
 					if  (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_ADMIN)) # not an admin
 					{
-						$db_query = "SELECT HEX(user) FROM $db_table_main WHERE id = UNHEX('$id')";
+						$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
 						$db_result = mysql_query($db_query, $db_connection);
 
 						if (!$db_result)
@@ -60,7 +60,7 @@
 						}
 					}
 
-					$db_query = "UPDATE $db_table_main Set user = UNHEX('" . User::getID($_POST["user"]) . "') WHERE id = UNHEX('$id')";
+					$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set user = UNHEX('" . User::getID($_POST["user"]) . "') WHERE id = UNHEX('$id')";
 					if (!mysql_query($db_query, $db_connection))
 					{
 						throw new HttpException(500);
@@ -81,7 +81,7 @@
 						throw new HttpException(400);
 					}
 
-					$db_query = "UPDATE $db_table_main Set reviewed = '" . mysql_real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
+					$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set reviewed = '" . mysql_real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
 					if (!mysql_query($db_query, $db_connection))
 					{
 						throw new HttpException(500);
@@ -102,7 +102,7 @@
 						throw new HttpException(400);
 					}
 
-					$db_query = "UPDATE $db_table_main Set default_include = '" . mysql_real_escape_string($_POST["default"]) . "' WHERE id = UNHEX('$id')";
+					$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set default_include = '" . mysql_real_escape_string($_POST["default"]) . "' WHERE id = UNHEX('$id')";
 					if (!mysql_query($db_query, $db_connection))
 					{
 						throw new HttpException(500);

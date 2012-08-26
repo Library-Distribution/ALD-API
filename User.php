@@ -12,10 +12,9 @@ class User
 
 	public static function hasPrivilegeById($id, $privilege)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT privileges FROM $db_table_users WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -33,10 +32,9 @@ class User
 
 	public static function hasPrivilege($name, $privilege)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT privileges FROM $db_table_users WHERE name = '" .  mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE name = '" .  mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -54,10 +52,9 @@ class User
 
 	public static function existsName($name)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT id FROM $db_table_users WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -68,10 +65,9 @@ class User
 
 	public static function existsMail($mail)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT id FROM $db_table_users WHERE mail = '" . mysql_real_escape_string($mail, $db_connection) . "'";
+		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE mail = '" . mysql_real_escape_string($mail, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -82,13 +78,12 @@ class User
 
 	public static function validateLogin($user, $pw, $throw = true)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
 		$pw = hash("sha256", $pw);
 		$escaped_user = mysql_real_escape_string($user, $db_connection);
 
-		$db_query = "SELECT pw, activationToken FROM $db_table_users WHERE name = '$escaped_user'";
+		$db_query = "SELECT pw, activationToken FROM " . DB_TABLE_USERS . " WHERE name = '$escaped_user'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -130,10 +125,9 @@ class User
 
 	public static function getName($id)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT name FROM $db_table_users WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
+		$db_query = "SELECT name FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -149,10 +143,9 @@ class User
 
 	public static function getID($name)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT HEX(id) FROM $db_table_users WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -168,10 +161,9 @@ class User
 
 	public static function getToken($name)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT activationToken FROM $db_table_users WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "SELECT activationToken FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -187,10 +179,9 @@ class User
 
 	public static function setToken($name, $token)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "UPDATE $db_table_users  Set activationToken = '" . mysql_real_escape_string($token, $db_connection) . "' WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "UPDATE " . DB_TABLE_USERS . " Set activationToken = '" . mysql_real_escape_string($token, $db_connection) . "' WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -205,10 +196,9 @@ class User
 
 	public static function getPrivileges($id)
 	{
-		global $db_table_users;
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT privileges FROM $db_table_users WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{

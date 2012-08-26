@@ -31,7 +31,7 @@
 			}
 
 			# query for data:
-			$db_query = "SELECT name, HEX(id) FROM $db_table_users $db_limit";
+			$db_query = "SELECT name, HEX(id) FROM " . DB_TABLE_USERS . " $db_limit";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{

@@ -38,7 +38,7 @@
 					throw new HttpException(409, NULL, "User name already taken");
 				}
 
-				$db_query = "UPDATE $db_table_users Set name = '" . mysql_real_escape_string($_POST["name"], $db_connection) . "' WHERE id = UNHEX('$id')";
+				$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . mysql_real_escape_string($_POST["name"], $db_connection) . "' WHERE id = UNHEX('$id')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -59,7 +59,7 @@
 				$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
 				$token = mt_rand();
 
-				$db_query = "UPDATE $db_table_users Set mail = '$mail', activationToken = '$token' WHERE id = UNHEX('$id')";
+				$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail', activationToken = '$token' WHERE id = UNHEX('$id')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -83,7 +83,7 @@
 			{
 				$pw = hash("sha256", $_POST["password"]);
 
-				$db_query = "UPDATE $db_table_users Set pw = '$pw' WHERE id = UNHEX('$id')";
+				$db_query = "UPDATE " . DB_TABLE_USERS . " Set pw = '$pw' WHERE id = UNHEX('$id')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{

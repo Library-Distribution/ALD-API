@@ -29,7 +29,7 @@
 				throw new HttpException(400);
 			}
 
-			$db_query = "SELECT name, mail, pw, privileges, joined, activationToken FROM $db_table_users WHERE id = UNHEX('$id')";
+			$db_query = "SELECT name, mail, pw, privileges, joined, activationToken FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
