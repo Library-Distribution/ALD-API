@@ -30,6 +30,7 @@
 				case 406: return "Not Acceptable";
 				case 409: return "Conflict";
 				case 413: return "Request Entity Too Large";
+				case 423: return "Locked";
 				case 500: return "Internal Server Error";
 				case 501: return "Not Implemented";
 				case 503: return "Service Unavailable";

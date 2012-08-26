@@ -93,6 +93,9 @@
 				}
 				if (isset($_POST["default"]))
 				{
+					throw new HttpException(423); # block
+
+					/*
 					if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 					{
 						throw new HttpException(403);
@@ -111,6 +114,7 @@
 					{
 						throw new HttpException(404);
 					}
+					*/
 				}
 				header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 			}
