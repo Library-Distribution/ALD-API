@@ -8,6 +8,7 @@
 	# the names of the database tables
 	define('DB_TABLE_ITEMS', 'data'); # 
 	define('DB_TABLE_USERS', 'users'); # 
+	define('DB_TABLE_REGISTRATION', 'registration'); # 
 
 	# the credentials for accessing the database
 	define('DB_USERNAME', 'root'); # the user name
