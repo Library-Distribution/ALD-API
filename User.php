@@ -10,12 +10,12 @@ class User
 	const PRIVILEGE_DEFAULT_INCLUDE = 8;
 	const PRIVILEGE_ADMIN = 16;
 
+	static $db_connection = db_ensure_connection();
+
 	public static function hasPrivilegeById($id, $privilege)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, User::$db_connection) . "')";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -32,10 +32,8 @@ class User
 
 	public static function hasPrivilege($name, $privilege)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE name = '" .  mysql_real_escape_string($name, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE name = '" .  mysql_real_escape_string($name, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -52,10 +50,8 @@ class User
 
 	public static function existsName($name)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -65,10 +61,8 @@ class User
 
 	public static function existsMail($mail)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE mail = '" . mysql_real_escape_string($mail, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE mail = '" . mysql_real_escape_string($mail, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -78,13 +72,11 @@ class User
 
 	public static function validateLogin($user, $pw, $throw = true)
 	{
-		$db_connection = db_ensure_connection();
-
 		$pw = hash("sha256", $pw);
-		$escaped_user = mysql_real_escape_string($user, $db_connection);
+		$escaped_user = mysql_real_escape_string($user, User::$db_connection);
 
 		$db_query = "SELECT pw, activationToken FROM " . DB_TABLE_USERS . " WHERE name = '$escaped_user'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			if (!$throw)
@@ -125,10 +117,8 @@ class User
 
 	public static function getName($id)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT name FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT name FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, User::$db_connection) . "')";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -143,10 +133,8 @@ class User
 
 	public static function getID($name)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -161,10 +149,8 @@ class User
 
 	public static function getToken($name)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT activationToken FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT activationToken FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -179,10 +165,8 @@ class User
 
 	public static function setToken($name, $token)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "UPDATE " . DB_TABLE_USERS . " Set activationToken = '" . mysql_real_escape_string($token, $db_connection) . "' WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "UPDATE " . DB_TABLE_USERS . " Set activationToken = '" . mysql_real_escape_string($token, User::$db_connection) . "' WHERE name = '" . mysql_real_escape_string($name, User::$db_connection) . "'";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -196,10 +180,8 @@ class User
 
 	public static function getPrivileges($id)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, $db_connection) . "')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . mysql_real_escape_string($id, User::$db_connection) . "')";
+		$db_result = mysql_query($db_query, User::$db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
