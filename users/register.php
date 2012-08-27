@@ -169,7 +169,7 @@
 				$row["id"] = $temp["HEX(id)"];
 
 				######################### POST to config-defined URLs #########################
-				$urls = explode(POST_REGISTRATION_URLS, ' ');
+				$urls = explode(' ', POST_REGISTRATION_URLS);
 
 				# set CURL options
 				$conn = curl_init();
