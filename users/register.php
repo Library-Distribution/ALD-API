@@ -122,7 +122,7 @@
 			$token = mysql_real_escape_string($_POST["token"], $db_connection);
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 
-			$db_query = "SELECT token FROM " . DB_TABLE_REGISTRATION . " WHERE id = '$id'";
+			$db_query = "SELECT * FROM " . DB_TABLE_REGISTRATION . " WHERE id = '$id'";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -136,13 +136,47 @@
 			$row = mysql_fetch_assoc($db_result);
 			if ($row["token"] == $token)
 			{
-				# todo: create account
-				# todo: POST to config-defined URLs
+				# create account
+				$db_query = "INSERT INTO " . DB_TABLE_USERS . " (id, name, mail, pw) VALUES (UNHEX(REPLACE(UUID(), '-', '')), '{$row["name"]}', '{$row["mail"]}', '{$row["password"]}')";
+				$db_result = mysql_query($db_query, $db_connection);
+				if (!$db_result)
+				{
+					throw new HttpException(500, NULL, mysql_error());
+				}
+
+				# get user ID
+				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '{$row["name"]}'";
+				$db_result = mysql_query($db_query, $db_connection);
+				if (!$db_result)
+				{
+					throw new HttpException(500, NULL, mysql_error());
+				}
+				$temp = mysql_fetch_assoc($db_result);
+				$row["id"] = $temp["HEX(id)"];
+
+				######################### POST to config-defined URLs #########################
+				$urls = explode(POST_REGISTRATION_URLS, ' ');
+
+				# set CURL options
+				$conn = curl_init();
+				curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($conn, CURLOPT_POST, true);
+				curl_setopt($conn, CURLOPT_POSTFIELDS, $row);
+
+				foreach ($urls AS $url)
+				{
+					curl_setopt($conn, CURLOPT_URL, $url);
+					curl_exec($conn);
+				}
+				curl_close($conn);
+				###############################################################################
+
 				header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 				exit;
 			}
 			else
 			{
+				# do not delete session, let it expire
 				throw new HttpException(400, NULL, "Invalid token specified");
 			}
 		}
