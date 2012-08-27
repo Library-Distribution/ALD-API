@@ -151,7 +151,7 @@
 				}
 
 				# delete registration session
-				$db_query = "DELETE FROM " . DB_TABLE_REGISTRATION " WHERE id = '$id'";
+				$db_query = "DELETE FROM " . DB_TABLE_REGISTRATION . " WHERE id = '$id'";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
