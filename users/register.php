@@ -18,9 +18,14 @@
 		{
 			if ($request_method == "POST")
 			{
-				if (empty($_POST["name"]) || empty($_POST["mail"]) || empty($_POST["password"]) || empty($_POST["template"]))
+				if (empty($_POST["name"]) || empty($_POST["mail"]) || empty($_POST["password"]) || empty($_POST["password-alt"]) || empty($_POST["template"]))
 				{
 					throw new HttpException(400);
+				}
+
+				if ($_POST["password"] != $_POST["password-alt"])
+				{
+					throw new HttpException(400, NULL, "2 different passwords were specified.");
 				}
 
 				$name = mysql_real_escape_string($_POST["name"], $db_connection);
