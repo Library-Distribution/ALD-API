@@ -150,6 +150,13 @@
 					throw new HttpException(500, NULL, mysql_error());
 				}
 
+				# delete registration session
+				$db_query = "DELETE FROM " . DB_TABLE_REGISTRATION " WHERE id = '$id'";
+				if (!$db_result)
+				{
+					throw new HttpException(500, NULL, mysql_error());
+				}
+
 				# get user ID
 				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '{$row["name"]}'";
 				$db_result = mysql_query($db_query, $db_connection);
