@@ -137,7 +137,8 @@
 			if ($row["token"] == $token)
 			{
 				# create account
-				$db_query = "INSERT INTO " . DB_TABLE_USERS . " (id, name, mail, pw) VALUES (UNHEX(REPLACE(UUID(), '-', '')), '{$row["name"]}', '{$row["mail"]}', '{$row["password"]}')";
+				$pw = hash("sha256", $row["password"]);
+				$db_query = "INSERT INTO " . DB_TABLE_USERS . " (id, name, mail, pw) VALUES (UNHEX(REPLACE(UUID(), '-', '')), '{$row["name"]}', '{$row["mail"]}', '$pw')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
