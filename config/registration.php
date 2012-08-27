@@ -20,4 +20,16 @@
 	# Notes:
 	#   + When the maximum length is increased, the database fields must be adjusted accordingly.
 	#     This affects the 'DB_TABLE_USERS' database table and the 'DB_TABLE_REGISTRATION' table.
+
+	# defines whether registration is open to public or not
+	define('PUBLIC_REGISTRATION', true);
+	# If this is set to `true`, any internet user can register himself to the site.
+	# Otherwise, only users who are already registered and have the PRIVILEGE_REGISTRATION
+	# privilege can start a registration. In this case, such a user initiates a registration
+	# with some name, mail and password. The user to be registered receives the mail and can
+	# then complete the registration.
+	#
+	# Notes:
+	#   + the password should in this case be included in the mail
+	#   + the REGISTRATION_TIMEOUT should be configured in a way which allows cooperation e.g. between different timezones.
 ?>

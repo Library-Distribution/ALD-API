@@ -18,6 +18,15 @@
 		{
 			if ($request_method == "POST")
 			{
+				if ( !PUBLIC_REGISTRATION )
+				{
+					user_basic_auth("Registration restricted to moderators");
+					if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
+					{
+						throw new HttpException(403, NULL, "Registration restricted to moderators");
+					}
+				}
+
 				if (empty($_POST["name"]) || empty($_POST["mail"]) || empty($_POST["password"]) || empty($_POST["password-alt"]) || empty($_POST["template"]))
 				{
 					throw new HttpException(400);

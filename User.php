@@ -9,6 +9,7 @@ class User
 	const PRIVILEGE_REVIEW = 4;
 	const PRIVILEGE_DEFAULT_INCLUDE = 8;
 	const PRIVILEGE_ADMIN = 16;
+	const PRIVILEGE_REGISTRATION = 32;
 
 	public static function hasPrivilegeById($id, $privilege)
 	{
