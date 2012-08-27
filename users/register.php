@@ -42,6 +42,22 @@
 					throw new HttpException(403, NULL, "Invalid user name");
 				}
 
+				$forbidden = explode("\0", FORBIDDEN_USER_NAMES);
+				if (in_array($_POST["name"], $forbidden))
+				{
+					throw new HttpException(403, NULL, "Forbidden user name");
+				}
+
+				$reserved = explode("\0", RESERVED_USER_NAMES);
+				if (in_array($_POST["name"], $reserved))
+				{
+					user_basic_auth("Trying to register a reserved user name");
+					if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
+					{
+						throw new HttpException(403, NULL, "Trying to register a reserved user name");
+					}
+				}
+
 				$name = mysql_real_escape_string($_POST["name"], $db_connection);
 				$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
 				$password = mysql_real_escape_string($_POST["password"], $db_connection);

@@ -21,6 +21,23 @@
 	#   + When the maximum length is increased, the database fields must be adjusted accordingly.
 	#     This affects the 'DB_TABLE_USERS' database table and the 'DB_TABLE_REGISTRATION' table.
 
+	# a list of user names which must not be registered
+	define('FORBIDDEN_USER_NAMES', "");
+	# This is a list of user names which fit the USER_NAME_REGEX, but must still not be registered.
+	# Separate the names by NUL bytes ('\0').
+	#
+	# Notes:
+	#   + remember that the '\0' escape sequence requires double quotes
+
+	# a list of user names which can not be registered by the public
+	define('RESERVED_USER_NAMES', "");
+	# The only difference between this and FORBIDDEN_USER_NAMES is that the names
+	# in this list may be registered by users which have the PRIVILEGE_REGISTRATION
+	# but not by anyone else.
+	#
+	# Notes:
+	#   + as above, separate the names by '\0' and use double quotes
+
 	# defines whether registration is open to public or not
 	define('PUBLIC_REGISTRATION', true);
 	# If this is set to `true`, any internet user can register himself to the site.
