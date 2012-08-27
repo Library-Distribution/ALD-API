@@ -8,8 +8,7 @@
 	define('POST_REGISTRATION_URLS', '');
 	# each of these URLs receives the following POST data:
 	#   + user name ('user')
+	#   + user id ('id')
 	#   + mail address ('mail')
-	#   + password (cleartext) ('password')
-	#   + id ('id')
-	# The words in brackets & quotes are the names of the actual POST fields.
+	# The words in brackets are the names of the actual POST parameters.
 ?>

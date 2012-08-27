@@ -166,7 +166,6 @@
 					throw new HttpException(500, NULL, mysql_error());
 				}
 				$temp = mysql_fetch_assoc($db_result);
-				$row["id"] = $temp["HEX(id)"];
 
 				######################### POST to config-defined URLs #########################
 				$urls = explode(' ', POST_REGISTRATION_URLS);
@@ -175,7 +174,7 @@
 				$conn = curl_init();
 				curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($conn, CURLOPT_POST, true);
-				curl_setopt($conn, CURLOPT_POSTFIELDS, $row);
+				curl_setopt($conn, CURLOPT_POSTFIELDS, array("user" => $row["name"], "id" => $temp["HEX(id)"], "mail" => $row["mail"]));
 
 				foreach ($urls AS $url)
 				{
