@@ -28,6 +28,11 @@
 					throw new HttpException(400, NULL, "2 different passwords were specified.");
 				}
 
+				if (!preg_match( USER_NAME_REGEX, $_POST["name"]))
+				{
+					throw new HttpException(403, NULL, "Invalid user name");
+				}
+
 				$name = mysql_real_escape_string($_POST["name"], $db_connection);
 				$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
 				$password = mysql_real_escape_string($_POST["password"], $db_connection);
