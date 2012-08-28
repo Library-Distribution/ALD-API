@@ -2,6 +2,7 @@
 	require_once("../HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once("../Item.php");
 
 	try
 	{
@@ -60,45 +61,23 @@
 				$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
 
 				# check if there's any version of the app
-				$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' LIMIT 1";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
+				if (Item::exists($pack_name))
 				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
-				{
-					# if so, check if it's the same user as now
-					$db_entry = mysql_fetch_assoc($db_result);
-					if (User::getName($db_entry["HEX(user)"]) != $user)
+					$owner = User::getName(Item::getUser($pack_name, "latest"));
+					if ($owner != $user)
 					{
 						throw new HttpException(403, NULL, "The user '$user' is not allowed to update the library or app '$pack_name'");
 					}
 				}
 
 				# check if this specific version had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' AND version = '$escaped_version' LIMIT 1";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
+				if (Item::exists($pack_name, $pack_version))
 				{
 					throw new HttpException(409, NULL, "The specified version '$pack_version' of package '$pack_name' has already been uploaded!");
 				}
 
 				# check if item with this GUID had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$pack_id')";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
+				if (Item::existsId($pack_id))
 				{
 					throw new HttpException(409, NULL, "An item with the specified GUID '$pack_id' has already been uploaded!");
 				}
