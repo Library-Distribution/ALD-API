@@ -64,6 +64,11 @@
 			return $db_entry["COUNT(*)"] > 0;
 		}
 
+		public static function getUser($name, $version)
+		{
+			return Item::getUserForId(Item::getId($name, $version));
+		}
+
 		public static function getUserForId($id)
 		{
 			$db_connection = db_ensure_connection();
