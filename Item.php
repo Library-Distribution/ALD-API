@@ -1,6 +1,7 @@
 <?php
 	require_once("db.php");
 	require_once("HttpException.php");
+	require_once("semver.php");
 
 	class Item
 	{
@@ -9,6 +10,12 @@
 			$db_connection = db_ensure_connection();
 			$name = mysql_real_escape_string($name, $db_connection);
 			$version = mysql_real_escape_string($version, $db_connection);
+
+			$db_cond = "name = '$name'";
+			if (!$special_version = in_array($version, array("latest", "first")))
+			{
+				$db_cond .= " AND version = '$version'";
+			}
 
 			$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '$name' AND version = '$version'";
 			$db_result = mysql_query($db_query, $db_connection);
@@ -21,7 +28,22 @@
 				throw new HttpException(404);
 			}
 
-			$db_entry = mysql_fetch_assoc($db_result);
+			if (!$special_version)
+			{
+				$db_entry = mysql_fetch_assoc($db_result);
+			}
+			else
+			{
+				$items = array(); # fetch all items in an array
+				while ($row = mysql_fetch_assoc($db_result))
+				{
+					$items[] = $row;
+				}
+
+				usort($items, "semver_sort"); # sort by "version" field, following semver rules
+				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
+			}
+
 			return $db_entry["HEX(id)"];
 		}
 
@@ -84,5 +106,10 @@
 			$db_entry = mysql_fetch_assoc($db_result);
 			return $db_entry["HEX(user)"];
 		}
+	}
+
+	function semver_sort($a, $b)
+	{
+		return semver_compare($a["version"], $b["version"]);
 	}
 ?>
