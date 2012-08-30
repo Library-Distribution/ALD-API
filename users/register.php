@@ -87,7 +87,7 @@
 
 				# process mail template
 				$template = $_POST["template"];
-				foreach (array("NAME" => $name, "MAIL" => $mail, "PASSWORD" => $password, "TOKEN" => $token) AS $var => $val)
+				foreach (array("NAME" => $name, "MAIL" => $mail, "PASSWORD" => $password, "ID" => $id) AS $var => $val)
 				{
 					$template = str_replace("{%$var%}", $val, $template);
 				}
