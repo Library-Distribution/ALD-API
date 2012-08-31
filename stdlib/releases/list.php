@@ -19,11 +19,11 @@
 			## if not auth & review team: only released (isset(date))
 			## filter: only stable / unstable
 
-			$db_query = "SELECT release FROM " . DB_TABLE_STDLIB_RELEASES . " $db_cond";
+			$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . " $db_cond";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, mysql_error() . " - \"" . $db_query . "\"");
 			}
 
 			$releases = array();
