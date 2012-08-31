@@ -29,7 +29,7 @@
 			$releases = array();
 			while ($release = mysql_fetch_assoc($db_result))
 			{
-				$releases[] = $release->release;
+				$releases[] = $release["release"];
 			}
 
 			if ($content_type == "application/json")
