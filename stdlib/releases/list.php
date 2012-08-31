@@ -34,7 +34,7 @@
 
 			if ($content_type == "application/json")
 			{
-				$content = json_encode($data);
+				$content = json_encode($releases);
 			}
 			else if ($content_type == "text/xml" || $content_type == "application/xml")
 			{
