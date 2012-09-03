@@ -2,6 +2,9 @@
 	require_once("../HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once("../Item.php");
+
+	require_once("../config/upload.php"); # import settings for upload
 
 	try
 	{
@@ -12,6 +15,11 @@
 			# authentication
 			user_basic_auth("Restricted API");
 			$user = $_SERVER["PHP_AUTH_USER"];
+
+			if (!ENABLE_UPLOAD)
+			{
+				throw new HttpException(403, NULL, "Uploads have been disabled");
+			}
 
 			if (isset($_FILES["package"]))
 			{
@@ -25,14 +33,13 @@
 
 				# upload and read file:
 				###########################################################
-				$file_size_limit = 75; # MB
-				if ($pack_file["size"] > ($file_size_limit * 1024 * 1024))
+				if ($pack_file["size"] > MAX_UPLOAD_SIZE)
 				{
-					throw new HttpException(413, NULL, "File must not be > $file_size_limit MB.");
+					throw new HttpException(413, NULL, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
 				}
 
 				ensure_upload_dir(); # ensure the directory for uploads exists
-				$file = find_free_file(upload_dir_path(), ".zip");
+				$file = find_free_file(UPLOAD_FOLDER, ".zip");
 				move_uploaded_file($pack_file["tmp_name"], $file);
 
 				$data = read_package($file, array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
@@ -49,9 +56,6 @@
 				# todo: validate version string / convert to number
 				###########################################################
 
-				date_default_timezone_set("UTC");
-				$datetime = date("Y-m-d H:i:s");
-
 				# escape data to prevent SQL injection
 				$escaped_name = mysql_real_escape_string($pack_name, $db_connection);
 				$escaped_type = mysql_real_escape_string($pack_type, $db_connection);
@@ -60,52 +64,30 @@
 				$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
 
 				# check if there's any version of the app
-				$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' LIMIT 1";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
+				if (Item::exists($pack_name))
 				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
-				{
-					# if so, check if it's the same user as now
-					$db_entry = mysql_fetch_assoc($db_result);
-					if (User::getName($db_entry["HEX(user)"]) != $user)
+					$owner = User::getName(Item::getUser($pack_name, "latest"));
+					if ($owner != $user)
 					{
 						throw new HttpException(403, NULL, "The user '$user' is not allowed to update the library or app '$pack_name'");
 					}
 				}
 
 				# check if this specific version had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '$escaped_name' AND version = '$escaped_version' LIMIT 1";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
+				if (Item::exists($pack_name, $pack_version))
 				{
 					throw new HttpException(409, NULL, "The specified version '$pack_version' of package '$pack_name' has already been uploaded!");
 				}
 
 				# check if item with this GUID had already been uploaded or not
-				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$pack_id')";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500);
-				}
-
-				if (mysql_num_rows($db_result) > 0)
+				if (Item::existsId($pack_id))
 				{
 					throw new HttpException(409, NULL, "An item with the specified GUID '$pack_id' has already been uploaded!");
 				}
 
 				# add the database entry
-				$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags, uploaded)
-							VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags', '$datetime')";
+				$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags)
+							VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
@@ -139,5 +121,9 @@
 	catch (HttpException $e)
 	{
 		handleHttpException($e);
+	}
+	catch (Exception $e)
+	{
+		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
 ?>

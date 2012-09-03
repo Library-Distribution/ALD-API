@@ -5,6 +5,8 @@
 	require_once("../User.php");
 	require_once("../semver.php");
 
+	require_once("../config/upload.php"); # import upload settings, including upload folder!
+
 	try
 	{
 		$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -87,7 +89,7 @@
 
 				if ($content_type == "application/x-ald-package")
 				{
-					$file = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . $db_entry["file"];
+					$file = UPLOAD_FOLDER . $db_entry["file"];
 					header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 					header("Content-Type: $content_type");
 					header("Content-Length: " . filesize($file));
@@ -97,7 +99,7 @@
 					exit;
 				}
 
-				$data = read_package(upload_dir_path() . $db_entry["file"]);
+				$data = read_package(UPLOAD_FOLDER . $db_entry["file"]);
 
 				$output = $data;
 				$output["uploaded"] = $db_entry["uploaded"];
@@ -199,6 +201,10 @@
 	catch (HttpException $e)
 	{
 		handleHttpException($e);
+	}
+	catch (Exception $e)
+	{
+		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
 
 	function xml_version_switch($data)
