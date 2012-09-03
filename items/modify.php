@@ -3,6 +3,7 @@
 	require_once("../HttpException.php");
 	require_once("../db.php");
 	require_once("../User.php");
+	require_once("../Item.php");
 
 	try
 	{
@@ -17,20 +18,7 @@
 
 				if (!isset($_GET["id"]))
 				{
-					$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "' AND version = '" . mysql_real_escape_string($_GET["version"], $db_connection) . "'";
-					$db_result = mysql_query($db_query, $db_connection);
-
-					if (!$db_result)
-					{
-						throw new HttpException(500);
-					}
-					if (mysql_num_rows($db_result) != 1)
-					{
-						throw new HttpException(404);
-					}
-
-					$db_entry = mysql_fetch_assoc($db_result);
-					$id = $db_entry["HEX(id)"];
+					$id = Item::getId($_GET["name"], $_GET["version"]);
 				}
 				else
 				{
@@ -41,20 +29,10 @@
 				{
 					if  (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_ADMIN)) # not an admin
 					{
-						$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
-						$db_result = mysql_query($db_query, $db_connection);
+						$owner = Item::getUserForId($id);
+						$user = User::getID($_SERVER["PHP_AUTH_USER"]);
 
-						if (!$db_result)
-						{
-							throw new HttpException(500);
-						}
-						if (mysql_num_rows($db_result) != 1)
-						{
-							throw new HttpException(404);
-						}
-
-						$data = mysql_fetch_assoc($db_result);
-						if ($data["HEX(user)"] != User::getID($_SERVER["PHP_AUTH_USER"])) # neither admin nor the user who had uploaded the item - not allowed
+						if ($owner != $user) # neither admin nor the user who had uploaded the item - not allowed
 						{
 							throw new HttpException(403);
 						}
@@ -131,5 +109,9 @@
 	catch (HttpException $e)
 	{
 		handleHttpException($e);
+	}
+	catch (Exception $e)
+	{
+		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
 ?>
