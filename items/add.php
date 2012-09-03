@@ -56,9 +56,6 @@
 				# todo: validate version string / convert to number
 				###########################################################
 
-				date_default_timezone_set("UTC");
-				$datetime = date("Y-m-d H:i:s");
-
 				# escape data to prevent SQL injection
 				$escaped_name = mysql_real_escape_string($pack_name, $db_connection);
 				$escaped_type = mysql_real_escape_string($pack_type, $db_connection);
@@ -89,8 +86,8 @@
 				}
 
 				# add the database entry
-				$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags, uploaded)
-							VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags', '$datetime')";
+				$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags)
+							VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
 				$db_result = mysql_query($db_query, $db_connection);
 				if (!$db_result)
 				{
