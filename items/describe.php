@@ -89,7 +89,7 @@
 
 				if ($content_type == "application/x-ald-package")
 				{
-					$file = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . $db_entry["file"];
+					$file = UPLOAD_FOLDER . $db_entry["file"];
 					header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 					header("Content-Type: $content_type");
 					header("Content-Length: " . filesize($file));
