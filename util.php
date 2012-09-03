@@ -41,7 +41,7 @@
 		$doc = new DOMDocument();
 		@$doc->loadXML($archive->getFromName("definition.ald"));
 
-		if (!@$doc->schemaValidate(__DIR__ . "/schema/package.xsd"))
+		if (!@$doc->schemaValidate(dirname(__FILE__) . "/schema/package.xsd"))
 		{
 			throw new HttpException(400, NULL, "Package definition is not valid!");
 		}
