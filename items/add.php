@@ -4,6 +4,8 @@
 	require_once("../util.php");
 	require_once("../Item.php");
 
+	require_once("../config/upload.php"); # import settings for upload
+
 	try
 	{
 		$request_method = strtoupper($_SERVER["REQUEST_METHOD"]);
@@ -13,6 +15,11 @@
 			# authentication
 			user_basic_auth("Restricted API");
 			$user = $_SERVER["PHP_AUTH_USER"];
+
+			if (!ENABLE_UPLOAD)
+			{
+				throw new HttpException(403, NULL, "Uploads have been disabled");
+			}
 
 			if (isset($_FILES["package"]))
 			{
@@ -26,14 +33,13 @@
 
 				# upload and read file:
 				###########################################################
-				$file_size_limit = 75; # MB
-				if ($pack_file["size"] > ($file_size_limit * 1024 * 1024))
+				if ($pack_file["size"] > MAX_UPLOAD_SIZE)
 				{
-					throw new HttpException(413, NULL, "File must not be > $file_size_limit MB.");
+					throw new HttpException(413, NULL, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
 				}
 
 				ensure_upload_dir(); # ensure the directory for uploads exists
-				$file = find_free_file(upload_dir_path(), ".zip");
+				$file = find_free_file(UPLOAD_FOLDER, ".zip");
 				move_uploaded_file($pack_file["tmp_name"], $file);
 
 				$data = read_package($file, array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
