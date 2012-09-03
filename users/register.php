@@ -232,6 +232,10 @@
 	{
 		handleHttpException($e);
 	}
+	catch (Exception $e)
+	{
+		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	}
 ?>
 <?php
 	function clear_registrations()
