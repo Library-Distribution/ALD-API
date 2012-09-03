@@ -208,17 +208,11 @@
 
 	function ensure_upload_dir()
 	{
-		$dir = upload_dir_path();
-		if (!is_dir($dir))
+		require_once("config/upload.php");
+		if (!is_dir(UPLOAD_FOLDER))
 		{
-			mkdir($dir);
+			mkdir(UPLOAD_FOLDER);
 		}
-	}
-
-	function upload_dir_path()
-	{
-		#return $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR; # temporary disabled because of ahk4.net configuration issue
-		return dirname(__DIR__) . "/uploads/";
 	}
 
 	function get_preferred_mimetype($available, $default)
