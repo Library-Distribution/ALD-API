@@ -13,7 +13,7 @@
 	#    - Also remember setting 'upload_max_filesize' and 'post_max_size' in  your php.ini
 
 	# the folder to store files in
-	define('UPLOAD_FOLDER', dirname(__DIR__) . '/uploads/'); # connected to .gitignore
+	define('UPLOAD_FOLDER', dirname(dirname(__FILE__)) . '/uploads/'); # connected to .gitignore
 	# The path must be absolute, with trailing slash.
 	#
 	# Notes:
