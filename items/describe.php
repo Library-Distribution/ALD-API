@@ -5,6 +5,8 @@
 	require_once("../User.php");
 	require_once("../semver.php");
 
+	require_once("../config/upload.php"); # import upload settings, including upload folder!
+
 	try
 	{
 		$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -97,7 +99,7 @@
 					exit;
 				}
 
-				$data = read_package(upload_dir_path() . $db_entry["file"]);
+				$data = read_package(UPLOAD_FOLDER . $db_entry["file"]);
 
 				$output = $data;
 				$output["uploaded"] = $db_entry["uploaded"];
