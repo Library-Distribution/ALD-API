@@ -3,3 +3,4 @@ Options -Multiviews
 RewriteEngine On
 
 RewriteRule ^list$ list.php [L]
+RewriteRule ^describe/(.+)$ describe.php?version=$1 [L]
