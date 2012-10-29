@@ -88,6 +88,13 @@
 
 		if ($content_type == "application/x-ald-package")
 		{
+			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500);
+			}
+
 			$file = UPLOAD_FOLDER . $db_entry["file"];
 			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 			header("Content-Type: $content_type");
