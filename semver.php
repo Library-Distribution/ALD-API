@@ -7,6 +7,15 @@ function semver_parts($version, &$parts)
 {
 	 return !!preg_match('/^(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(\-(?P<prerelease>([0-9A-Za-z\-]+\.)*[0-9A-Za-z\-]+))?(\+(?P<build>([0-9A-Za-z\-]+\.)*[0-9A-Za-z\-]+))?$/', $version, $parts);
 }
+function semver_string(array $parts)
+{
+	$str = "$parts[major].$parts[minor].$parts[patch]";
+	if (!empty($parts["prerelease"]))
+		$str .= "-$parts[prerelease]";
+	if (!empty($parts["build"]))
+		$str .= "+$parts[build]";
+	return $str;
+}
 function semver_compare($version1, $version2)
 {
 	if (!semver_parts($version1, $parts1))
