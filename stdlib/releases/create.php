@@ -4,6 +4,7 @@
 	require_once("../../HttpException.php");
 	require_once("../../UpdateType.php");
 	require_once("../../semver.php");
+	require_once("../../User.php");
 
 	define('UPDATE_TYPE_PATCH', 2);
 	define('UPDATE_TYPE_MINOR', 3);
@@ -15,6 +16,10 @@
 		Assert::GetParameters("type");
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
+
+		user_basic_auth("Restricted API");
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+			throw new HttpException(403);
 
 		$db_connection = db_ensure_connection();
 
