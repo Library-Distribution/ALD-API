@@ -12,7 +12,7 @@
 
 	try
 	{
-		#Assert::RequestMethod("POST");
+		Assert::RequestMethod("POST");
 		Assert::GetParameters("type");
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
