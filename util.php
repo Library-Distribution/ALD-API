@@ -21,7 +21,7 @@
 		static $all_data = NULL;
 		if ($all_data == NULL)
 		{
-			$all_data = array("id", "name", "version", "type", "description", "authors", "dependencies", "requirements", "tags");
+			$all_data = array("id", "name", "version", "homepage", "type", "description", "authors", "dependencies", "requirements", "tags");
 		}
 
 		if ($include_data == NULL)
@@ -73,6 +73,11 @@
 		if (in_array("type", $include_data))
 		{
 			$output["type"] = $xp->query("@ald:type")->item(0)->nodeValue;
+		}
+		if (in_array("homepage", $include_data))
+		{
+			if ($node = $xp->query("@ald:homepage")->item(0))
+				$output["homepage"] = $node->nodeValue;
 		}
 		if (in_array("description", $include_data))
 		{

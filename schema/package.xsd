@@ -263,6 +263,7 @@
 			<xsd:attribute use="required" type="xsd:string" name="name"/> <!-- the name of the package -->
 			<xsd:attribute use="required" type="ald:semverType" name="version"/> <!-- the current version of the package -->
 			<xsd:attribute use="optional" type="xsd:string" name="logo-image"/> <!-- the relative path to a logo image, if one is included -->
+			<xsd:attribute use="optional" type="ald:internetURL" name="homepage"/>
 			<xsd:anyAttribute/>
 		</xsd:complexType>
 	</xsd:element>
