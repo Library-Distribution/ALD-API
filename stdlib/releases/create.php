@@ -18,20 +18,27 @@
 
 		$db_connection = db_ensure_connection();
 
-		# get latest release # TODO: fix for non-published
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . " ORDER BY date DESC LIMIT 1";
+		# get latest release
+		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500, NULL, mysql_error());
 		}
-		if (mysql_num_rows($db_result) != 1)
+		if (mysql_num_rows($db_result) < 1)
 		{
 			$prev_release = "0.0.0";
 		}
 		else
 		{
-			$db_entry = mysql_fetch_assoc($db_result);
+			$releases = array();
+			while ($release = mysql_fetch_assoc($db_result))
+			{
+				$releases[] = $release;
+			}
+			usort($releases, "semver_sort"); # sort by "release" field, following semver rules
+
+			$db_entry = $releases[count($releases) - 1]; # latest release
 			$prev_release = $db_entry["release"];
 		}
 
@@ -39,7 +46,6 @@
 		$release = array();
 		semver_parts($prev_release, $release);
 
-		/*
 		if ($type == UPDATE_TYPE_PATCH || $type == UPDATE_TYPE_MINOR || $type == UPDATE_TYPE_MAJOR)
 		{
 			unset($release["prerelease"]);
@@ -56,21 +62,6 @@
 					$release["minor"] = 0;
 					$release["major"]++;
 				}
-			}
-		}
-		*/
-		while (true)
-		{
-			semver_bump_version($release, $type);
-			$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . semver_string($release) . "'";
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
-			{
-				throw new HttpException(500, NULL, mysql_error());
-			}
-			if (mysql_num_rows($db_result) != 1)
-			{
-				break;
 			}
 		}
 		$release = semver_string($release);
@@ -134,25 +125,8 @@
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
 
-	function semver_bump_version(array &$release, $type)
+	function semver_sort($a, $b)
 	{
-		if ($type == UPDATE_TYPE_PATCH || $type == UPDATE_TYPE_MINOR || $type == UPDATE_TYPE_MAJOR)
-		{
-			unset($release["prerelease"]);
-			unset($release["build"]);
-			$release["patch"]++;
-
-			if ($type == UPDATE_TYPE_MINOR || $type == UPDATE_TYPE_MAJOR)
-			{
-				$release["patch"] = 0;
-				$release["minor"]++;
-
-				if ($type == UPDATE_TYPE_MAJOR)
-				{
-					$release["minor"] = 0;
-					$release["major"]++;
-				}
-			}
-		}
+		return semver_compare($a["release"], $b["release"]);
 	}
 ?>
