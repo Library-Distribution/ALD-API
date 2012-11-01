@@ -10,6 +10,9 @@
 	define('UPDATE_TYPE_MINOR', 3);
 	define('UPDATE_TYPE_MAJOR', 4);
 
+	define('RELEASE_BASE_ALL', 1);
+	define('RELEASE_BASE_PUBLISHED', 2);
+
 	try
 	{
 		Assert::RequestMethod("POST");
@@ -17,14 +20,41 @@
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
+		$base = RELEASE_BASE_ALL;
+		if (!empty($_GET["base"]))
+		{
+			$base = strtolower($_GET["base"]);
+			if (!in_array($base, array("all", "published")))
+				throw new HttpException(400);
+			switch ($base)
+			{
+				case "published":
+					$base = RELEASE_BASE_PUBLISHED;
+					break;
+				default:
+				case "all":
+					$base = RELEASE_BASE_ALL;
+					break;
+			}
+		}
+
 		user_basic_auth("Restricted API");
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 			throw new HttpException(403);
 
 		$db_connection = db_ensure_connection();
 
+		switch ($base)
+		{
+			case RELEASE_BASE_PUBLISHED:
+				$db_cond = " WHERE date AND NOW() > date";
+				break;
+			default:
+				$db_cond = "";
+		}
+
 		# get latest release
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES;
+		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -47,7 +77,7 @@
 			$prev_release = $db_entry["release"];
 		}
 
-		# todo: bump version number according to $type
+		# bump version number according to $type
 		$release = array();
 		semver_parts($prev_release, $release);
 
@@ -71,6 +101,15 @@
 		}
 		$release = semver_string($release);
 
+		if ($base == RELEASE_BASE_PUBLISHED)
+		{
+			# check if (unpublished) release already exists
+			if (release_exists($release))
+			{
+				throw new HttpException(409, NULL, "Release '$release' has already been created!");
+			}
+		}
+
 		$data = array("release" => $release, "update" => $type);
 		if (isset($_POST["version"]))
 		{
@@ -81,6 +120,12 @@
 			}
 			if ($result != 1)
 				throw new HttpException(400, NULL, "Bad release version!"); # version is smaller then minimum
+
+			# check if release already exists
+			if (release_exists($_POST["version"]))
+			{
+				throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
+			}
 
 			$data["release"] = mysql_real_escape_string($_POST["version"], $db_connection);
 		}
@@ -133,5 +178,17 @@
 	function semver_sort($a, $b)
 	{
 		return semver_compare($a["release"], $b["release"]);
+	}
+
+	function release_exists($release)
+	{
+		$db_connection = db_ensure_connection();
+		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . mysql_real_escape_string($release) . "'";
+		$db_result = mysql_query($db_query, $db_connection);
+		if (!$db_result)
+		{
+			throw new HttpException(500, NULL, mysql_error());
+		}
+		return mysql_num_rows($db_result) > 0;
 	}
 ?>
