@@ -151,9 +151,4 @@
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
-
-	function semver_sort($a, $b)
-	{
-		return semver_compare($a["release"], $b["release"]);
-	}
 ?>
