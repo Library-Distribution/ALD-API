@@ -90,22 +90,22 @@
 				throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
 			}
 
-			$data["release"] = mysql_real_escape_string($_POST["version"], $db_connection);
+			$data["release"] = $_POST["version"];
 		}
 		if (isset($_POST["date"]))
 		{
-			$data["date"] = mysql_real_escape_string($_POST["description"], $db_connection);
+			$data["date"] = $_POST["description"];
 		}
 		if (isset($_POST["description"]))
 		{
-			$data["description"] = mysql_real_escape_string($_POST["description"], $db_connection);
+			$data["description"] = $_POST["description"];
 		}
 
 		$db_query = "INSERT INTO " . DB_TABLE_STDLIB_RELEASES
 				. " ("
 				. implode(", ", array_map(function($item) { return "`$item`"; }, array_keys($data)))
 				. ") VALUES ("
-				. implode(", ", array_map(function($item) { return "'$item'"; }, array_values($data)))
+				. implode(", ", array_map(function($item) { return "'" . mysql_real_escape_string($item, $db_connection) . "'"; }, array_values($data)))
 				. ")";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
