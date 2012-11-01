@@ -4,6 +4,7 @@
 	require_once("../../util.php");
 	require_once("../../semver.php");
 	require_once("../../Assert.php");
+	require_once("StdlibRelease.php");
 	require_once("../../UpdateType.php");
 
 	try
@@ -17,40 +18,10 @@
 		# connect to database server
 		$db_connection = db_ensure_connection();
 
-		$version = mysql_real_escape_string(strtolower($_GET["version"]), $db_connection);
-		$special_version = in_array($version, array("latest", "first"));
-		if ($special_version)
-		{
-			# unless auth
-				$db_cond = "WHERE NOW() > date";
+		# todo!
+		$published_only = true;
 
-			$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . " $db_cond ORDER BY `release` " . ($version = "latest" ? "DESC" : "ASC") . " LIMIT 1";
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
-			if (mysql_num_rows($db_result) != 1)
-			{
-				throw new HttpException(404);
-			}
-
-			$db_entry = mysql_fetch_assoc($db_result);
-			$version = $db_entry["release"];
-		}
-
-		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$version'";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-		if (mysql_num_rows($db_result) != 1)
-		{
-			throw new HttpException(404);
-		}
-
-		$release = mysql_fetch_assoc($db_result);
+		$release = StdlibRelease::describe($_GET["version"], $published_only);
 
 		# handle update type
 		$release["update"] = UpdateType::getName($release["update"]);

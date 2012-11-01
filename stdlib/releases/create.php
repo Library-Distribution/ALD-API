@@ -5,13 +5,11 @@
 	require_once("../../UpdateType.php");
 	require_once("../../semver.php");
 	require_once("../../User.php");
+	require_once("StdlibRelease.php");
 
 	define('UPDATE_TYPE_PATCH', 2);
 	define('UPDATE_TYPE_MINOR', 3);
 	define('UPDATE_TYPE_MAJOR', 4);
-
-	define('RELEASE_BASE_ALL', 1);
-	define('RELEASE_BASE_PUBLISHED', 2);
 
 	try
 	{
@@ -20,7 +18,7 @@
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
-		$base = RELEASE_BASE_ALL;
+		$base = StdlibRelease::RELEASE_BASE_ALL;
 		if (!empty($_GET["base"]))
 		{
 			$base = strtolower($_GET["base"]);
@@ -29,11 +27,11 @@
 			switch ($base)
 			{
 				case "published":
-					$base = RELEASE_BASE_PUBLISHED;
+					$base = StdlibRelease::RELEASE_BASE_PUBLISHED;
 					break;
 				default:
 				case "all":
-					$base = RELEASE_BASE_ALL;
+					$base = StdlibRelease::RELEASE_BASE_ALL;
 					break;
 			}
 		}
@@ -46,36 +44,15 @@
 
 		switch ($base)
 		{
-			case RELEASE_BASE_PUBLISHED:
-				$db_cond = " WHERE date AND NOW() > date";
+			case StdlibRelease::RELEASE_BASE_PUBLISHED:
+				$published_only = true;
 				break;
 			default:
-				$db_cond = "";
+				$published_only = false;
 		}
 
 		# get latest release
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, mysql_error());
-		}
-		if (mysql_num_rows($db_result) < 1)
-		{
-			$prev_release = "0.0.0";
-		}
-		else
-		{
-			$releases = array();
-			while ($release = mysql_fetch_assoc($db_result))
-			{
-				$releases[] = $release;
-			}
-			usort($releases, "semver_sort"); # sort by "release" field, following semver rules
-
-			$db_entry = $releases[count($releases) - 1]; # latest release
-			$prev_release = $db_entry["release"];
-		}
+		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $published_only);
 
 		# bump version number according to $type
 		$release = array();
@@ -101,10 +78,10 @@
 		}
 		$release = semver_string($release);
 
-		if ($base == RELEASE_BASE_PUBLISHED)
+		if ($base == StdlibRelease::RELEASE_BASE_PUBLISHED)
 		{
 			# check if (unpublished) release already exists
-			if (release_exists($release))
+			if (StdlibRelease::exists($release))
 			{
 				throw new HttpException(409, NULL, "Release '$release' has already been created!");
 			}
@@ -122,7 +99,7 @@
 				throw new HttpException(400, NULL, "Bad release version!"); # version is smaller then minimum
 
 			# check if release already exists
-			if (release_exists($_POST["version"]))
+			if (StdlibRelease::exists($_POST["version"]))
 			{
 				throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
 			}
@@ -178,17 +155,5 @@
 	function semver_sort($a, $b)
 	{
 		return semver_compare($a["release"], $b["release"]);
-	}
-
-	function release_exists($release)
-	{
-		$db_connection = db_ensure_connection();
-		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . mysql_real_escape_string($release) . "'";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, mysql_error());
-		}
-		return mysql_num_rows($db_result) > 0;
 	}
 ?>
