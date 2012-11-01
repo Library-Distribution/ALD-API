@@ -7,9 +7,9 @@
 	require_once("../../User.php");
 	require_once("StdlibRelease.php");
 
-	define('UPDATE_TYPE_PATCH', 2);
-	define('UPDATE_TYPE_MINOR', 3);
-	define('UPDATE_TYPE_MAJOR', 4);
+	define('UPDATE_TYPE_PATCH', UpdateType::getCode("patch", "stdlib_releases"));
+	define('UPDATE_TYPE_MINOR', UpdateType::getCode("minor", "stdlib_releases"));
+	define('UPDATE_TYPE_MAJOR', UpdateType::getCode("major", "stdlib_releases"));
 
 	try
 	{
