@@ -5,8 +5,8 @@ require_once("../../semver.php");
 
 class StdlibRelease
 {
-	const RELEASE_BASE_ALL = 1;
-	const RELEASE_BASE_PUBLISHED = 2;
+	const RELEASE_BASE_ALL = "all";
+	const RELEASE_BASE_PUBLISHED = "published";
 
 	public static function exists($release, $published_only = false)
 	{

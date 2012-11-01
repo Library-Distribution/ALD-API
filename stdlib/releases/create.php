@@ -18,21 +18,19 @@
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
-		$base = StdlibRelease::RELEASE_BASE_ALL;
+		$published_only = false;
 		if (!empty($_GET["base"]))
 		{
-			$base = strtolower($_GET["base"]);
-			if (!in_array($base, array("all", "published")))
-				throw new HttpException(400);
-			switch ($base)
+			switch (strtolower($_GET["base"]))
 			{
-				case "published":
-					$base = StdlibRelease::RELEASE_BASE_PUBLISHED;
+				case StdlibRelease::RELEASE_BASE_PUBLISHED:
+					$published_only = true;
+					break;
+				case StdlibRelease::RELEASE_BASE_ALL:
+					$published_only = false;
 					break;
 				default:
-				case "all":
-					$base = StdlibRelease::RELEASE_BASE_ALL;
-					break;
+					throw new HttpException(400, NULL, "Unsupported release base '$_GET[base]'!");
 			}
 		}
 
@@ -41,15 +39,6 @@
 			throw new HttpException(403);
 
 		$db_connection = db_ensure_connection();
-
-		switch ($base)
-		{
-			case StdlibRelease::RELEASE_BASE_PUBLISHED:
-				$published_only = true;
-				break;
-			default:
-				$published_only = false;
-		}
 
 		# get latest release
 		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $published_only);
@@ -78,13 +67,10 @@
 		}
 		$release = semver_string($release);
 
-		if ($base == StdlibRelease::RELEASE_BASE_PUBLISHED)
+		# check if (unpublished) release already exists
+		if ($published_only && StdlibRelease::exists($release))
 		{
-			# check if (unpublished) release already exists
-			if (StdlibRelease::exists($release))
-			{
-				throw new HttpException(409, NULL, "Release '$release' has already been created!");
-			}
+			throw new HttpException(409, NULL, "Release '$release' has already been created!");
 		}
 
 		$data = array("release" => $release, "update" => $type);
