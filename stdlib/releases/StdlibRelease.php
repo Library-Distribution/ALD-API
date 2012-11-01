@@ -91,6 +91,23 @@ class StdlibRelease
 		return mysql_fetch_assoc($db_result);
 	}
 
+	public static function delete($release)
+	{
+		$db_connection = db_ensure_connection();
+		$release = mysql_real_escape_string($release, $db_connection);
+
+		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND (!date OR NOW() < date)";
+		$db_result = mysql_query($db_query, $db_connection);
+		if (!$db_result)
+		{
+			throw new HttpException(500, NULL, mysql_error());
+		}
+		else if (mysql_affected_rows($db_connection) < 1)
+		{
+			throw new HttpException(400, NULL, "Release doesn't exist or is already published.");
+		}
+	}
+
 	static function semver_sort($a, $b)
 	{
 		return semver_compare($a["release"], $b["release"]);
