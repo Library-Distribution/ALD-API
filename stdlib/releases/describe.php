@@ -4,6 +4,7 @@
 	require_once("../../util.php");
 	require_once("../../semver.php");
 	require_once("../../Assert.php");
+	require_once("../../UpdateType.php");
 
 	try
 	{
@@ -52,18 +53,7 @@
 		$release = mysql_fetch_assoc($db_result);
 
 		# handle update type
-		$db_query = "SELECT name FROM " . DB_TABLE_UPDATE_TYPE . " WHERE id = '$release[update]'";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-		if (mysql_num_rows($db_result) != 1)
-		{
-			throw new HttpException(500, NULL, "unknown update type");
-		}
-		$db_entry = mysql_fetch_assoc($db_result);
-		$release["update"] = $db_entry["name"];
+		$release["update"] = UpdateType::getName($release["update"]);
 
 		# get libs in the release
 		$db_query = "SELECT lib FROM " . DB_TABLE_STDLIB . " WHERE `release` = '$release'";

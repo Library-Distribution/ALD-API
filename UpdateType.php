@@ -25,5 +25,25 @@
 			$db_entry = mysql_fetch_assoc($db_result);
 			return $db_entry["id"];
 		}
+
+		public static function getName($id)
+		{
+			$db_connection = db_ensure_connection();
+			$id = mysql_real_escape_string($id, $db_connection);
+
+			$db_query = "SELECT name FROM " . DB_TABLE_UPDATE_TYPE . " WHERE id = '$id'";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500);
+			}
+			if (mysql_num_rows($db_result) != 1)
+			{
+				throw new HttpException(500, NULL, "unknown update type");
+			}
+
+			$db_entry = mysql_fetch_assoc($db_result);
+			return $db_entry["name"];
+		}
 	}
 ?>
