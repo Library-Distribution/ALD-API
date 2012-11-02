@@ -108,6 +108,32 @@ class StdlibRelease
 		}
 	}
 
+	public static function update($release, $data)
+	{
+		$db_connection = db_ensure_connection();
+		$release = mysql_real_escape_string($release, $db_connection);
+
+		$db_query = "UPDATE " . DB_TABLE_STDLIB_RELEASES . " Set "
+				. implode(", ",
+					array_map(
+						function($col, $val) { return "`$col` = '" . mysql_real_escape_string($val) . "'"; },
+						array_keys($data),
+						array_values($data)
+						)
+					)
+				. " WHERE `release` = '$release'";
+
+		$db_result = mysql_query($db_query, $db_connection);
+		if (!$db_result)
+		{
+			throw new HttpException(500, NULL, mysql_error());
+		}
+		else if (mysql_affected_rows($db_connection) != 1)
+		{
+			throw new HttpException(400, NULL, "Release doesn't exist or is already published.");
+		}
+	}
+
 	static function semver_sort($a, $b)
 	{
 		return semver_compare($a["release"], $b["release"]);
