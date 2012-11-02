@@ -2,6 +2,7 @@
 	require_once("../../HttpException.php");
 	require_once("../../db.php");
 	require_once("../../util.php");
+	require_once("../../User.php");
 	require_once("../../Assert.php");
 
 	try
@@ -14,12 +15,30 @@
 		# connect to database server
 		$db_connection = db_ensure_connection();
 
-		# TODO: any conditions here
-		$db_cond = "";
-		## if not auth & review team: only released (isset(date))
-		## filter: only stable / unstable
+		$db_cond = " WHERE (date AND NOW() > date)";
+		if (!empty($_GET["published"]))
+		{
+			$published = strtolower($_GET["published"]);
+			if (in_array($published, array(-1, "no", "false"), true))
+			{
+				# check auth
+				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+					throw new HttpException(403);
+				$db_cond = " WHERE (!date OR NOW() < date)";
+			}
+			else if (in_array($published, array(0, "both"), true))
+			{
+				# check auth
+				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+					throw new HttpException(403);
+				$db_cond = "";
+			}
+			# else if (in_array($published, array(1, "+1", "true", "yes"))) # the default
+		}
 
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . " $db_cond";
+		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
