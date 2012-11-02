@@ -4,6 +4,7 @@
 	require_once("../../util.php");
 	require_once("../../semver.php");
 	require_once("../../Assert.php");
+	require_once("../../User.php");
 	require_once("StdlibRelease.php");
 	require_once("../../UpdateType.php");
 
@@ -18,8 +19,12 @@
 		# connect to database server
 		$db_connection = db_ensure_connection();
 
-		# todo!
 		$published_only = true;
+		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
+		{
+			user_basic_auth("");
+			$published_only = !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE);
+		}
 
 		$release = StdlibRelease::describe($_GET["version"], $published_only);
 
