@@ -41,8 +41,25 @@
 		if (isset($data["date"]))
 		{
 			# todo: check stdlib admin
+
 			# check valid date
+			$date = array();
+			if (!preg_match("/^(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2})(T(?<hour>\d{2})(:(?<min>\d{2})(:(?<sec>\d{2}))))?$/", $data["date"], $date))
+			{
+				throw new HttpException(400, NULL, "Invalid date format!");
+			}
+			if (!checkdate($date["month"], $date["day"], $date["year"]))
+			{
+				throw new HttpException(400, NULL, "Invalid date specified!");
+			}
+
 			# check not already over
+			$datetime = new DateTime($data["date"]);
+			$now = new DateTime();
+			if ($datetime <= $now)
+			{
+				throw new HttpException(400, NULL, "Specified date already over!");
+			}
 		}
 
 		if (count($data) > 0)
