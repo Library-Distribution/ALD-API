@@ -121,7 +121,7 @@ class StdlibRelease
 						array_values($data)
 						)
 					)
-				. " WHERE `release` = '$release'";
+				. " WHERE `release` = '$release' AND (!date OR date > NOW())";
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -130,7 +130,7 @@ class StdlibRelease
 		}
 		else if (mysql_affected_rows($db_connection) != 1)
 		{
-			throw new HttpException(400, NULL, "Release doesn't exist or is already published.");
+			throw new HttpException(400, NULL, "Release '$release' doesn't exist or is already published.");
 		}
 	}
 
