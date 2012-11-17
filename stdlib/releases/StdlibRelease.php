@@ -31,37 +31,18 @@ class StdlibRelease
 
 	public static function getVersion($special_version, $published_only = false)
 	{
-		$db_connection = db_ensure_connection();
 		$special_version = strtolower($special_version);
 
 		if (in_array($special_version, array(self::SPECIAL_VERSION_LATEST, self::SPECIAL_VERSION_FIRST)))
 		{
-			# get all releases
-			$db_cond = $published_only ? " WHERE date AND NOW() > date" : "";
-			$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
+			$releases = self::ListReleases($published_only);
+			if (count($releases > 0))
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				usort($releases, array("StdlibRelease", "semver_sort")); # sort following the semver rules
+				return $releases[$special_version == self::SPECIAL_VERSION_LATEST ? count($releases) - 1 : 0]; # latest / first release
 			}
-
-			# no latest release
-			if (mysql_num_rows($db_result) < 1)
-			{
-				return FALSE;
-			}
-
-			# fetch releases in array
-			$releases = array();
-			while ($release = mysql_fetch_assoc($db_result))
-			{
-				$releases[] = $release;
-			}
-
-			usort($releases, array("StdlibRelease", "semver_sort")); # sort by "release" field, following semver rules
-			$db_entry = $releases[$special_version == self::SPECIAL_VERSION_LATEST ? count($releases) - 1 : 0]; # latest / first release
-			return $db_entry["release"];
 		}
+
 		return FALSE;
 	}
 
@@ -136,7 +117,29 @@ class StdlibRelease
 
 	static function semver_sort($a, $b)
 	{
-		return semver_compare($a["release"], $b["release"]);
+		return semver_compare($a, $b);
+	}
+
+	public static function ListReleases($published_only = false)
+	{
+		$db_connection = db_ensure_connection();
+
+		# get all releases from DB
+		$db_cond = $published_only ? " WHERE date AND NOW() > date" : "";
+		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
+		$db_result = mysql_query($db_query, $db_connection);
+		if (!$db_result)
+		{
+			throw new HttpException(500, NULL, mysql_error());
+		}
+
+		# fetch releases in array
+		$releases = array();
+		while ($release = mysql_fetch_assoc($db_result))
+		{
+			$releases[] = $release["release"];
+		}
+		return $releases;
 	}
 }
 
