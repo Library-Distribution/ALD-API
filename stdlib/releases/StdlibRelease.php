@@ -8,15 +8,11 @@ class StdlibRelease
 	const RELEASE_BASE_ALL = "all";
 	const RELEASE_BASE_PUBLISHED = "published";
 
-	public static function exists($release, $published_only = false)
+	public static function exists($release, $published)
 	{
-		$db_cond = "";
-		if ($published_only)
-		{
-			$db_cond = " AND (date AND NOW() > date)";
-		}
-
+		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " AND $t";
 		$db_connection = db_ensure_connection();
+
 		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . mysql_real_escape_string($release) . "'" . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -29,13 +25,13 @@ class StdlibRelease
 	const SPECIAL_VERSION_LATEST = "latest";
 	const SPECIAL_VERSION_FIRST = "first";
 
-	public static function getVersion($special_version, $published_only = false)
+	public static function getVersion($special_version, $published)
 	{
 		$special_version = strtolower($special_version);
 
 		if (in_array($special_version, array(self::SPECIAL_VERSION_LATEST, self::SPECIAL_VERSION_FIRST)))
 		{
-			$releases = self::ListReleases($published_only);
+			$releases = self::ListReleases($published);
 			if (count($releases > 0))
 			{
 				usort($releases, array("StdlibRelease", "semver_sort")); # sort following the semver rules
@@ -46,19 +42,19 @@ class StdlibRelease
 		return FALSE;
 	}
 
-	public static function describe($release, $published_only = false)
+	public static function describe($release, $published)
 	{
-		$db_connection = db_ensure_connection();
-
 		# resolve special release versions
 		if (in_array(strtolower($release), array(self::SPECIAL_VERSION_LATEST, self::SPECIAL_VERSION_FIRST)))
 		{
-			$release = self::getVersion($release, $published_only);
+			$release = self::getVersion($release, $published);
 			if (!$release)
 				throw new HttpException(404);
 		}
 
-		$db_cond = $published_only ? " AND (date AND NOW() > date)" : "";
+		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " AND $t";
+		$db_connection = db_ensure_connection();
+
 		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . mysql_real_escape_string($release) . "'" . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -77,7 +73,7 @@ class StdlibRelease
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
 
-		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND (!date OR NOW() < date)";
+		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND " . self::get_publish_cond(self::PUBLISHED_NO);
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -102,7 +98,7 @@ class StdlibRelease
 						array_values($data)
 						)
 					)
-				. " WHERE `release` = '$release' AND (!date OR date > NOW())";
+				. " WHERE `release` = '$release' AND " . self::get_publish_cond(self::PUBLISHED_NO);
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -120,12 +116,13 @@ class StdlibRelease
 		return semver_compare($a, $b);
 	}
 
-	public static function ListReleases($published_only = false)
+	public static function ListReleases($published)
 	{
+		# take publishing status into account
+		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
 		# get all releases from DB
-		$db_cond = $published_only ? " WHERE date AND NOW() > date" : "";
 		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -140,6 +137,25 @@ class StdlibRelease
 			$releases[] = $release["release"];
 		}
 		return $releases;
+	}
+
+	const PUBLISHED_YES = 1;
+	const PUBLISHED_NO = 2;
+	const PUBLISHED_BOTH = 3; # self::PUBLISHED_YES | self::PUBLISHED_NO
+
+	static function get_publish_cond($published)
+	{
+		switch ($published)
+		{
+			case self::PUBLISHED_YES:
+				return '(`date` AND NOW() > `date`)';
+			case self::PUBLISHED_NO:
+				return '(!`date` OR NOW() < `date`)';
+			case self::PUBLISHED_BOTH:
+				return NULL;
+			default:
+				throw new HttpException(400);
+		}
 	}
 }
 

@@ -18,16 +18,16 @@
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
-		$published_only = false;
+		$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		if (!empty($_GET["base"]))
 		{
 			switch (strtolower($_GET["base"]))
 			{
 				case StdlibRelease::RELEASE_BASE_PUBLISHED:
-					$published_only = true;
+					$publish_status = StdlibRelease::PUBLISHED_YES;
 					break;
 				case StdlibRelease::RELEASE_BASE_ALL:
-					$published_only = false;
+					$publish_status = StdlibRelease::PUBLISHED_BOTH;
 					break;
 				default:
 					throw new HttpException(400, NULL, "Unsupported release base '$_GET[base]'!");
@@ -38,10 +38,8 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 			throw new HttpException(403);
 
-		$db_connection = db_ensure_connection();
-
 		# get latest release
-		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $published_only);
+		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $publish_status);
 
 		# bump version number according to $type
 		$release = array();
@@ -68,7 +66,7 @@
 		$release = semver_string($release);
 
 		# check if (unpublished) release already exists
-		if ($published_only && StdlibRelease::exists($release))
+		if ($publish_status == StdlibRelease::PUBLISHED_YES && StdlibRelease::exists($release, StdlibRelease::PUBLISHED_BOTH))
 		{
 			throw new HttpException(409, NULL, "Release '$release' has already been created!");
 		}
@@ -85,7 +83,7 @@
 				throw new HttpException(400, NULL, "Bad release version!"); # version is smaller then minimum
 
 			# check if release already exists
-			if (StdlibRelease::exists($_POST["version"]))
+			if (StdlibRelease::exists($_POST["version"], StdlibRelease::PUBLISHED_BOTH))
 			{
 				throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
 			}
@@ -101,6 +99,7 @@
 			$data["description"] = $_POST["description"];
 		}
 
+		$db_connection = db_ensure_connection();
 		$db_query = "INSERT INTO " . DB_TABLE_STDLIB_RELEASES
 				. " ("
 				. implode(", ", array_map(function($item) { return "`$item`"; }, array_keys($data)))

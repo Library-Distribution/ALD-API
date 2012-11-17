@@ -15,10 +15,10 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 			throw new HttpException(403, NULL, "You must be part of the stdlib team!");
 
-		if (!StdlibRelease::exists($_GET["version"])) # check if release exists
+		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
 			throw new HttpException(404, NULL, "Release does not exist!");
 
-		if (StdlibRelease::exists($_GET["version"], true)) # check if already published
+		if (StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_YES)) # check if already published
 			throw new HttpException(403, NULL, "Must not change published release!");
 
 		$data = array();
@@ -33,7 +33,7 @@
 		{
 			if (!semver_validate($data["release"])) # check if valid semver
 				throw new HttpException(400, NULL, "Incorrect release version!");
-			if (!StdlibRelease::exists($data["release"])) # check if not already existing
+			if (!StdlibRelease::exists($data["release"], StdlibRelease::PUBLISHED_BOTH)) # check if not already existing
 				throw new HttpException(409, NULL, "Release '$data[release]' already exists!");
 		}
 

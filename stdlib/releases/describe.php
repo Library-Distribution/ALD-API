@@ -19,14 +19,15 @@
 		# connect to database server
 		$db_connection = db_ensure_connection();
 
-		$published_only = true;
+		$publish_status = StdlibRelease::PUBLISHED_YES;
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
 		{
 			user_basic_auth("");
-			$published_only = !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE);
+			if (User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+				$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		}
 
-		$release = StdlibRelease::describe($_GET["version"], $published_only);
+		$release = StdlibRelease::describe($_GET["version"], $publish_status);
 
 		# handle update type
 		$release["update"] = UpdateType::getName($release["update"]);
