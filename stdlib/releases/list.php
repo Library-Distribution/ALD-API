@@ -1,9 +1,9 @@
 <?php
 	require_once("../../HttpException.php");
-	require_once("../../db.php");
 	require_once("../../util.php");
 	require_once("../../User.php");
 	require_once("../../Assert.php");
+	require_once("StdlibRelease.php");
 
 	try
 	{
@@ -12,10 +12,7 @@
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 
-		# connect to database server
-		$db_connection = db_ensure_connection();
-
-		$db_cond = " WHERE (date AND NOW() > date)";
+		$publish_status = StdlibRelease::PUBLISHED_YES;
 		if (!empty($_GET["published"]))
 		{
 			$published = strtolower($_GET["published"]);
@@ -25,7 +22,7 @@
 				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
 				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 					throw new HttpException(403);
-				$db_cond = " WHERE (!date OR NOW() < date)";
+				$publish_status = StdlibRelease::PUBLISHED_NO;
 			}
 			else if (in_array($published, array(0, "both"), true))
 			{
@@ -33,23 +30,12 @@
 				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
 				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 					throw new HttpException(403);
-				$db_cond = "";
+				$publish_status = StdlibRelease::PUBLISHED_BOTH;
 			}
 			# else if (in_array($published, array(1, "+1", "true", "yes"))) # the default
 		}
 
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, mysql_error() . " - \"" . $db_query . "\"");
-		}
-
-		$releases = array();
-		while ($release = mysql_fetch_assoc($db_result))
-		{
-			$releases[] = $release["release"];
-		}
+		$releases = StdlibRelease::ListReleases($publish_status);
 
 		if ($content_type == "application/json")
 		{
