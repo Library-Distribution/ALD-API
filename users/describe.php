@@ -36,7 +36,7 @@
 		if (mysql_num_rows($db_result) == 1)
 		{
 			$user = mysql_fetch_assoc($db_result);
-			$encrypt_mail = true;
+			$include_mail = false;
 
 			if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
 			{
@@ -48,7 +48,7 @@
 
 				if ($_SERVER["PHP_AUTH_USER"] == $user["name"] && $password_hash == $user["pw"]) # user requests information about himself - OK.
 				{
-					$encrypt_mail = false;
+					$include_mail = true;
 				}
 				else
 				{
@@ -56,13 +56,15 @@
 					$encrypt_mail =  !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_USER_MANAGE) && !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_ADMIN); # admin and user moderators may request this, too
 				}
 			}
-			if ($encrypt_mail)
-			{
-				$user["mail"] = md5($user["mail"]);
-			}
-			unset($user["pw"]);
+			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
 			$user["enabled"] = !$user["activationToken"]; unset($user["activationToken"]);
+
+			if (!$include_mail)
+			{
+				unset($user["mail"]);
+			}
+			unset($user["pw"]);
 
 			if ($content_type == "application/json")
 			{
@@ -70,7 +72,10 @@
 			}
 			else if ($content_type == "text/xml" || $content_type == "application/xml")
 			{
-				$content = "<ald:user xmlns:ald=\"ald://api/users/describe/schema/2012\" ald:name=\"{$user["name"]}\" ald:mail=\"{$user["mail"]}\" ald:joined=\"{$user["joined"]}\" ald:privileges=\"{$user["privileges"]}\" ald:id=\"{$user["id"]}\" ald:enabled=\"" . ($user["enabled"] ? "true" : "false") . "\"/>";
+				$content = "<ald:user xmlns:ald=\"ald://api/users/describe/schema/2012\"";
+				foreach ($user AS $key => $value)
+					$content .= " ald:$key=\"" . (is_bool($value) ? ($value ? "true" : "false") : $value) . "\"";
+				$content .= "/>";
 			}
 
 			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
