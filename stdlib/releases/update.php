@@ -1,0 +1,92 @@
+<?php
+	require_once('../../Assert.php');
+	require_once('../../db.php');
+	require_once('../../HttpException.php');
+	require_once('../../Item.php');
+	require_once('../../semver.php');
+	require_once('../Stdlib.php');
+	require_once('../StdlibPending.php');
+	require_once('StdlibRelease.php');
+	require_once('../../User.php');
+	require_once('../../util.php');
+
+	try
+	{
+		Assert::RequestMethod('POST');
+		Assert::GetParameters('version');
+
+		# todo: user validation
+
+		$db_connection = db_ensure_connection();
+		$release = mysql_real_escape_string($_GET['version'], $db_connection);
+
+		# check if not yet released
+		if (StdlibRelease::exists($release, StdlibRelease::PUBLISHED_YES))
+			throw new HttpException(403, NULL, 'Cannot update a published release!');
+
+		# get latest published release
+		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+
+		# todo: get release update type
+		$release_update = 0;
+
+		$old_items = Stdlib::GetItems($latest_release);
+		foreach ($old_items AS &$item)
+		{
+			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
+		}
+
+		# get all pending changes (stdlib_pending)
+		#	* several versions of a lib / framework might occur in them
+		$libs = array_map(function($id) { return array('id' => $id); }, StdlibPending::GetEntries($release));
+
+		$lib_version = array();
+		foreach ($libs AS $i => &$lib)
+		{
+			$lib = array_merge($lib, Item::get($lib['id'], array('name', 'version'))); # get info on lib, especially name & version
+
+			# assign the corresponding update types, comparing to the $old_items array
+			#################################################
+			$old = searchSubArray($old_items, array('name' => $lib['name']));
+
+			# if any of them means a downgrade, delete the entry
+			if ($old && semver_compare($old['version'], $lib['version']) < 0)
+			{
+				StdlibPending::DeleteEntry($lib['id']);
+				break;
+			}
+
+			# todo: update type
+			$update_type = 0;
+			#################################################
+
+			# filter according to release update type
+			#################################################
+			if ($release_update == $update_type)
+			{
+				# if duplicates: take higher, delete lower
+				if (!isset($lib_version[$lib['name']]) || semver_compare($lib_version[$lib['name']], $lib['version']) < 0)
+				{
+					$lib_version[$lib['name']] = $lib['version'];
+				}
+			}
+			else
+			{
+				unset($libs[$i]);
+			}
+			#################################################
+		}
+
+		# write to 'stdlib' table (deleting old entries for that release first)
+
+		# stdlib_actions > stdlib_pending > stdlib > release published
+	}
+	catch (HttpException $e)
+	{
+		handleHttpException($e);
+	}
+	catch (Exception $e)
+	{
+		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	}
+?>
