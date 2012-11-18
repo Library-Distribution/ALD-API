@@ -17,7 +17,7 @@
 				$db_cond .= " AND version = '$version'";
 			}
 
-			$db_query = "SELECT HEX(id) FROM " . DB_TABLE_ITEMS . " WHERE name = '$name' AND version = '$version'";
+			$db_query = 'SELECT HEX(id), version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
