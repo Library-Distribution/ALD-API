@@ -47,6 +47,20 @@
 			return $db_entry["HEX(id)"];
 		}
 
+		public static function get($id, array $cols)
+		{
+			$db_connection = db_ensure_connection();
+			$id = mysql_real_escape_string($id, $db_connection);
+
+			$db_query = 'SELECT ' . implode(', ', $c = array_map(function ($col) { return '`' . $col . '`'; }, $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500, NULL, mysql_error());
+			}
+			return mysql_fetch_assoc($db_result);
+		}
+
 		public static function existsId($id)
 		{
 			$db_connection = db_ensure_connection();
