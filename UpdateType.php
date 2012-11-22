@@ -1,49 +1,52 @@
 <?php
-	require_once("db.php");
-	require_once("HttpException.php");
+	require_once(__DIR__ . '/db.php');
+	require_once(__DIR__ . '/HttpException.php');
 
 	class UpdateType
 	{
+		const MAJOR = 4;
+		const MINOR = 3;
+		const PATCH = 2;
+
+		const BUILD_INCREASE = 6;
+		const PRERELEASE_INCREASE = 7;
+
+		const ADD = 1;
+		const REMOVE = 5;
+
+		private static $map = array(self::MAJOR => 'major', self::MINOR => 'minor', self::PATCH => 'patch',
+						self::BUILD_INCREASE => 'build-increase', self::PRERELEASE_INCREASE => 'prerelease-increase',
+						self::ADD => 'add', self::REMOVE => 'remove');
+
+		const USAGE_ITEMS = 'items';
+		const USAGE_STDLIB = 'stdlib';
+		const USAGE_STDLIB_RELEASES = 'stdlib_releases';
+
+		private static $usage = array(self::USAGE_ITEMS => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::RELEASE_INCREASE, self::ADD),
+							self::USAGE_STDLIB => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::RELEASE_INCREASE, self::ADD, self::REMOVE),
+							self::USAGE_STDLIB_RELEASES => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::RELEASE_INCREASE));
+
 		public static function getCode($str, $usage)
 		{
-			$db_connection = db_ensure_connection();
-
-			$str = mysql_real_escape_string($str, $db_connection);
-			$usage = mysql_real_escape_string($usage, $db_connection);
-
-			$db_query = "SELECT id FROM " . DB_TABLE_UPDATE_TYPE . " WHERE name = '$str' AND `$usage` = TRUE";
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
-			if (mysql_num_rows($db_result) != 1)
+			$code = array_search(strtolower($str), self::$map);
+			if (!$code)
 			{
 				throw new HttpException(400);
 			}
 
-			$db_entry = mysql_fetch_assoc($db_result);
-			return $db_entry["id"];
+			if (!isset(self::$usage[$usage]) || !array_search($code, self::$usage[$usage]))
+			{
+				throw new HttpException(400);
+			}
+
+			return $code;
 		}
 
 		public static function getName($id)
 		{
-			$db_connection = db_ensure_connection();
-			$id = mysql_real_escape_string($id, $db_connection);
-
-			$db_query = "SELECT name FROM " . DB_TABLE_UPDATE_TYPE . " WHERE id = '$id'";
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
-			if (mysql_num_rows($db_result) != 1)
-			{
-				throw new HttpException(500, NULL, "unknown update type");
-			}
-
-			$db_entry = mysql_fetch_assoc($db_result);
-			return $db_entry["name"];
+			if (isset(self::$map[$id]))
+				return self::$map[$id];
+			throw new HttpException(500, NULL, 'Unknown update type!');
 		}
 	}
 ?>
