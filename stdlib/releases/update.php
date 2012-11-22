@@ -50,18 +50,32 @@
 			#################################################
 			$old = searchSubArray($old_items, array('name' => $lib['name']));
 
-			# if any of them means a downgrade, delete the entry
-			if ($old && semver_compare($old['version'], $lib['version']) < 0)
+			if ($old && semver_compare($old['version'], $lib['version']) != 0)
 			{
-				StdlibPending::DeleteEntry($lib['id']);
-				break;
+				if (semver_compare($old['version'], $lib['version']) == 0) # same version means removal
+				{
+					$update_type = UpdateType::REMOVE;
+				}
+				else if (semver_compare($old['version'], $lib['version']) == 1) # if any of them means a downgrade (old > new), delete the entry
+				{
+					StdlibPending::DeleteEntry($lib['id']);
+					unset($libs[$i]);
+					break;
+				}
+				else # actually an upgrade
+				{
+					$update_type = get_update($old['version'], $lib['version']); # update type
+				}
 			}
-			$update_type = get_update($old['version'], $lib['version']); # update type
+			else # not in latest release - must be new
+			{
+				$update_type = UpdateType::ADD;
+			}
 			#################################################
 
 			# filter according to release update type
 			#################################################
-			if ($release_update == $update_type)
+			if ($release_update == $update_type || (($update_type == UpdateType::ADD || $update_type == UpdateType::REMOVE) && $release_update == UpdateType::MAJOR))
 			{
 				# if duplicates: take higher, delete lower
 				if (!isset($lib_version[$lib['name']]) || semver_compare($lib_version[$lib['name']], $lib['version']) < 0)
