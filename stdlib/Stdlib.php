@@ -1,10 +1,10 @@
 <?php
-require_once('../db.php');
-require_once('../HttpException.php');
+require_once(__DIR__ . '/../db.php');
+require_once(__DIR__ . '/../HttpException.php');
 
 class Stdlib
 {
-	GetItems($release)
+	public static function GetItems($release)
 	{
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
@@ -20,7 +20,7 @@ class Stdlib
 		while ($lib = mysql_fetch_assoc($db_result))
 		{
 			$lib['id'] = $lib['HEX(lib)'];
-			unset($lib['HEX(lib)'];
+			unset($lib['HEX(lib)']);
 
 			$libs[] = $lib;
 		}
