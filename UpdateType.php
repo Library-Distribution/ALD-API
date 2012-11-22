@@ -23,8 +23,8 @@
 		const USAGE_STDLIB_RELEASES = 'stdlib_releases';
 
 		private static $usage = array(self::USAGE_ITEMS => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::PRERELEASE_INCREASE, self::ADD),
-							self::USAGE_STDLIB => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::PRERELEASE_INCREASE, self::ADD, self::REMOVE),
-							self::USAGE_STDLIB_RELEASES => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::PRERELEASE_INCREASE));
+							self::USAGE_STDLIB => array(self::MAJOR, self::MINOR, self::PATCH, self::ADD, self::REMOVE),
+							self::USAGE_STDLIB_RELEASES => array(self::MAJOR, self::MINOR, self::PATCH));
 
 		public static function getCode($str, $usage)
 		{
