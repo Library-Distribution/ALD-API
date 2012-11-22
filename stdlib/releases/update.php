@@ -9,6 +9,7 @@
 	require_once('StdlibRelease.php');
 	require_once('../../User.php');
 	require_once('../../util.php');
+	require_once('get_update.php');
 
 	try
 	{
@@ -27,8 +28,8 @@
 		# get latest published release
 		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 
-		# todo: get release update type
-		$release_update = 0;
+		# get release update type
+		$release_update = get_update($latest_release, $release);
 
 		$old_items = Stdlib::GetItems($latest_release);
 		foreach ($old_items AS &$item)
@@ -55,9 +56,7 @@
 				StdlibPending::DeleteEntry($lib['id']);
 				break;
 			}
-
-			# todo: update type
-			$update_type = 0;
+			$update_type = get_update($old['version'], $lib['version']); # update type
 			#################################################
 
 			# filter according to release update type
