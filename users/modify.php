@@ -8,7 +8,7 @@
 	try
 	{
 		Assert::RequestMethod("POST"); # only allow POST requests
-		Assert::GetParameters("id", "name");
+		Assert::GetParameters(array("id", "name"));
 
 		user_basic_auth("Restricted API");
 
