@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `data` (
   `id` binary(16) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
   `name` varchar(25) DEFAULT NULL,
   `authors` tinytext,
-  `type` varchar(3) DEFAULT NULL,
+  `type` int(11) DEFAULT NULL,
   `version` varchar(50) DEFAULT NULL,
   `file` varchar(100) DEFAULT NULL,
   `user` binary(16) DEFAULT NULL,
