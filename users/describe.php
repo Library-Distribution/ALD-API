@@ -9,7 +9,7 @@
 	{
 		# ensure correct method is used and required parameters are passed
 		Assert::RequestMethod("GET");
-		Assert::GetParameters("name", "id");
+		Assert::GetParameters(array("name", "id"));
 
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
