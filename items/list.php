@@ -95,7 +95,7 @@
 		}
 
 		# query data
-		$db_query = "SELECT name, HEX(id), version, HEX(user) FROM " . DB_TABLE_ITEMS . " $db_cond $db_limit";
+		$db_query = "SELECT name, type, HEX(id), version, HEX(user) FROM " . DB_TABLE_ITEMS . " $db_cond $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
