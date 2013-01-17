@@ -35,6 +35,9 @@
 				throw new HttpException(400, NULL, "Incorrect release version!");
 			if (!StdlibRelease::exists($data["release"], StdlibRelease::PUBLISHED_BOTH)) # check if not already existing
 				throw new HttpException(409, NULL, "Release '$data[release]' already exists!");
+			$latest = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+			if (semver_compare($latest, $data['release']) != -1) # check if not below latest published release
+				throw new HttpException(400, NULL, "Can't modify release version: Newer release $latest already published!");
 		}
 
 		# verify date
