@@ -40,6 +40,23 @@ class ItemType
 		return $row['name'];
 	}
 
+	public static function getAllNames()
+	{
+		$db_connection = db_ensure_connection();
+		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE)
+		{
+			throw new HttpException(500, NULL, 'Could not read supported item types!');
+		}
+
+		$types = array();
+		while ($type = mysql_fetch_array($db_result))
+			$types[] = $type['name'];
+
+		return $types;
+	}
+
 	public static function isSupported($name)
 	{
 		try
