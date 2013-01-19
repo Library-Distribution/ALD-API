@@ -50,9 +50,9 @@
 		$xp->registerNamespace("ald", "ald://package/schema/2012");
 
 		# check if all mentioned files are present
-		if (!package_check_for_files($archive, $xp->query("/*/ald:files/ald:doc/@ald:path"), $error_file)
-			|| !package_check_for_files($archive, $xp->query("/*/ald:files/ald:src/@ald:path"), $error_file)
-			|| !package_check_for_files($archive, $xp->query("@ald:logo-image"), $error_file))
+		if (!package_check_for_files($archive, $xp->query("/*/ald:files/ald:doc/ald:file/@ald:path"), $error_file)
+			|| !package_check_for_files($archive, $xp->query("/*/ald:files/ald:src/ald:file/@ald:path"), $error_file)
+			|| !package_check_for_files($archive, $xp->query("/*/@ald:logo-image"), $error_file))
 		{
 			$archive->close();
 			throw new HttpException(400, NULL, "Package references missing file: '" . $error_file . "'!");
