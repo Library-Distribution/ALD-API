@@ -184,7 +184,7 @@
 	{
 		foreach ($file_list AS $file_entry)
 		{
-			if (!$archive->locateName($file_entry->nodeValue))
+			if ($archive->locateName($file_entry->nodeValue) === FALSE)
 			{
 				$error_file = $file_entry->nodeValue;
 				return false;
