@@ -52,7 +52,7 @@
 			$db_connection = db_ensure_connection();
 			$id = mysql_real_escape_string($id, $db_connection);
 
-			$db_query = 'SELECT ' . implode(', ', $c = array_map(function ($col) { return '`' . $col . '`'; }, $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
+			$db_query = 'SELECT ' . implode(', ', $c = array_map('EnwrapColName', $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -125,5 +125,9 @@
 	function semver_sort($a, $b)
 	{
 		return semver_compare($a["version"], $b["version"]);
+	}
+
+	function EnwrapColName($col) {
+		return '`' . $col . '`';
 	}
 ?>
