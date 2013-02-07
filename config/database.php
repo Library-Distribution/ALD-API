@@ -10,6 +10,8 @@
 	define('DB_TABLE_USERS', 'users'); # 
 	define('DB_TABLE_TYPES', 'types'); # 
 
+	define('DB_TABLE_RATINGS', 'ratings'); #
+
 	# the credentials for accessing the database
 	define('DB_USERNAME', 'root'); # the user name
 	define('DB_PASSWORD', ''); # the password
