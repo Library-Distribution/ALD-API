@@ -5,6 +5,7 @@
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../semver.php");
+	require_once('ItemType.php');
 
 	try
 	{
@@ -20,7 +21,7 @@
 		$db_cond = "";
 		if (isset($_GET["type"]))
 		{
-			$db_cond = "WHERE type = '" . mysql_real_escape_string($_GET["type"], $db_connection) . "'";
+			$db_cond = "WHERE type = '" . ItemType::getCode($_GET["type"]) . "'";
 		}
 		if (isset($_GET["user"]))
 		{
@@ -116,6 +117,8 @@
 			}
 			$item["user"] = array("name" => $users[$item["HEX(user)"]], "id" => $item["HEX(user)"]);
 			unset($item["HEX(user)"]);
+
+			$item['type'] = ItemType::getName($item['type']);
 
 			$data[] = $item;
 		}
