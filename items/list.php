@@ -20,53 +20,48 @@
 		$db_cond = "";
 		if (isset($_GET["type"]))
 		{
-			$db_cond = "WHERE type = '" . mysql_real_escape_string($_GET["type"], $db_connection) . "'";
+			$db_cond = "AND type = '" . mysql_real_escape_string($_GET["type"], $db_connection) . "'";
 		}
 		if (isset($_GET["user"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " user = UNHEX('" . User::getID($_GET["user"]) . "')";
+			$db_cond .= " AND user = UNHEX('" . User::getID($_GET["user"]) . "')";
 		}
 		if (isset($_GET["name"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
+			$db_cond .= " AND " . DB_TABLE_ITEMS . ".name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
 		}
 		if (isset($_GET["tags"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
+			$db_cond .= " AND tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
 		}
 
 		# items in or not in the stdlib
 		# ================================ #
 		if (isset($_GET["stdlib"]) && in_array(strtolower($_GET["stdlib"]), array("no", "false", "-1")))
 		{
-			$db_cond .= ($db_cond) ? " AND " : " WHERE ";
-			$db_cond .= "default_include = '0'";
+			$db_cond .= " AND default_include = '0'";
 		}
 		else if (isset($_GET["stdlib"]) && in_array(strtolower($_GET["stdlib"]), array("yes", "true", "+1", "1")))
 		{
-			$db_cond .= ($db_cond) ? " AND " : " WHERE ";
-			$db_cond .= "default_include = '1'";
+			$db_cond .= " AND default_include = '1'";
 		}
 		/* else {} */ # default (use "both" or "0") - leave empty so both match
 		# ================================ #
 
 		# reviewed and unreviewed items
 		# ================================ #
-		$db_cond .= ($db_cond) ? " AND " : " WHERE ";
+		#$db_cond .= ($db_cond) ? " AND " : " AND ";
 		if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("no", "false", "-1")))
 		{
-			$db_cond .= "reviewed = '0'";
+			$db_cond .= " AND reviewed = '0'";
 		}
 		else if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("both", "0")))
 		{
-			$db_cond .= "reviewed = '0' OR reviewed = '1'";
+			$db_cond .= " AND (reviewed = '0' OR reviewed = '1')";
 		}
 		else # default (use "yes", "true", "+1" or "1")
 		{
-			$db_cond .= "reviewed = '1'";
+			$db_cond .= " AND reviewed = '1'";
 		}
 		# ================================ #
 
@@ -95,27 +90,22 @@
 		}
 
 		# query data
-		$db_query = "SELECT name, type, HEX(id), version, HEX(user) FROM " . DB_TABLE_ITEMS . " $db_cond $db_limit";
+		$db_query = "SELECT " . DB_TABLE_ITEMS . ".name, type, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version, HEX(user) AS userID, " . DB_TABLE_USERS . ".name AS userName"
+					. " FROM " . DB_TABLE_ITEMS . ', ' . DB_TABLE_USERS
+					. " WHERE user = " . DB_TABLE_USERS . ".id $db_cond $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
-			throw new HttpException(500);
+			throw new HttpException(500, NULL, mysql_error());
 		}
 
 		# parse data to array
 		$data = array();
-		$users = array();
 		while ($item = mysql_fetch_assoc($db_result))
 		{
-			$item["id"] = $item["HEX(id)"];
-			unset($item["HEX(id)"]);
-
-			if (!isset($users[$item["HEX(user)"]]))
-			{
-				$users[$item["HEX(user)"]] = User::getName($item["HEX(user)"]);
-			}
-			$item["user"] = array("name" => $users[$item["HEX(user)"]], "id" => $item["HEX(user)"]);
-			unset($item["HEX(user)"]);
+			$item["user"] = array("name" => $item["userName"], "id" => $item["userID"]);
+			unset($item["userName"]);
+			unset($item["userID"]);
 
 			$data[] = $item;
 		}
