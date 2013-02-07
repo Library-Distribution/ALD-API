@@ -16,7 +16,7 @@ try {
 	$db_query = 'SELECT tags FROM ' . DB_TABLE_ITEMS;
 	$db_result = mysql_query($db_query, $db_connection);
 	if (!$db_result) {
-		throw new HttpExecption(500);
+		throw new HttpException(500);
 	}
 
 	$tags = array();
