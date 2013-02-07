@@ -2,7 +2,6 @@
 	require_once("../HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
-	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../semver.php");
 	require_once('../Item.php');
@@ -36,7 +35,7 @@
 		}
 		else
 		{
-			$db_query = "SELECT *, HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id') AND reviewed != '-1'";
+			$db_query = "SELECT " . DB_TABLE_ITEMS . ".*, HEX(user) AS userID, " . DB_TABLE_USERS . ".name AS userName FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . " WHERE " . DB_TABLE_ITEMS . ".id = UNHEX('$id') AND HEX(user) = HEX(`" . DB_TABLE_USERS . "`.`id`) AND reviewed != '-1'";
 		}
 
 		$db_result = mysql_query($db_query, $db_connection);
@@ -66,7 +65,7 @@
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
-		$output["user"] = array("name" => User::getName($db_entry["HEX(user)"]), "id" => $db_entry["HEX(user)"]);
+		$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
 		$output["default"] = $db_entry["default_include"] == 1;
 		$tag_list  = array();
