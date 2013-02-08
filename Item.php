@@ -17,7 +17,7 @@
 				$db_cond .= " AND version = '$version'";
 			}
 
-			$db_query = 'SELECT HEX(id), version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
+			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -44,7 +44,7 @@
 				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
 			}
 
-			return $db_entry["HEX(id)"];
+			return $db_entry["id"];
 		}
 
 		public static function get($id, array $cols)
@@ -110,7 +110,7 @@
 			$db_connection = db_ensure_connection();
 			$id = mysql_real_escape_string($id, $db_connection);
 
-			$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
+			$db_query = "SELECT HEX(user) AS user FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -118,7 +118,7 @@
 			}
 
 			$db_entry = mysql_fetch_assoc($db_result);
-			return $db_entry["HEX(user)"];
+			return $db_entry["user"];
 		}
 	}
 

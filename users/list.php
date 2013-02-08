@@ -30,7 +30,7 @@
 		}
 
 		# query for data:
-		$db_query = "SELECT name, HEX(id) FROM " . DB_TABLE_USERS . " $db_limit";
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -41,7 +41,6 @@
 		$data = array();
 		while ($item = mysql_fetch_assoc($db_result))
 		{
-			$item["id"] = $item["HEX(id)"]; unset($item["HEX(id)"]);
 			$data[] = $item;
 		}
 
