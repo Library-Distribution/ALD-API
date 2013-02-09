@@ -19,6 +19,10 @@
 
 		# retrieve conditions for returned data from GET parameters
 		$db_cond = "";
+		$db_having = '';
+		$db_join = '';
+		$db_limit = "";
+
 		if (isset($_GET["type"]))
 		{
 			$db_cond = "WHERE type = '" . ItemType::getCode($_GET["type"]) . "'";
@@ -80,8 +84,28 @@
 			}
 		}
 
+		# enable rating filters if necessary
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
+			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
+
+			# this complicated query ensures items without any ratings are considered to be rated 0
+			$sub_query = '(SELECT CASE WHEN id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = id) ELSE 0 END)';
+			if (isset($_GET['rating'])) {
+				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+			} else {
+				if (isset($_GET['rating-min'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+				}
+				if (isset($_GET['rating-max'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+				}
+			}
+		}
+
 		# retrieve data limits
-		$db_limit = "";
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
 			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
@@ -96,7 +120,7 @@
 		}
 
 		# query data
-		$db_query = "SELECT name, type, HEX(id), version, HEX(user) FROM " . DB_TABLE_ITEMS . " $db_cond $db_limit";
+		$db_query = "SELECT DISTINCT name, type, HEX(id), version, HEX(" . DB_TABLE_ITEMS . ".user) FROM " . DB_TABLE_ITEMS . " $db_join $db_cond $db_having $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -111,12 +135,12 @@
 			$item["id"] = $item["HEX(id)"];
 			unset($item["HEX(id)"]);
 
-			if (!isset($users[$item["HEX(user)"]]))
+			if (!isset($users[$item["HEX(" . DB_TABLE_ITEMS . ".user)"]]))
 			{
-				$users[$item["HEX(user)"]] = User::getName($item["HEX(user)"]);
+				$users[$item["HEX(" . DB_TABLE_ITEMS . ".user)"]] = User::getName($item["HEX(" . DB_TABLE_ITEMS . ".user)"]);
 			}
-			$item["user"] = array("name" => $users[$item["HEX(user)"]], "id" => $item["HEX(user)"]);
-			unset($item["HEX(user)"]);
+			$item["user"] = array("name" => $users[$item["HEX(" . DB_TABLE_ITEMS . ".user)"]], "id" => $item["HEX(" . DB_TABLE_ITEMS . ".user)"]);
+			unset($item["HEX(" . DB_TABLE_ITEMS . ".user)"]);
 
 			$item['type'] = ItemType::getName($item['type']);
 

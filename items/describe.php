@@ -62,10 +62,19 @@
 			exit;
 		}
 
+		$db_query = 'SELECT SUM(`rating`) AS rating FROM ' . DB_TABLE_RATINGS . ' WHERE `item` = UNHEX("' . $id . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if (!$db_result)
+		{
+			throw new HttpException(500);
+		}
+		$item_rating = mysql_fetch_assoc($db_result);
+
 		$data = read_package(UPLOAD_FOLDER . $db_entry["file"]);
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
+		$output["rating"] = (int)$item_rating["rating"] ;
 		$output["user"] = array("name" => User::getName($db_entry["HEX(user)"]), "id" => $db_entry["HEX(user)"]);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
 		$output["default"] = $db_entry["default_include"] == 1;
