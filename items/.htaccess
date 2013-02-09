@@ -14,5 +14,5 @@ RewriteRule ^remove/(.+)/(.+)$ remove.php?name=$1&version=$2 [L]
 RewriteRule ^modify/([0-9a-fA-F]{32})$ modify.php?id=$1 [L]
 RewriteRule ^modify/(.+)/(.+)$ modify.php?name=$1&version=$2 [L]
 
-RewriteRule ^rate/([0-9a-fA-F]{32})$ rate.php?id=$1 [L]
-RewriteRule ^rate/(.+)/(.+)$ rate.php?name=$1&version=$2 [L]
+RewriteRule ^rating/([0-9a-fA-F]{32})$ rating.php?id=$1 [L]
+RewriteRule ^rating/(.+)/(.+)$ rating.php?name=$1&version=$2 [L]
