@@ -3,8 +3,7 @@
 	require_once("../Assert.php");
 	require_once("../util.php");
 	require_once("../db.php");
-
-	define('MAX_RATING', 5);
+	require_once("../config/rating.php"); # import config settings
 
 	try
 	{
@@ -12,6 +11,9 @@
 		Assert::GetParameters("id", array("name", "version"));
 		Assert::PostParameters("rating");
 
+		if (!ENABLE_RATING) {
+			throw new HttpException(403, NULL, 'Item rating has been disabled!');
+		}
 		user_basic_auth("Only registered users can rate items");
 
 		$db_connection = db_ensure_connection();
@@ -79,6 +81,9 @@
 
 		if (mysql_num_rows($db_result) > 0)
 		{
+			if (!CAN_UPDATE_RATING) {
+				throw new HttpException(409, NULL, 'The specified user already rated this item!');
+			}
 			$db_query = "UPDATE " . DB_TABLE_RATINGS . " Set rating = '$rating' WHERE user = UNHEX('$user_id') AND item = UNHEX('$id')"; # update
 		}
 		else
