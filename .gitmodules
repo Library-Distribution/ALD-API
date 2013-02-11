@@ -1,0 +1,3 @@
+[submodule "modules/semver"]
+	path = modules/semver
+	url = https://gist.github.com/2975235.git
