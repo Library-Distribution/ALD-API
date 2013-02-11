@@ -5,6 +5,7 @@
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../semver.php");
+	require_once('ItemType.php');
 
 	try
 	{
@@ -18,9 +19,13 @@
 
 		# retrieve conditions for returned data from GET parameters
 		$db_cond = "";
+		$db_having = '';
+		$db_join = '';
+		$db_limit = "";
+
 		if (isset($_GET["type"]))
 		{
-			$db_cond = "AND type = '" . mysql_real_escape_string($_GET["type"], $db_connection) . "'";
+			$db_cond = "AND type = '" . ItemType::getCode($_GET["type"]) . "'";
 		}
 		if (isset($_GET["user"]))
 		{
@@ -65,6 +70,21 @@
 		}
 		# ================================ #
 
+		# filter for download count
+		if (isset($_GET['downloads'])) {
+			$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+			$db_cond .= '`downloads` = ' . (int)mysql_real_escape_string($_GET['downloads']);
+		} else {
+			if (isset($_GET['downloads-min'])) {
+				$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+				$db_cond .= '`downloads` >= ' . (int)mysql_real_escape_string($_GET['downloads-min']);
+			}
+			if (isset($_GET['downloads-max'])) {
+				$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+				$db_cond .= '`downloads` <= ' . (int)mysql_real_escape_string($_GET['downloads-max']);
+			}
+		}
+
 		if (isset($_GET["version"]))
 		{
 			$version = strtolower($_GET["version"]);
@@ -74,8 +94,28 @@
 			}
 		}
 
+		# enable rating filters if necessary
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
+			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
+
+			# this complicated query ensures items without any ratings are considered to be rated 0
+			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
+			if (isset($_GET['rating'])) {
+				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+			} else {
+				if (isset($_GET['rating-min'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+				}
+				if (isset($_GET['rating-max'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+				}
+			}
+		}
+
 		# retrieve data limits
-		$db_limit = "";
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
 			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
@@ -90,9 +130,10 @@
 		}
 
 		# query data
-		$db_query = "SELECT " . DB_TABLE_ITEMS . ".name, type, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version, HEX(user) AS userID, " . DB_TABLE_USERS . ".name AS userName"
-					. " FROM " . DB_TABLE_ITEMS . ', ' . DB_TABLE_USERS
-					. " WHERE user = " . DB_TABLE_USERS . ".id $db_cond $db_limit";
+		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, type, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version, HEX(" . DB_TABLE_ITEMS . ".user) AS userID, " . DB_TABLE_USERS . ".name AS userName"
+					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . ', ' . DB_TABLE_USERS
+					. " WHERE " . DB_TABLE_ITEMS . ".user = " . DB_TABLE_USERS . ".id $db_cond $db_having $db_limit";
+
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -106,6 +147,8 @@
 			$item["user"] = array("name" => $item["userName"], "id" => $item["userID"]);
 			unset($item["userName"]);
 			unset($item["userID"]);
+
+			$item['type'] = ItemType::getName($item['type']);
 
 			$data[] = $item;
 		}

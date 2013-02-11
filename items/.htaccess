@@ -2,13 +2,6 @@ Options -Multiviews
 
 RewriteEngine On
 
-RewriteRule ^(add|list|tags)$ $1.php [L]
-
-RewriteRule ^describe/([0-9a-fA-F]{32})$ describe.php?id=$1 [L]
-RewriteRule ^describe/(.+)/(.+)$ describe.php?name=$1&version=$2 [L]
-
-RewriteRule ^remove/([0-9a-fA-F]{32})$ remove.php?id=$1 [L]
-RewriteRule ^remove/(.+)/(.+)$ remove.php?name=$1&version=$2 [L]
-
-RewriteRule ^modify/([0-9a-fA-F]{32})$ modify.php?id=$1 [L]
-RewriteRule ^modify/(.+)/(.+)$ modify.php?name=$1&version=$2 [L]
+RewriteRule ^(add|list|tags|types)$ $1.php [L]
+RewriteRule ^(describe|remove|modify|rating)/([0-9a-fA-F]{32})$	$1.php?id=$2 [L]
+RewriteRule ^(describe|remove|modify|rating)/(.+)/(.+)$ $1.php?name=$2&version=$3 [L]

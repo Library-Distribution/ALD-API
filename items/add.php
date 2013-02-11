@@ -4,6 +4,7 @@
 	require_once("../util.php");
 	require_once("../Item.php");
 	require_once("../Assert.php");
+	require_once('ItemType.php');
 
 	require_once("../config/upload.php"); # import settings for upload
 
@@ -54,18 +55,20 @@
 
 			# escape data to prevent SQL injection
 			$escaped_name = mysql_real_escape_string($pack_name, $db_connection);
-			$escaped_type = mysql_real_escape_string($pack_type, $db_connection);
 			$escaped_version = mysql_real_escape_string($pack_version, $db_connection);
 			$escaped_description = mysql_real_escape_string($pack_description, $db_connection);
 			$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
 
-			# check if there's any version of the app
+			# check if item type is supported and read the code
+			$escaped_type = ItemType::getCode($pack_type); # unsupported types throw an exception
+
+			# check if there's any version of the item yet
 			if (Item::exists($pack_name))
 			{
 				$owner = User::getName(Item::getUser($pack_name, "latest"));
 				if ($owner != $user)
 				{
-					throw new HttpException(403, NULL, "The user '$user' is not allowed to update the library or app '$pack_name'");
+					throw new HttpException(403, NULL, "The user '$user' is not allowed to update the item '$pack_name'");
 				}
 			}
 
