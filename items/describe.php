@@ -35,7 +35,10 @@
 		}
 		else
 		{
-			$db_query = "SELECT " . DB_TABLE_ITEMS . ".*, HEX(user) AS userID, " . DB_TABLE_USERS . ".name AS userName FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . " WHERE " . DB_TABLE_ITEMS . ".id = UNHEX('$id') AND HEX(user) = HEX(`" . DB_TABLE_USERS . "`.`id`) AND reviewed != '-1'";
+			$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, SUM(`rating`) AS rating" # field list
+						. " FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . ', ' . DB_TABLE_RATINGS															# tables to read from
+						. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
+						. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 		}
 
 		$db_result = mysql_query($db_query, $db_connection);
@@ -68,19 +71,11 @@
 			exit;
 		}
 
-		$db_query = 'SELECT SUM(`rating`) AS rating FROM ' . DB_TABLE_RATINGS . ' WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-		$item_rating = mysql_fetch_assoc($db_result);
-
 		$data = read_package(UPLOAD_FOLDER . $db_entry["file"]);
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
-		$output["rating"] = (int)$item_rating["rating"] ;
+		$output["rating"] = (int)$db_entry["rating"] ;
 		$output["downloads"] = (int)$db_entry["downloads"];
 		$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
