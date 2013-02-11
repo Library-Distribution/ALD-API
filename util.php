@@ -1,6 +1,6 @@
 <?php
 	require_once("db.php");
-	require_once("HttpException.php");
+	require_once("modules/HttpException/HttpException.php");
 	require_once("User.php");
 
 	function user_basic_auth($realm)

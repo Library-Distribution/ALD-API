@@ -1,5 +1,5 @@
 <?php
-	require_once("HttpException.php");
+	require_once("modules/HttpException/HttpException.php");
 	class Assert
 	{
 		public static function RequestMethod($method)
