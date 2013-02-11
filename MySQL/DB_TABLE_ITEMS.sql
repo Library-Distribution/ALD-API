@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `data` (
   `file` varchar(100) DEFAULT NULL,
   `user` binary(16) DEFAULT NULL,
   `description` text,
-  `uploaded` datetime DEFAULT NULL,
+  `uploaded` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `tags` tinytext,
   `default_include` tinyint(1) DEFAULT '0',
   `reviewed` tinyint(1) DEFAULT '0',
