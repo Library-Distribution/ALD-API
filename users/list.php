@@ -2,6 +2,7 @@
 	require_once("../HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../sql2array.php');
 	require_once("../Assert.php");
 
 	try
@@ -30,7 +31,7 @@
 		}
 
 		# query for data:
-		$db_query = "SELECT name, HEX(id) FROM " . DB_TABLE_USERS . " $db_limit";
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -38,12 +39,7 @@
 		}
 
 		# parse data to array
-		$data = array();
-		while ($item = mysql_fetch_assoc($db_result))
-		{
-			$item["id"] = $item["HEX(id)"]; unset($item["HEX(id)"]);
-			$data[] = $item;
-		}
+		$data = sql2array($db_result);
 
 		# return content-type specific data
 		if ($content_type == "application/json")

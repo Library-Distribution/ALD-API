@@ -4,6 +4,7 @@
 	require_once("../Assert.php");
 	require_once("../util.php");
 	require_once("../db.php");
+	require_once('../sql2array.php');
 	require_once("../config/rating.php"); # import config settings
 
 	try
@@ -74,11 +75,7 @@
 			if (!$db_result) {
 				throw new HttpException(500);
 			}
-
-			$ratings = array();
-			while ($row = mysql_fetch_array($db_result)) {
-				$ratings[$row['user']] = $row['rating'];
-			}
+			$ratings = sql2array($db_result, 'clean_entry');
 
 			if ($content_type == "application/json") {
 				$content = json_encode($ratings);
@@ -104,4 +101,10 @@
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
+?>
+<?php
+function clean_entry($row, &$key) {
+	$key = $row['user'];
+	return $row['rating'];
+}
 ?>
