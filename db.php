@@ -1,5 +1,5 @@
 <?php
-	require_once("HttpException.php");
+	require_once("modules/HttpException/HttpException.php");
 	require_once("config/database.php"); # import database settings
 
 	function db_ensure_connection()
