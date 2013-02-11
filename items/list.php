@@ -4,7 +4,7 @@
 	require_once("../util.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
-	require_once("../semver.php");
+	require_once("../modules/semver/semver.php");
 	require_once('ItemType.php');
 
 	try
