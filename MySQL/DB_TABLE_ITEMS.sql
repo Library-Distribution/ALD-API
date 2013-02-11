@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `data` (
   `tags` tinytext,
   `default_include` tinyint(1) DEFAULT '0',
   `reviewed` tinyint(1) DEFAULT '0',
+  `downloads` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

@@ -75,6 +75,21 @@
 		}
 		# ================================ #
 
+		# filter for download count
+		if (isset($_GET['downloads'])) {
+			$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+			$db_cond .= '`downloads` = ' . (int)mysql_real_escape_string($_GET['downloads']);
+		} else {
+			if (isset($_GET['downloads-min'])) {
+				$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+				$db_cond .= '`downloads` >= ' . (int)mysql_real_escape_string($_GET['downloads-min']);
+			}
+			if (isset($_GET['downloads-max'])) {
+				$db_cond .= ($db_cond) ? ' AND ' : 'WHERE ';
+				$db_cond .= '`downloads` <= ' . (int)mysql_real_escape_string($_GET['downloads-max']);
+			}
+		}
+
 		if (isset($_GET["version"]))
 		{
 			$version = strtolower($_GET["version"]);
