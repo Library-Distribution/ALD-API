@@ -55,7 +55,6 @@
 
 		# reviewed and unreviewed items
 		# ================================ #
-		#$db_cond .= ($db_cond) ? " AND " : " AND ";
 		if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("no", "false", "-1")))
 		{
 			$db_cond .= " AND reviewed = '0'";
