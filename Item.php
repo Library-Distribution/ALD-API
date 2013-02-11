@@ -2,6 +2,7 @@
 	require_once("db.php");
 	require_once("HttpException.php");
 	require_once("semver.php");
+	require_once('sql2array.php');
 
 	class Item
 	{
@@ -34,12 +35,7 @@
 			}
 			else
 			{
-				$items = array(); # fetch all items in an array
-				while ($row = mysql_fetch_assoc($db_result))
-				{
-					$items[] = $row;
-				}
-
+				$items = sql2array($db_result);
 				usort($items, "semver_sort"); # sort by "version" field, following semver rules
 				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
 			}

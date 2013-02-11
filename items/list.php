@@ -6,6 +6,7 @@
 	require_once("../Assert.php");
 	require_once("../semver.php");
 	require_once('ItemType.php');
+	require_once('../sql2array.php');
 
 	try
 	{
@@ -137,17 +138,7 @@
 		}
 
 		# parse data to array
-		$data = array();
-		while ($item = mysql_fetch_assoc($db_result))
-		{
-			$item["user"] = array("name" => $item["userName"], "id" => $item["userID"]);
-			unset($item["userName"]);
-			unset($item["userID"]);
-
-			$item['type'] = ItemType::getName($item['type']);
-
-			$data[] = $item;
-		}
+		$data = sql2array($db_result, 'cleanup_item');
 
 		if (isset($version))
 		{
@@ -217,4 +208,14 @@
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
+?>
+<?php
+function cleanup_item($item) {
+	$item["user"] = array("name" => $item["userName"], "id" => $item["userID"]);
+	unset($item["userName"]);
+	unset($item["userID"]);
+
+	$item['type'] = ItemType::getName($item['type']);
+	return $item;
+}
 ?>
