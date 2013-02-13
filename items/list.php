@@ -134,7 +134,7 @@
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
-			throw new HttpException(500, NULL, mysql_error());
+			throw new HttpException(500);
 		}
 
 		# parse data to array
