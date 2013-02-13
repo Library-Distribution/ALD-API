@@ -10,7 +10,7 @@
 	try
 	{
 		Assert::RequestMethod(array("POST", "GET"));
-		Assert::GetParameters(array("id", array("name", "version")));
+		Assert::GetParameters("id", array("name", "version"));
 
 		if (!ENABLE_RATING) {
 			throw new HttpException(403, NULL, 'Item rating has been disabled!');

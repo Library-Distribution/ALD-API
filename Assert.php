@@ -17,23 +17,18 @@
 			}
 		}
 
-		public static function GetParameters($sets)
+		public static function GetParameters()
 		{
-			return self::parameters($sets, $_GET);
+			return self::parameters(func_get_args(), $_GET);
 		}
 
-		public static function PostParameters($sets)
+		public static function PostParameters()
 		{
-			return self::parameters($sets, $_POST);
+			return self::parameters(func_get_args(), $_POST);
 		}
 
 		private static function parameters($sets, $arr)
 		{
-			if (!is_array($sets))
-			{
-				$sets = array($sets);
-			}
-
 			$satisfied = true; # init here in case the foreach has 0 iterations
 			foreach ($sets AS $set)
 			{
