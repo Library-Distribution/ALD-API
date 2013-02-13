@@ -29,7 +29,7 @@ class Suspension {
 	public static function clear() {
 		$db_connection = db_ensure_connection();
 
-		$cond = ' `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' <= NOW()';
+		$cond = ' `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' <= NOW() AND `length` != NULL';
 		if (CLEAR_SUSPENSIONS) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE' . $cond;
 		} else {
@@ -50,7 +50,7 @@ class Suspension {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT COUNT(*) > 0 AS suspended FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '") AND `cleared` = FALSE AND `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' > NOW()';
+		$db_query = 'SELECT COUNT(*) > 0 AS suspended FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '") AND `cleared` = FALSE AND (`length` = NULL OR `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' > NOW())';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -69,7 +69,9 @@ class Suspension {
 		$id = mysql_real_escape_string($id, $db_connection);
 
 		$db_query = 'SELECT *, HEX(user) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
-					. ($cleared === NULL ? '' : ' AND (`cleared` = ' . ($cleared ? 'TRUE' :' FALSE') . ' OR `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' ' . ($cleared ? '<=' : '>') . ' NOW())');
+					. ($cleared === NULL ? '' : ($cleared
+						? ' AND (`cleared` = TRUE OR (`length` != NULL AND `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' <= NOW())'
+						: ' AND `cleared` = FALSE AND (`length` = NULL OR `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' > NOW())'));
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
