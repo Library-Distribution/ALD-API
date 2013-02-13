@@ -68,10 +68,10 @@ class Suspension {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT *, HEX(user) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
+		$db_query = 'SELECT *, HEX(user) AS user, (`length` IS NULL) AS infinite, (`since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ') AS expires FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
 					. ($cleared === NULL ? '' : ($cleared
-						? ' AND (`cleared` = TRUE OR (`length` != NULL AND `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' <= NOW())'
-						: ' AND `cleared` = FALSE AND (`length` = NULL OR `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' > NOW())'));
+						? ' HAVING `cleared` OR (NOT infinite AND expires <= NOW())'
+						: ' HAVING NOT `cleared` AND (infinite OR expires > NOW())'));
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
