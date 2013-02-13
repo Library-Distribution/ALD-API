@@ -1,6 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../modules/HttpException/HttpException.php');
+require_once('../sql2array.php');
 
 class ItemType
 {
@@ -50,11 +51,7 @@ class ItemType
 			throw new HttpException(500, NULL, 'Could not read supported item types!');
 		}
 
-		$types = array();
-		while ($type = mysql_fetch_array($db_result))
-			$types[] = $type['name'];
-
-		return $types;
+		return sql2array($db_result, create_function('$entry', 'return $entry[\'name\'];'));
 	}
 
 	public static function isSupported($name)

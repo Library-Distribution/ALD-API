@@ -13,7 +13,7 @@ try {
 	# connect to database server
 	$db_connection = db_ensure_connection();
 
-	$db_query = 'SELECT tags FROM ' . DB_TABLE_ITEMS;
+	$db_query = 'SELECT DISTINCT tags FROM ' . DB_TABLE_ITEMS;
 	$db_result = mysql_query($db_query, $db_connection);
 	if (!$db_result) {
 		throw new HttpException(500);
@@ -24,6 +24,9 @@ try {
 		$new_tags = explode(';', $row['tags']);
 		foreach ($new_tags AS $tag) {
 			$tags[$tag] = true; # keep tags as keys for simplicity, value is meaningless
+			# DISTINCT in the SQL query does not eliminate the need for this,
+			#     as it only ensures the uniqueness of a tag-combination,
+			#    not the tags themselves. It only makes this loop run fewer times.
 		}
 	}
 	$tags = array_keys($tags);

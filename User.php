@@ -145,7 +145,7 @@ class User
 	{
 		$db_connection = db_ensure_connection();
 
-		$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
+		$db_query = "SELECT HEX(id) AS id FROM " . DB_TABLE_USERS . " WHERE name = '" . mysql_real_escape_string($name, $db_connection) . "'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -154,7 +154,7 @@ class User
 
 		while ($data = mysql_fetch_assoc($db_result))
 		{
-			return $data["HEX(id)"];
+			return $data["id"];
 		}
 		throw new HttpException(404, NULL, "User not found");
 	}
