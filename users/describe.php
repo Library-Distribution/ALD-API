@@ -26,7 +26,7 @@
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 		}
 
-		$db_query = "SELECT name, mail, pw, privileges, joined, activationToken FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
+		$db_query = "SELECT name, mail, pw, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -58,7 +58,6 @@
 			}
 			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
-			$user["enabled"] = !$user["activationToken"]; unset($user["activationToken"]);
 
 			if (!$include_mail)
 			{
