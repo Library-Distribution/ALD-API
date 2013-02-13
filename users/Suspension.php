@@ -47,17 +47,7 @@ class Suspension {
 	}
 
 	public static function isSuspendedById($id) {
-		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
-
-		$db_query = 'SELECT COUNT(*) > 0 AS suspended FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '") AND `cleared` = FALSE AND (`length` = NULL OR `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' > NOW())';
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
-
-		$db_entry = mysql_fetch_assoc($db_result);
-		return (bool)$db_entry['suspended'];
+		return count(self::getSuspensionsById($id)) != 0;
 	}
 
 	public static function getSuspensions($user, $cleared = false) {
