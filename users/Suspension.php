@@ -81,20 +81,19 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['since'], (int)$arr['length'], (bool)$arr['restricted']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['since'], (int)$arr['length'], (bool)$arr['infinite'] ? NULL : $arr['expires'], (bool)$arr['restricted']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $since, $length, $restricted) {
+	private function __construct($id, $user, $since, $length, $expires, $restricted) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
 
 		$this->since = new DateTime($since);
 		$this->length = DateInterval::createFromDateString($length . SUSPENSION_INTERVAL_UNIT);
-		$this->expires = clone $this->since;
-		$this->expires->add($this->length);
+		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 	}
 
 	public function delete() {
@@ -112,6 +111,8 @@ class Suspension {
 	public $user;
 	public $since;
 	public $length;
+	public $expires;
+	public $infinite;
 	public $restricted;
 }
 ?>
