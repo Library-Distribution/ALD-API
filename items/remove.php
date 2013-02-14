@@ -6,7 +6,7 @@
 
 	try
 	{
-		Assert::RequestMethod("DELETE"); # only allow DELETE requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_DELETE); # only allow DELETE requests
 		Assert::GetParameters("id");
 
 		# authentication

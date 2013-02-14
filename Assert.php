@@ -12,6 +12,10 @@
 			}
 		}
 
+		const REQUEST_METHOD_GET = 'GET';
+		const REQUEST_METHOD_POST = 'POST';
+		const REQUEST_METHOD_DELETE = 'DELETE';
+
 		public static function GetParameters()
 		{
 			return self::parameters(func_get_args(), $_GET);
