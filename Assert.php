@@ -50,5 +50,17 @@
 			if (!$satisfied)
 				throw new HttpException(400);
 		}
+
+		public static function HTTPS() {
+			if (empty($_SERVER['HTTPS']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1') {
+				throw new HttpException(403, NULL, 'Must use HTTPS for authenticated API!');
+			}
+		}
+
+		public static function credentials($realm = '') {
+			if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
+				throw new HttpException(401, array('WWW-Authenticate' => 'Basic realm="' . $realm . '"'));
+			}
+		}
 	}
 ?>

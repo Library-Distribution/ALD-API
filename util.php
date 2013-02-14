@@ -2,17 +2,12 @@
 	require_once("db.php");
 	require_once("modules/HttpException/HttpException.php");
 	require_once("User.php");
+	require_once("Assert.php");
 
 	function user_basic_auth($realm)
 	{
-		if ((!isset($_SERVER["HTTPS"]) || !$_SERVER["HTTPS"]) && $_SERVER["SERVER_ADDR"] != "127.0.0.1")
-		{
-			throw new HttpException(403, NULL, "Must use HTTPS for authenticated APIs");
-		}
-		if (empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"]))
-		{
-			throw new HttpException(401, array("WWW-Authenticate" => "Basic realm=\"$realm\""));
-		}
+		Assert::HTTPS();
+		Assert::credentials($realm);
 		User::validateLogin($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]);
 	}
 
@@ -235,14 +230,6 @@
 			throw new HttpException(406, array("Content-type" => implode($available, ",")));
 		}
 		return $default;
-	}
-
-	function ensure_HTTPS()
-	{
-		if (!$_SERVER["HTTPS"])
-		{
-			throw new HttpException(403, NULL, "Must use HTTPS!");
-		}
 	}
 
 	function handleHttpException($e)
