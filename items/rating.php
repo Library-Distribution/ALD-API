@@ -9,7 +9,7 @@
 
 	try
 	{
-		Assert::RequestMethod(array("POST", "GET"));
+		Assert::RequestMethod("POST", "GET");
 		Assert::GetParameters("id", array("name", "version"));
 
 		if (!ENABLE_RATING) {

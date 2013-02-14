@@ -2,18 +2,13 @@
 	require_once("modules/HttpException/HttpException.php");
 	class Assert
 	{
-		public static function RequestMethod($method)
+		public static function RequestMethod()
 		{
 			$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
-			if (!is_array($method))
-			{
-				if ($request_method != strtoupper($method))
-					throw new HttpException(405, array("Allow" => $method));
-			}
-			else
-			{
-				if (!in_array($request_method, array_map("strtoupper", $method)))
-					throw new HttpException(405, array("Allow" => implode(", ", $method)));
+			$methods = array_map('strtoupper', func_get_args());
+
+			if (!in_array($request_method, $methods)) {
+				throw new HttpException(405, array("Allow" => implode(", ", $methods)));
 			}
 		}
 
