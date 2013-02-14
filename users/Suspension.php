@@ -35,7 +35,7 @@ class Suspension {
 		if (CLEAR_SUSPENSIONS) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE' . $cond;
 		} else {
-			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `cleared` = TRUE WHERE' . $cond;
+			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `cleared` = TRUE WHERE NOT `cleared` AND' . $cond;
 		}
 
 		$db_result = mysql_query($db_query, $db_connection);
