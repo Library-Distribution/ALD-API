@@ -9,7 +9,7 @@
 
 	try
 	{
-		Assert::RequestMethod(array("POST", "GET"));
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST, Assert::REQUEST_METHOD_GET);
 		Assert::GetParameters("id", array("name", "version"));
 
 		if (!ENABLE_RATING) {
@@ -27,7 +27,7 @@
 		}
 
 		$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
-		if ($request_method == 'POST') {
+		if ($request_method == Assert::REQUEST_METHOD_POST) {
 			Assert::PostParameters("rating");
 			user_basic_auth("Only registered users can rate items");
 
@@ -66,7 +66,7 @@
 
 			header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 
-		} else if ($request_method == 'GET') {
+		} else if ($request_method == Assert::REQUEST_METHOD_GET) {
 			# validate accept header of request
 			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
 

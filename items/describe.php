@@ -11,7 +11,7 @@
 	try
 	{
 		# ensure correct method is used and required parameters are passed
-		Assert::RequestMethod("GET");
+		Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 		Assert::GetParameters("id", array("name", "version"));
 
 		# validate accept header of request

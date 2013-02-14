@@ -10,7 +10,7 @@
 
 	try
 	{
-		Assert::RequestMethod("POST"); # only allow POST requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST); # only allow POST requests
 
 		# authentication
 		user_basic_auth("Restricted API");
