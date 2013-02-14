@@ -5,6 +5,8 @@ require_once('../../util.php');
 require_once('../../User.php');
 require_once('../Suspension.php');
 
+define('TIMESTAMP_FORMAT', 'Y-m-d H:i:s');
+
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 	Assert::GetParameters('id', 'name');
@@ -26,9 +28,9 @@ try {
 	$suspensions = Suspension::getSuspensionsById($id, NULL);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
-		$suspension->since = $suspension->since->format('c');
+		$suspension->since = $suspension->since->format(TIMESTAMP_FORMAT);
 		if ($suspension->expires !== NULL) {
-			$suspension->expires = $suspension->expires->format('c');
+			$suspension->expires = $suspension->expires->format(TIMESTAMP_FORMAT);
 		}
 	}
 
