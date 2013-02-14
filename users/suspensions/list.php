@@ -10,7 +10,6 @@ try {
 	Assert::GetParameters('id', 'name');
 
 	$id = isset($_GET['id']) ? $_GET['id'] : User::getID($_GET['name']);
-	$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
 
 	user_basic_auth('Restricted API');
 	# validate: moderators and admins only
