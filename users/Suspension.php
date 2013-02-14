@@ -6,7 +6,7 @@ require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../config/suspensions.php');
 
 class Suspension {
-	public static function create($user, $length = NULL, $restricted = true) {
+	public static function create($user, $expires = NULL, $restricted = true) {
 		self::createForId(User::getID($user), $expires, $restricted);
 	}
 
