@@ -6,11 +6,11 @@ require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../config/suspensions.php');
 
 class Suspension {
-	public static function create($user, $expires = NULL, $restricted = true) {
-		self::createForId(User::getID($user), $expires, $restricted);
+	public static function create($user, $reason, $expires = NULL, $restricted = true) {
+		self::createForId(User::getID($user), $reason, $expires, $restricted);
 	}
 
-	public static function createForId($user, $expires = NULL, $restricted = true) {
+	public static function createForId($user, $reason, $expires = NULL, $restricted = true) {
 		$db_connection = db_ensure_connection();
 
 		$user = mysql_real_escape_string($user, $db_connection);
@@ -18,8 +18,9 @@ class Suspension {
 			$expires = (int)mysql_real_escape_string($expires, $db_connection);
 		}
 		$restricted = $restricted ? '1' : '0';
+		$reason = mysql_real_escape_string($reason, $db_connection);
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ')';
+		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -73,15 +74,16 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $created, $expires, $restricted) {
+	private function __construct($id, $user, $created, $expires, $restricted, $reason) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
+		$this->reason = $reason;
 
 		$this->created = new DateTime($created);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
@@ -104,5 +106,6 @@ class Suspension {
 	public $expires;
 	public $infinite;
 	public $restricted;
+	public $reason;
 }
 ?>
