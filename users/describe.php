@@ -4,6 +4,7 @@
 	require_once("../util.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
+	require_once("Suspension.php");
 
 	try
 	{
@@ -48,9 +49,10 @@
 			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
 
-			if (!$trusted_user)
-			{
+			if (!$trusted_user) {
 				unset($user["mail"]);
+			} else {
+				$user['suspended'] = Suspension::isSuspendedById($id);
 			}
 			unset($user["pw"]);
 
