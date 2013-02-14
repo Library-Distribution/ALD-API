@@ -74,12 +74,12 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['cleared']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $created, $expires, $restricted, $reason) {
+	private function __construct($id, $user, $created, $expires, $restricted, $reason, $cleared) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
@@ -87,6 +87,9 @@ class Suspension {
 
 		$this->created = new DateTime($created);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
+
+		!$this->infinite AND $diff = $this->expires->diff(new DateTime('now'));
+		$this->cleared = $cleared || (!$this->infinite && !$diff->invert);
 	}
 
 	public function delete() {
@@ -107,5 +110,6 @@ class Suspension {
 	public $infinite;
 	public $restricted;
 	public $reason;
+	public $cleared;
 }
 ?>
