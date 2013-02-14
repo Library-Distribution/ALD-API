@@ -25,7 +25,16 @@ try {
 	# validate accept header of request
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml', 'application/x-ald-package'), 'application/json');
 
-	$suspensions = Suspension::getSuspensionsById($id, NULL);
+	$cleared = false;
+	if (isset($_GET['cleared'])) {
+		if (in_array($_GET['cleared'], array('yes', 1, '+1', 'true'))) {
+			$cleared = true;
+		} else if (in_array($_GET['cleared'], array('both', '0'))) {
+			$cleared = NULL;
+		}
+	}
+
+	$suspensions = Suspension::getSuspensionsById($id, $cleared);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
 		$suspension->since = $suspension->since->format(TIMESTAMP_FORMAT);
