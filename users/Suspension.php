@@ -73,17 +73,17 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['since'], $arr['expires'], (bool)$arr['restricted']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $since, $expires, $restricted) {
+	private function __construct($id, $user, $created, $expires, $restricted) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
 
-		$this->since = new DateTime($since);
+		$this->created = new DateTime($created);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 	}
 
@@ -100,7 +100,7 @@ class Suspension {
 
 	public $id;
 	public $user;
-	public $since;
+	public $created;
 	public $expires;
 	public $infinite;
 	public $restricted;

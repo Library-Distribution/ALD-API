@@ -10,7 +10,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `suspensions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` binary(16) NOT NULL,
-  `since` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expires` timestamp NULL DEFAULT NULL,
   `restricted` tinyint(1) NOT NULL DEFAULT '0',
   `cleared` tinyint(1) NOT NULL DEFAULT '0',

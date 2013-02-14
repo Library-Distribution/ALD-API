@@ -37,7 +37,7 @@ try {
 	$suspensions = Suspension::getSuspensionsById($id, $cleared);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
-		$suspension->since = $suspension->since->format(TIMESTAMP_FORMAT);
+		$suspension->created = $suspension->created->format(TIMESTAMP_FORMAT);
 		if ($suspension->expires !== NULL) {
 			$suspension->expires = $suspension->expires->format(TIMESTAMP_FORMAT);
 		}
