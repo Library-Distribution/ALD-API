@@ -53,7 +53,6 @@
 			{
 				unset($user["mail"]);
 			}
-			unset($user["pw"]);
 
 			if ($content_type == "application/json")
 			{
