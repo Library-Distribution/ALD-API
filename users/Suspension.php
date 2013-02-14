@@ -24,6 +24,8 @@ class Suspension {
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
+
+		return mysql_insert_id($db_connection);
 	}
 
 	public static function clear() {
