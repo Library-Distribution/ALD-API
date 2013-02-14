@@ -7,19 +7,19 @@ require_once(dirname(__FILE__) . '/../config/suspensions.php');
 
 class Suspension {
 	public static function create($user, $length = NULL, $restricted = true) {
-		self::createForId(User::getID($user), $length, $restricted);
+		self::createForId(User::getID($user), $expires, $restricted);
 	}
 
-	public static function createForId($user, $length = NULL, $restricted = true) {
+	public static function createForId($user, $expires = NULL, $restricted = true) {
 		$db_connection = db_ensure_connection();
 
 		$user = mysql_real_escape_string($user, $db_connection);
-		if ($length !== NULL) {
-			$length = (int)mysql_real_escape_string($length, $db_connection);
+		if ($expires !== NULL) {
+			$expires = (int)mysql_real_escape_string($expires, $db_connection);
 		}
 		$restricted = $restricted ? '1' : '0';
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `length`, `restricted`) VALUES (UNHEX("' . $user . '"), ' . ($length !== NULL ? '"' . $length . '"' : 'NULL') . ', ' . $restricted . ')';
+		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ')';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -31,7 +31,7 @@ class Suspension {
 	public static function clear() {
 		$db_connection = db_ensure_connection();
 
-		$cond = ' `since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ' <= NOW() AND `length` != NULL';
+		$cond = ' `expires` IS NOT NULL AND `expires` <= NOW()';
 		if (CLEAR_SUSPENSIONS) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE' . $cond;
 		} else {
@@ -60,10 +60,10 @@ class Suspension {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT *, HEX(user) AS user, (`length` IS NULL) AS infinite, (`since` + INTERVAL `length` ' . SUSPENSION_INTERVAL_UNIT . ') AS expires FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
+		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
 					. ($cleared === NULL ? '' : ($cleared
-						? ' HAVING `cleared` OR (NOT infinite AND expires <= NOW())'
-						: ' HAVING NOT `cleared` AND (infinite OR expires > NOW())'));
+						? ' AND (`cleared` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'
+						: ' AND (NOT `cleared` AND (`expires` IS NULL OR `expires` > NOW()))'));
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -73,18 +73,17 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['since'], (int)$arr['length'], (bool)$arr['infinite'] ? NULL : $arr['expires'], (bool)$arr['restricted']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['since'], $arr['expires'], (bool)$arr['restricted']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $since, $length, $expires, $restricted) {
+	private function __construct($id, $user, $since, $expires, $restricted) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
 
 		$this->since = new DateTime($since);
-		$this->length = DateInterval::createFromDateString($length . SUSPENSION_INTERVAL_UNIT);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 	}
 
@@ -102,7 +101,6 @@ class Suspension {
 	public $id;
 	public $user;
 	public $since;
-	public $length;
 	public $expires;
 	public $infinite;
 	public $restricted;

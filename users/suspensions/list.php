@@ -26,7 +26,6 @@ try {
 	$suspensions = Suspension::getSuspensionsById($id, NULL);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
-		unset($suspension->length);
 		$suspension->since = $suspension->since->format('c');
 		if ($suspension->expires !== NULL) {
 			$suspension->expires = $suspension->expires->format('c');
