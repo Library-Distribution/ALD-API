@@ -73,6 +73,23 @@ class Suspension {
 		return sql2array($db_result, array('Suspension', '_create_inst_'));
 	}
 
+	public static function getSuspension($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `id` =' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		if (mysql_num_rows($db_result) != 1) {
+			throw new HttpException(404);
+		}
+
+		return self::_create_inst_(mysql_fetch_assoc($db_result));
+	}
+
 	public static function _create_inst_($arr) {
 		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['cleared']);
 	}
