@@ -113,7 +113,7 @@ class Suspension {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($this->id, $db_connection);
 
-		$db_query = 'DELETE FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `id` = "' . $id . '"';
+		$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `id` = "' . $id . '"';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
