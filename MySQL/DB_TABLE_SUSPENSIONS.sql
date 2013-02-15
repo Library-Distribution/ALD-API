@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `suspensions` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expires` timestamp NULL DEFAULT NULL,
   `restricted` tinyint(1) NOT NULL DEFAULT '0',
-  `cleared` tinyint(1) NOT NULL DEFAULT '0',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `reason` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

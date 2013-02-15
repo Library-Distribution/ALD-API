@@ -36,7 +36,7 @@ class Suspension {
 		if (CLEAR_SUSPENSIONS) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE' . $cond;
 		} else {
-			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `cleared` = TRUE WHERE NOT `cleared` AND' . $cond;
+			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `active` AND' . $cond;
 		}
 
 		$db_result = mysql_query($db_query, $db_connection);
@@ -53,18 +53,18 @@ class Suspension {
 		return count(self::getSuspensionsById($id)) != 0;
 	}
 
-	public static function getSuspensions($user, $cleared = false) {
-		return self::getSuspensionsById(User::getID($user), $cleared);
+	public static function getSuspensions($user, $active = true) {
+		return self::getSuspensionsById(User::getID($user), $active);
 	}
 
-	public static function getSuspensionsById($id, $cleared = false) {
+	public static function getSuspensionsById($id, $active = true) {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
-					. ($cleared === NULL ? '' : ($cleared
-						? ' AND (`cleared` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'
-						: ' AND (NOT `cleared` AND (`expires` IS NULL OR `expires` > NOW()))'));
+					. ($active === NULL ? '' : ($active
+						? ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'
+						: ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'));
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -91,12 +91,12 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['cleared']);
+		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['active']);
 	}
 
 	####################################
 
-	private function __construct($id, $user, $created, $expires, $restricted, $reason, $cleared) {
+	private function __construct($id, $user, $created, $expires, $restricted, $reason, $active) {
 		$this->id = $id;
 		$this->user = $user;
 		$this->restricted = $restricted;
@@ -106,7 +106,7 @@ class Suspension {
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 
 		!$this->infinite AND $diff = $this->expires->diff(new DateTime('now'));
-		$this->cleared = $cleared || (!$this->infinite && !$diff->invert);
+		$this->active = $active && ($this->infinite || $diff->invert);
 	}
 
 	public function delete() {
@@ -127,6 +127,6 @@ class Suspension {
 	public $infinite;
 	public $restricted;
 	public $reason;
-	public $cleared;
+	public $active;
 }
 ?>
