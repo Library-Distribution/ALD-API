@@ -6,6 +6,8 @@ require_once('../../User.php');
 require_once('../Suspension.php');
 
 try {
+	Suspension::clear();
+
 	Assert::RequestMethod(Assert::REQUEST_METHOD_DELETE);
 	Assert::GetParameters(array('id', 'suspension'), array('name', 'suspension'));
 

@@ -8,6 +8,8 @@ require_once('../Suspension.php');
 define('TIMESTAMP_FORMAT', 'Y-m-d H:i:s');
 
 try {
+	Suspension::clear();
+
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 	Assert::GetParameters('id', 'name');
 
