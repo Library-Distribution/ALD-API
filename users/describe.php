@@ -4,6 +4,7 @@
 	require_once("../util.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
+	require_once("Suspension.php");
 
 	try
 	{
@@ -26,7 +27,7 @@
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 		}
 
-		$db_query = "SELECT name, mail, privileges, joined, activationToken FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
+		$db_query = "SELECT name, mail, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -47,11 +48,11 @@
 
 			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
-			$user["enabled"] = !$user["activationToken"]; unset($user["activationToken"]);
 
-			if (!$trusted_user)
-			{
+			if (!$trusted_user) {
 				unset($user["mail"]);
+			} else {
+				$user['suspended'] = Suspension::isSuspendedById($id);
 			}
 
 			if ($content_type == "application/json")
