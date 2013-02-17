@@ -1,7 +1,7 @@
 <?php
 	require_once("../db.php");
 	require_once("../util.php");
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../User.php");
 
 	require_once("../config/registration.php"); # import settings regarding registration
