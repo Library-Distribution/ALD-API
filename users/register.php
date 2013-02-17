@@ -182,13 +182,7 @@
 				}
 
 				# get user ID
-				$db_query = "SELECT HEX(id) FROM " . DB_TABLE_USERS . " WHERE name = '{$row["name"]}'";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500, NULL, mysql_error());
-				}
-				$temp = mysql_fetch_assoc($db_result);
+				$temp = User::getID($row['name']);
 
 				######################### POST to config-defined URLs #########################
 				$urls = explode(' ', POST_REGISTRATION_URLS);
@@ -197,7 +191,7 @@
 				$conn = curl_init();
 				curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($conn, CURLOPT_POST, true);
-				curl_setopt($conn, CURLOPT_POSTFIELDS, array("user" => $row["name"], "id" => $temp["HEX(id)"], "mail" => $row["mail"]));
+				curl_setopt($conn, CURLOPT_POSTFIELDS, array("user" => $row["name"], "id" => $temp["id"], "mail" => $row["mail"]));
 
 				foreach ($urls AS $url)
 				{
