@@ -10,7 +10,6 @@
 
 	try
 	{
-		$request_method = strtoupper($_SERVER["REQUEST_METHOD"]);
 		$mode = strtolower($_GET["mode"]);
 		$db_connection = db_ensure_connection();
 
