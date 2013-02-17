@@ -1,6 +1,6 @@
 <?php
-	require_once("modules/HttpException/HttpException.php");
-	require_once("config/database.php"); # import database settings
+	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
+	require_once(dirname(__FILE__) . "/config/database.php"); # import database settings
 
 	function db_ensure_connection()
 	{

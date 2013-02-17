@@ -1,7 +1,7 @@
 <?php
-require_once('../db.php');
-require_once('../modules/HttpException/HttpException.php');
-require_once('../sql2array.php');
+require_once(dirname(__FILE__) . '/../db.php');
+require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
+require_once(dirname(__FILE__) . '/../sql2array.php');
 
 class ItemType
 {
