@@ -11,5 +11,4 @@ RewriteRule ^modify\/([0-9a-fA-F]{32})$ modify.php?id=$1 [L]
 RewriteRule ^modify\/(.+)$ modify.php?name=$1 [L]
 
 RewriteRule ^registration/init$ register.php?mode=init [L]
-RewriteRule ^registration/token/(\d+)$ register.php?mode=token&id=$1 [L]
-RewriteRule ^registration/verify/(\d+)$ register.php?mode=verify&id=$1 [L]
+RewriteRule ^registration/(token|verify)/(\d+)$ register.php?mode=$1&id=$2 [L]
