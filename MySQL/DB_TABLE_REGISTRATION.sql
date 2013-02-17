@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS `registration` (
   `mail` varchar(25) NOT NULL,
   `password` text NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`,`mail`)
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `mail` (`mail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
