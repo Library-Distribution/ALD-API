@@ -15,12 +15,7 @@ try {
 	$session = Registration::get($_GET['id']);
 	if ($session['token'] == $_POST['token']) {
 		# create account
-		$pw = hash("sha256", $session["password"]);
-		$db_query = "INSERT INTO " . DB_TABLE_USERS . " (id, name, mail, pw) VALUES (UNHEX(REPLACE(UUID(), '-', '')), '{$session["name"]}', '{$session["mail"]}', '$pw')";
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		User::create($session['name'], $session['mail'], $session['password']);
 
 		# delete registration session
 		Registration::delete($_GET['id']);

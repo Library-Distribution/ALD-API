@@ -162,5 +162,18 @@ class User
 		}
 		throw new HttpException(404, NULL, "User not found");
 	}
+
+	public static function create($name, $mail, $pw) {
+		$db_connection = db_ensure_connection();
+		$name = mysql_real_escape_string($name, $db_connection);
+		$mail = mysql_real_escape_string($mail, $db_connection);
+		$pw = hash('sha256', $pw);
+
+		$db_query = 'INSERT INTO ' . DB_TABLE_USERS . ' (`id`, `name`, `mail`, `pw`) VALUES (UNHEX(REPLACE(UUID(), "-", "")), "' . $name . '", "' . $mail . '", "' . $pw . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+	}
 }
 ?>
