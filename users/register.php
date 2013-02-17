@@ -146,16 +146,3 @@
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
 ?>
-<?php
-	function clear_registrations()
-	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "DELETE FROM " . DB_TABLE_REGISTRATION . " WHERE DATE_ADD(created, INTERVAL " . REGISTRATION_TIMEOUT . ") <= NOW()";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, mysql_error());
-		}
-	}
-?>
