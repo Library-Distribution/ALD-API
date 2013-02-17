@@ -21,7 +21,7 @@ try {
 		Registration::delete($_GET['id']);
 
 		# get user ID
-		$temp = User::getID($row['name']);
+		$id = User::getID($row['name']);
 
 		######################### POST to config-defined URLs #########################
 		$urls = explode(' ', POST_REGISTRATION_URLS);
@@ -30,7 +30,7 @@ try {
 		$conn = curl_init();
 		curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($conn, CURLOPT_POST, true);
-		curl_setopt($conn, CURLOPT_POSTFIELDS, array("user" => $session["name"], "id" => $temp["id"], "mail" => $session["mail"]));
+		curl_setopt($conn, CURLOPT_POSTFIELDS, array("user" => $session["name"], "id" => $id, "mail" => $session["mail"]));
 
 		foreach ($urls AS $url)
 		{
