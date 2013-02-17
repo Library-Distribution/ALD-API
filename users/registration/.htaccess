@@ -1,0 +1,6 @@
+Options -Multiviews
+
+RewriteEngine On
+
+RewriteRule ^init$ init.php [L]
+RewriteRule ^(token|verify)/(\d+)$ $1.php?id=$2 [L]

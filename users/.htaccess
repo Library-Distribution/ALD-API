@@ -6,6 +6,3 @@ RewriteRule ^list$ list.php [L]
 
 RewriteRule ^(describe|modify)/([0-9a-fA-F]{32})$ $1.php?id=$2 [L]
 RewriteRule ^(describe|modify)/(.+)$ $1.php?name=$2 [L]
-
-RewriteRule ^registration/init$ register.php?mode=init [L]
-RewriteRule ^registration/(token|verify)/(\d+)$ register.php?mode=$1&id=$2 [L]
