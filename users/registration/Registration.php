@@ -60,6 +60,10 @@ class Registration {
 			throw new HttpException(500);
 		}
 
+		if (mysql_num_rows($db_result) < 1) {
+			throw new HttpException(404);
+		}
+
 		return mysql_fetch_assoc($db_result);
 	}
 
