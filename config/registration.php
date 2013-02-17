@@ -49,4 +49,16 @@
 	# Notes:
 	#   + the password should in this case be included in the mail
 	#   + the REGISTRATION_TIMEOUT should be configured in a way which allows cooperation e.g. between different timezones.
+
+	# the subject for the mail sent to the registering user
+	define('REGISTRATION_MAIL_SUBJECT', 'Confirm your registration');
+
+	# the template for the mail to be sent to the registering user
+	define('REGISTRATION_MAIL_TEMPLATE', '');
+	# When registering, a mail is sent to the new user to validate he's a human and he owns the specified email address.
+	# This template can contain the following variables:
+	# * {$NAME} - the name to be registered
+	# * {$MAIL} - the mail address the mail is sent to
+	# * {$PASSWORD} - the password specified
+	# * {$ID} - the ID of the registration session, required to complete the registration
 ?>

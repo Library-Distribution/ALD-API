@@ -17,7 +17,7 @@
 		if ($mode == "init")
 		{
 			Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
-			Assert::PostParameters(array('name', 'mail', 'password', 'password-alt', 'template'));
+			Assert::PostParameters(array('name', 'mail', 'password', 'password-alt'));
 
 			if ( !PUBLIC_REGISTRATION )
 			{
@@ -48,14 +48,10 @@
 			$id = Registration::create($_POST['name'], $_POST['mail'], $_POST['password']);
 
 			# process mail template
-			$template = $_POST["template"];
-			foreach (array("NAME" => $_POST['name'], "MAIL" => $_POST['mail'], "PASSWORD" => $_POST['password'], "ID" => $id) AS $var => $val)
-			{
-				$template = str_replace("{%$var%}", $val, $template);
-			}
+			$mail_text = str_replace(array('{$NAME}', '{$MAIL}', '{$PASSWORD}', '{$ID}'), array($_POST['name'], $_POST['mail'], $_POST['password'], $id), REGISTRATION_MAIL_TEMPLATE);
 
 			# send mail to user
-			if (!mail($_POST['name'] . ' <' . $_POST['mail'] . '>', "Confirm your registration", $template, "From: noreply@{$_SERVER["Name"]}\r\nContent-type: text/html"))
+			if (!mail($_POST['name'] . ' <' . $_POST['mail'] . '>', REGISTRATION_MAIL_SUBJECT, $mail_text, "From: noreply@{$_SERVER["Name"]}\r\nContent-type: text/html"))
 			{
 				throw new HttpException(500, NULL, "Activation mail to $_POST[mail] could not be sent.");
 			}
