@@ -1,18 +1,13 @@
 <?php
-	require_once("db.php");
-	require_once("HttpException.php");
-	require_once("User.php");
+	require_once(dirname(__FILE__) . "/db.php");
+	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
+	require_once(dirname(__FILE__) . "/User.php");
+	require_once(dirname(__FILE__) . "/Assert.php");
 
 	function user_basic_auth($realm)
 	{
-		if ((!isset($_SERVER["HTTPS"]) || !$_SERVER["HTTPS"]) && $_SERVER["SERVER_ADDR"] != "127.0.0.1")
-		{
-			throw new HttpException(403, NULL, "Must use HTTPS for authenticated APIs");
-		}
-		if (empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"]))
-		{
-			throw new HttpException(401, array("WWW-Authenticate" => "Basic realm=\"$realm\""));
-		}
+		Assert::HTTPS();
+		Assert::credentials($realm);
 		User::validateLogin($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]);
 	}
 
@@ -21,7 +16,7 @@
 		static $all_data = NULL;
 		if ($all_data == NULL)
 		{
-			$all_data = array("id", "name", "version", "type", "description", "authors", "dependencies", "requirements", "tags");
+			$all_data = array("id", "name", "version", "homepage", "type", "description", "authors", "dependencies", "requirements", "tags");
 		}
 
 		if ($include_data == NULL)
@@ -50,9 +45,9 @@
 		$xp->registerNamespace("ald", "ald://package/schema/2012");
 
 		# check if all mentioned files are present
-		if (!package_check_for_files($archive, $xp->query("/*/ald:files/ald:doc/@ald:path"), $error_file)
-			|| !package_check_for_files($archive, $xp->query("/*/ald:files/ald:src/@ald:path"), $error_file)
-			|| !package_check_for_files($archive, $xp->query("@ald:logo-image"), $error_file))
+		if (!package_check_for_files($archive, $xp->query("/*/ald:files/ald:doc/ald:file/@ald:path"), $error_file)
+			|| !package_check_for_files($archive, $xp->query("/*/ald:files/ald:src/ald:file/@ald:path"), $error_file)
+			|| !package_check_for_files($archive, $xp->query("/*/@ald:logo-image"), $error_file))
 		{
 			$archive->close();
 			throw new HttpException(400, NULL, "Package references missing file: '" . $error_file . "'!");
@@ -73,6 +68,11 @@
 		if (in_array("type", $include_data))
 		{
 			$output["type"] = $xp->query("@ald:type")->item(0)->nodeValue;
+		}
+		if (in_array("homepage", $include_data))
+		{
+			if ($node = $xp->query("@ald:homepage")->item(0))
+				$output["homepage"] = $node->nodeValue;
 		}
 		if (in_array("description", $include_data))
 		{
@@ -179,7 +179,7 @@
 	{
 		foreach ($file_list AS $file_entry)
 		{
-			if (!$archive->locateName($file_entry->nodeValue))
+			if ($archive->locateName($file_entry->nodeValue) === FALSE)
 			{
 				$error_file = $file_entry->nodeValue;
 				return false;
@@ -208,7 +208,7 @@
 
 	function ensure_upload_dir()
 	{
-		require_once("config/upload.php");
+		require_once(dirname(__FILE__) . "/config/upload.php");
 		if (!is_dir(UPLOAD_FOLDER))
 		{
 			mkdir(UPLOAD_FOLDER);
@@ -230,14 +230,6 @@
 			throw new HttpException(406, array("Content-type" => implode($available, ",")));
 		}
 		return $default;
-	}
-
-	function ensure_HTTPS()
-	{
-		if (!$_SERVER["HTTPS"])
-		{
-			throw new HttpException(403, NULL, "Must use HTTPS!");
-		}
 	}
 
 	function handleHttpException($e)
