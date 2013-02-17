@@ -16,106 +16,100 @@
 
 		if ($mode == "init")
 		{
-			if ($request_method == "POST")
+			Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
+			Assert::PostParameters(array('name', 'mail', 'password', 'password-alt', 'template'));
+
+			if ( !PUBLIC_REGISTRATION )
 			{
-				if ( !PUBLIC_REGISTRATION )
+				user_basic_auth("Registration restricted to moderators");
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
 				{
-					user_basic_auth("Registration restricted to moderators");
-					if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
-					{
-						throw new HttpException(403, NULL, "Registration restricted to moderators");
-					}
+					throw new HttpException(403, NULL, "Registration restricted to moderators");
 				}
-
-				if (empty($_POST["name"]) || empty($_POST["mail"]) || empty($_POST["password"]) || empty($_POST["password-alt"]) || empty($_POST["template"]))
-				{
-					throw new HttpException(400);
-				}
-
-				if ($_POST["password"] != $_POST["password-alt"])
-				{
-					throw new HttpException(400, NULL, "2 different passwords were specified.");
-				}
-
-				if (!preg_match( USER_NAME_REGEX, $_POST["name"]))
-				{
-					throw new HttpException(403, NULL, "Invalid user name");
-				}
-
-				$forbidden = explode("\0", FORBIDDEN_USER_NAMES);
-				if (in_array($_POST["name"], $forbidden))
-				{
-					throw new HttpException(403, NULL, "Forbidden user name");
-				}
-
-				$reserved = explode("\0", RESERVED_USER_NAMES);
-				if (in_array($_POST["name"], $reserved))
-				{
-					user_basic_auth("Trying to register a reserved user name");
-					if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
-					{
-						throw new HttpException(403, NULL, "Trying to register a reserved user name");
-					}
-				}
-
-				$name = mysql_real_escape_string($_POST["name"], $db_connection);
-				$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
-				$password = mysql_real_escape_string($_POST["password"], $db_connection);
-
-				# check if name or mail pending for registration
-				$db_query = "SELECT * FROM " . DB_TABLE_REGISTRATION . " WHERE name = '$name' OR mail = '$mail'";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (mysql_num_rows($db_result) > 0)
-				{
-					throw new HttpException(409, NULL, "An attempt to register this user name or mail address has already been made."
-														. "Unless it is completed, it will expire at some point. Retry later.");
-				}
-
-				# check if name or mail registered
-				if (User::existsName($name) || User::existsMail($mail))
-				{
-					throw new HttpException(409, NULL, "A user with this name or mail address has already been registered.");
-				}
-
-				# create random token
-				$chars = str_split("ABCDEFGHKLMNPQRSTWXYZ23456789");
-				shuffle($chars);
-				$token = implode(array_slice($chars, 0, 10));
-
-				# generate unique session ID
-				$id = mt_rand();
-
-				# process mail template
-				$template = $_POST["template"];
-				foreach (array("NAME" => $name, "MAIL" => $mail, "PASSWORD" => $password, "ID" => $id) AS $var => $val)
-				{
-					$template = str_replace("{%$var%}", $val, $template);
-				}
-
-				# send mail to user
-				if (!mail("$name <$mail>", "Confirm your registration", $template, "From: noreply@{$_SERVER["Name"]}\r\nContent-type: text/html"))
-				{
-					throw new HttpException(500, NULL, "Activation mail to $mail could not be sent.");
-				}
-
-				# save registration attempt
-				$db_query = "INSERT INTO " . DB_TABLE_REGISTRATION . " (id, token, name, mail, password) VALUES ('$id', '$token', '$name', '$mail', '$password')";
-				$db_result = mysql_query($db_query, $db_connection);
-				if (!$db_result)
-				{
-					throw new HttpException(500, NULL, mysql_error());
-				}
-
-				header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
-				exit;
 			}
-			else
+
+			if ($_POST["password"] != $_POST["password-alt"])
 			{
-				throw new HttpException(405, NULL, array("Allow" => "POST"));
+				throw new HttpException(400, NULL, "2 different passwords were specified.");
 			}
+
+			if (!preg_match( USER_NAME_REGEX, $_POST["name"]))
+			{
+				throw new HttpException(403, NULL, "Invalid user name");
+			}
+
+			$forbidden = explode("\0", FORBIDDEN_USER_NAMES);
+			if (in_array($_POST["name"], $forbidden))
+			{
+				throw new HttpException(403, NULL, "Forbidden user name");
+			}
+
+			$reserved = explode("\0", RESERVED_USER_NAMES);
+			if (in_array($_POST["name"], $reserved))
+			{
+				user_basic_auth("Trying to register a reserved user name");
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
+				{
+					throw new HttpException(403, NULL, "Trying to register a reserved user name");
+				}
+			}
+
+			$name = mysql_real_escape_string($_POST["name"], $db_connection);
+			$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
+			$password = mysql_real_escape_string($_POST["password"], $db_connection);
+
+			# check if name or mail pending for registration
+			$db_query = "SELECT * FROM " . DB_TABLE_REGISTRATION . " WHERE name = '$name' OR mail = '$mail'";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (mysql_num_rows($db_result) > 0)
+			{
+				throw new HttpException(409, NULL, "An attempt to register this user name or mail address has already been made."
+													. "Unless it is completed, it will expire at some point. Retry later.");
+			}
+
+			# check if name or mail registered
+			if (User::existsName($name) || User::existsMail($mail))
+			{
+				throw new HttpException(409, NULL, "A user with this name or mail address has already been registered.");
+			}
+
+			# create random token
+			$chars = str_split("ABCDEFGHKLMNPQRSTWXYZ23456789");
+			shuffle($chars);
+			$token = implode(array_slice($chars, 0, 10));
+
+			# generate unique session ID
+			$id = mt_rand();
+
+			# process mail template
+			$template = $_POST["template"];
+			foreach (array("NAME" => $name, "MAIL" => $mail, "PASSWORD" => $password, "ID" => $id) AS $var => $val)
+			{
+				$template = str_replace("{%$var%}", $val, $template);
+			}
+
+			# send mail to user
+			if (!mail("$name <$mail>", "Confirm your registration", $template, "From: noreply@{$_SERVER["Name"]}\r\nContent-type: text/html"))
+			{
+				throw new HttpException(500, NULL, "Activation mail to $mail could not be sent.");
+			}
+
+			# save registration attempt
+			$db_query = "INSERT INTO " . DB_TABLE_REGISTRATION . " (id, token, name, mail, password) VALUES ('$id', '$token', '$name', '$mail', '$password')";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500, NULL, mysql_error());
+			}
+
+			header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+			exit;
 		}
 		else if ($mode == "token")
 		{
+			Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
+			Assert::GetParameters('id');
+
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 
 			$db_query = "SELECT token FROM " . DB_TABLE_REGISTRATION . " WHERE id = '$id'";
@@ -149,10 +143,9 @@
 		}
 		else if ($mode == "verify")
 		{
-			if (empty($_POST["token"]))
-			{
-				throw new HttpException(400);
-			}
+			Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
+			Assert::GetParameters('id');
+			Assert::PostParameters('token');
 
 			$token = mysql_real_escape_string($_POST["token"], $db_connection);
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
