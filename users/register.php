@@ -1,5 +1,5 @@
 <?php
-	require_once('registrationRegistration.php');
+	require_once('registration/Registration.php');
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../modules/HttpException/HttpException.php");
