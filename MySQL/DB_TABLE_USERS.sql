@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `pw` varchar(64) DEFAULT NULL,
   `privileges` int(1) DEFAULT '0',
   `joined` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `activationToken` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `mail` (`mail`),
   UNIQUE KEY `name` (`name`)
