@@ -5,7 +5,8 @@
 		public static function RequestMethod()
 		{
 			$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
-			$methods = array_map('strtoupper', func_get_args());
+			$methods = func_get_args();
+			$methods = array_map('strtoupper', $methods);
 
 			if (!in_array($request_method, $methods)) {
 				throw new HttpException(405, array("Allow" => implode(", ", $methods)));
