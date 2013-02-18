@@ -34,7 +34,7 @@
 		$release["update"] = UpdateType::getName($release["update"]);
 
 		# get libs in the release
-		$db_query = "SELECT lib FROM " . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
+		$db_query = "SELECT HEX(`lib`) AS lib FROM " . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
