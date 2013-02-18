@@ -1,7 +1,7 @@
 <?php
-require_once(dirname(__FILE__) . '/../../semver.php');
+require_once(dirname(__FILE__) . '/../../modules/semver/semver.php');
 require_once(dirname(__FILE__) . '/../../UpdateType.php');
-require_once(dirname(__FILE__) . '/../../HttpException.php');
+require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
 function get_update($old, $new)
 {

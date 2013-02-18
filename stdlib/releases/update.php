@@ -1,9 +1,9 @@
 <?php
 	require_once('../../Assert.php');
 	require_once('../../db.php');
-	require_once('../../HttpException.php');
+	require_once('../../modules/HttpException/HttpException.php');
 	require_once('../../Item.php');
-	require_once('../../semver.php');
+	require_once('../../modules/semver/semver.php');
 	require_once('../Stdlib.php');
 	require_once('../StdlibPending.php');
 	require_once('StdlibRelease.php');
