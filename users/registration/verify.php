@@ -21,7 +21,7 @@ try {
 		Registration::delete($_GET['id']);
 
 		# get user ID
-		$id = User::getID($row['name']);
+		$id = User::getID($session['name']);
 
 		######################### POST to config-defined URLs #########################
 		$urls = explode(' ', POST_REGISTRATION_URLS);
