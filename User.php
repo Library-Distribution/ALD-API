@@ -10,6 +10,7 @@ class User
 	const PRIVILEGE_REVIEW = 4;
 	const PRIVILEGE_DEFAULT_INCLUDE = 8;
 	const PRIVILEGE_ADMIN = 16;
+	const PRIVILEGE_REGISTRATION = 32;
 
 	public static function hasPrivilegeById($id, $privilege)
 	{
@@ -77,7 +78,7 @@ class User
 		return mysql_num_rows($db_result) == 1;
 	}
 
-	public static function validateLogin($user, $pw, $throw = true)
+	public static function validateLogin($user, $pw)
 	{
 		$db_connection = db_ensure_connection();
 
@@ -88,36 +89,21 @@ class User
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
-			if (!$throw)
-			{
-				return false;
-			}
 			throw new HttpException(500);
 		}
 
 		if (mysql_num_rows($db_result) != 1)
 		{
-			if (!$throw)
-			{
-				return false;
-			}
 			throw new HttpException(403, NULL, "User not found");
 		}
 
 		$data = mysql_fetch_object($db_result);
 		if ($data->pw != $pw)
 		{
-			if (!$throw)
-			{
-				return false;
-			}
 			throw new HttpException(403, NULL, "Invalid credentials were specified.");
 		}
 
 		if (Suspension::isSuspended($user)) { # check here (not above) to make sure others can't see the suspension
-			if (!$throw) {
-				return false;
-			}
 			throw new HttpException(403, NULL, 'Account is currently suspended.');
 		}
 		return true;
@@ -175,6 +161,19 @@ class User
 			return $data["privileges"];
 		}
 		throw new HttpException(404, NULL, "User not found");
+	}
+
+	public static function create($name, $mail, $pw) {
+		$db_connection = db_ensure_connection();
+		$name = mysql_real_escape_string($name, $db_connection);
+		$mail = mysql_real_escape_string($mail, $db_connection);
+		$pw = hash('sha256', $pw);
+
+		$db_query = 'INSERT INTO ' . DB_TABLE_USERS . ' (`id`, `name`, `mail`, `pw`) VALUES (UNHEX(REPLACE(UUID(), "-", "")), "' . $name . '", "' . $mail . '", "' . $pw . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
 	}
 }
 ?>
