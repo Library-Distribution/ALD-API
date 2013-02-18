@@ -7,7 +7,7 @@
 
 	try
 	{
-		Assert::RequestMethod("POST");
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
 		Assert::GetParameters("version");
 
 		user_basic_auth("You must be part of the stdlib team!");

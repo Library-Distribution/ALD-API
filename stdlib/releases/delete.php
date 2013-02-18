@@ -7,7 +7,7 @@
 
 	try
 	{
-		Assert::RequestMethod("DELETE");
+		Assert::RequestMethod(Assert::REQUEST_METHOD_DELETE);
 		Assert::GetParameters("version");
 
 		user_basic_auth("Restricted API");

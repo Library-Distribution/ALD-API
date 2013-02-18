@@ -13,7 +13,7 @@
 
 	try
 	{
-		Assert::RequestMethod('POST');
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
 		Assert::GetParameters('version');
 
 		# todo: user validation

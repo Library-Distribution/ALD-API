@@ -10,7 +10,7 @@
 
 	try
 	{
-		Assert::RequestMethod("GET");
+		Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 		Assert::GetParameters("version");
 
 		# validate accept header of request
