@@ -61,4 +61,7 @@
 	# * {$MAIL} - the mail address the mail is sent to
 	# * {$PASSWORD} - the password specified
 	# * {$ID} - the ID of the registration session, required to complete the registration
+
+	# the sender mail address to send registration verification mails from
+	define('REGISTRATION_MAIL_SENDER', '');
 ?>
