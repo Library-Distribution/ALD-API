@@ -1,39 +1,34 @@
 <?php
-	require_once("HttpException.php");
+	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 	class Assert
 	{
-		public static function RequestMethod($method)
+		public static function RequestMethod()
 		{
 			$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
-			if (!is_array($method))
-			{
-				if ($request_method != strtoupper($method))
-					throw new HttpException(405, array("Allow" => $method));
-			}
-			else
-			{
-				if (!in_array($request_method, array_map("strtoupper", $method)))
-					throw new HttpException(405, array("Allow" => implode(", ", $method)));
+			$methods = func_get_args();
+			$methods = array_map('strtoupper', $methods);
+
+			if (!in_array($request_method, $methods)) {
+				throw new HttpException(405, array("Allow" => implode(", ", $methods)));
 			}
 		}
 
-		public static function GetParameters($sets)
+		const REQUEST_METHOD_GET = 'GET';
+		const REQUEST_METHOD_POST = 'POST';
+		const REQUEST_METHOD_DELETE = 'DELETE';
+
+		public static function GetParameters()
 		{
-			return self::parameters($sets, $_GET);
+			return self::parameters(func_get_args(), $_GET);
 		}
 
-		public static function PostParameters($sets)
+		public static function PostParameters()
 		{
-			return self::parameters($sets, $_POST);
+			return self::parameters(func_get_args(), $_POST);
 		}
 
 		private static function parameters($sets, $arr)
 		{
-			if (!is_array($sets))
-			{
-				$sets = array($sets);
-			}
-
 			$satisfied = true; # init here in case the foreach has 0 iterations
 			foreach ($sets AS $set)
 			{
@@ -55,6 +50,18 @@
 			}
 			if (!$satisfied)
 				throw new HttpException(400);
+		}
+
+		public static function HTTPS() {
+			if (empty($_SERVER['HTTPS']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1') {
+				throw new HttpException(403, NULL, 'Must use HTTPS for authenticated API!');
+			}
+		}
+
+		public static function credentials($realm = '') {
+			if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
+				throw new HttpException(401, array('WWW-Authenticate' => 'Basic realm="' . $realm . '"'));
+			}
 		}
 	}
 ?>

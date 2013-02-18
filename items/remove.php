@@ -1,12 +1,12 @@
 <?php
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../Assert.php");
 
 	try
 	{
-		Assert::RequestMethod("DELETE"); # only allow DELETE requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_DELETE); # only allow DELETE requests
 		Assert::GetParameters("id");
 
 		# authentication

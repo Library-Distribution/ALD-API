@@ -1,13 +1,15 @@
 <?php
 	require_once("../util.php");
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
+	require_once('Suspension.php');
+	require_once('../config/suspensions.php');
 
 	try
 	{
-		Assert::RequestMethod("POST"); # only allow POST requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST); # only allow POST requests
 		Assert::GetParameters("id", "name");
 
 		user_basic_auth("Restricted API");
@@ -54,9 +56,18 @@
 			}
 
 			$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
-			$token = mt_rand();
+			$suspension = Suspension::createForId($id, 'Suspended for validation of modified email address', NULL, false);
 
-			$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail', activationToken = '$token' WHERE id = UNHEX('$id')";
+			$mail_text = str_replace(array('{$USER}', '{$ID}', '{$MAIL}', '{$SUSPENSION}'), array(User::getName($id), $id, $mail, $suspension), MAIL_CHANGE_TEMPLATE);
+			if (!mail($mail,
+				MAIL_CHANGE_SUBJECT,
+				$mail_text,
+				"FROM: noreply@{$_SERVER['HTTP_HOST']}\r\nContent-type: text/html; charset=iso-8859-1"))
+			{
+				throw new HttpException(500, NULL, "Failed to send activation mail to '$mail'!");
+			}
+
+			$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail' WHERE id = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -65,15 +76,6 @@
 			if (mysql_affected_rows($db_connection) != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
-			}
-
-			$url = "http://" . $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'] . "?name=$name&mode=activate&token=$token";
-			if (!mail($mail,
-				"Confirm ALD email address change",
-				"To reactivate your account, go to <a href='$url'>$url</a>.",
-				"FROM: noreply@{$_SERVER['HTTP_HOST']}\r\nContent-type: text/html; charset=iso-8859-1"))
-			{
-				throw new HttpException(500, NULL, "Failed to send activation mail to '$mail'!");
 			}
 		}
 		if (!empty($_POST["password"]))

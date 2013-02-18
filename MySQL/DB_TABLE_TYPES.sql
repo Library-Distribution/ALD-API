@@ -7,17 +7,15 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` binary(16) NOT NULL,
-  `name` varchar(25) DEFAULT NULL,
-  `mail` varchar(25) DEFAULT NULL,
-  `pw` varchar(64) DEFAULT NULL,
-  `privileges` int(1) DEFAULT '0',
-  `joined` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `mail` (`mail`),
-  UNIQUE KEY `name` (`name`)
+CREATE TABLE IF NOT EXISTS `types` (
+  `code` int(11) NOT NULL,
+  `name` tinytext NOT NULL,
+  PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `types` (`code`, `name`) VALUES
+(1, 'lib'),
+(2, 'app');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

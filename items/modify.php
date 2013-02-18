@@ -1,6 +1,6 @@
 <?php
 	require_once("../util.php");
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
@@ -8,7 +8,7 @@
 
 	try
 	{
-		Assert::RequestMethod("POST"); # only allow POST requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST); # only allow POST requests
 		Assert::GetParameters("id", array("name", "version"));
 
 		user_basic_auth("Restricted API");

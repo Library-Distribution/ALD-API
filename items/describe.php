@@ -1,10 +1,9 @@
 <?php
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
-	require_once("../User.php");
 	require_once("../Assert.php");
-	require_once("../semver.php");
+	require_once("../modules/semver/semver.php");
 	require_once('../Item.php');
 
 	require_once("../config/upload.php"); # import upload settings, including upload folder!
@@ -12,8 +11,8 @@
 	try
 	{
 		# ensure correct method is used and required parameters are passed
-		Assert::RequestMethod("GET");
-		Assert::GetParameters(array("id", array("name", "version")));
+		Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
+		Assert::GetParameters("id", array("name", "version"));
 
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
@@ -36,7 +35,10 @@
 		}
 		else
 		{
-			$db_query = "SELECT *, HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id') AND reviewed != '-1'";
+			$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, SUM(`rating`) AS rating" # field list
+						. " FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . ', ' . DB_TABLE_RATINGS															# tables to read from
+						. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
+						. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 		}
 
 		$db_result = mysql_query($db_query, $db_connection);
@@ -52,6 +54,13 @@
 
 		if ($content_type == "application/x-ald-package")
 		{
+			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500);
+			}
+
 			$file = UPLOAD_FOLDER . $db_entry["file"];
 			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 			header("Content-Type: $content_type");
@@ -66,7 +75,9 @@
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
-		$output["user"] = array("name" => User::getName($db_entry["HEX(user)"]), "id" => $db_entry["HEX(user)"]);
+		$output["rating"] = (int)$db_entry["rating"] ;
+		$output["downloads"] = (int)$db_entry["downloads"];
+		$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
 		$tag_list  = array();
 		foreach ($data["tags"] AS $tag)

@@ -1,14 +1,15 @@
 <?php
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
+	require_once("Suspension.php");
 
 	try
 	{
 		# ensure correct method is used and required parameters are passed
-		Assert::RequestMethod("GET");
+		Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 		Assert::GetParameters("name", "id");
 
 		# validate accept header of request
@@ -26,7 +27,7 @@
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 		}
 
-		$db_query = "SELECT name, mail, pw, privileges, joined, activationToken FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
+		$db_query = "SELECT name, mail, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -36,35 +37,23 @@
 		if (mysql_num_rows($db_result) == 1)
 		{
 			$user = mysql_fetch_assoc($db_result);
-			$include_mail = false;
+			$trusted_user = false;
 
-			if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
-			{
-				if (!isset($_SERVER["HTTPS"]) || !$_SERVER["HTTPS"])
-				{
-					throw new HttpException(403, NULL, "Must use HTTPS for authenticated APIs");
-				}
-				$password_hash = hash("sha256", $_SERVER["PHP_AUTH_PW"]);
-
-				if ($_SERVER["PHP_AUTH_USER"] == $user["name"] && $password_hash == $user["pw"]) # user requests information about himself - OK.
-				{
-					$include_mail = true;
-				}
-				else
-				{
-					User::validateLogin($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]); # check if correct credentials specified
-					$encrypt_mail =  !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_USER_MANAGE) && !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_ADMIN); # admin and user moderators may request this, too
-				}
+			if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
+				user_basic_auth(''); # if credentials are specified, they must be correct
+				$trusted_user = $_SERVER['PHP_AUTH_USER'] == $user['name'] # user requests information about himself - OK.
+							|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_USER_MANAGE) # admins and moderators can see the mail address, too
+							|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN);
 			}
+
 			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
-			$user["enabled"] = !$user["activationToken"]; unset($user["activationToken"]);
 
-			if (!$include_mail)
-			{
+			if (!$trusted_user) {
 				unset($user["mail"]);
+			} else {
+				$user['suspended'] = Suspension::isSuspendedById($id);
 			}
-			unset($user["pw"]);
 
 			if ($content_type == "application/json")
 			{

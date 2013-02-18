@@ -1,7 +1,8 @@
 <?php
-	require_once("db.php");
-	require_once("HttpException.php");
-	require_once("semver.php");
+	require_once(dirname(__FILE__) . "/db.php");
+	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
+	require_once(dirname(__FILE__) . "/modules/semver/semver.php");
+	require_once(dirname(__FILE__) . '/sql2array.php');
 
 	class Item
 	{
@@ -17,7 +18,7 @@
 				$db_cond .= " AND version = '$version'";
 			}
 
-			$db_query = 'SELECT HEX(id), version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
+			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -34,17 +35,12 @@
 			}
 			else
 			{
-				$items = array(); # fetch all items in an array
-				while ($row = mysql_fetch_assoc($db_result))
-				{
-					$items[] = $row;
-				}
-
+				$items = sql2array($db_result);
 				usort($items, "semver_sort"); # sort by "version" field, following semver rules
 				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
 			}
 
-			return $db_entry["HEX(id)"];
+			return $db_entry["id"];
 		}
 
 		public static function get($id, array $cols)
@@ -52,7 +48,7 @@
 			$db_connection = db_ensure_connection();
 			$id = mysql_real_escape_string($id, $db_connection);
 
-			$db_query = 'SELECT ' . implode(', ', $c = array_map(function ($col) { return '`' . $col . '`'; }, $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
+			$db_query = 'SELECT ' . implode(', ', $c = array_map('EnwrapColName', $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -110,7 +106,7 @@
 			$db_connection = db_ensure_connection();
 			$id = mysql_real_escape_string($id, $db_connection);
 
-			$db_query = "SELECT HEX(user) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
+			$db_query = "SELECT HEX(user) AS user FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -118,12 +114,16 @@
 			}
 
 			$db_entry = mysql_fetch_assoc($db_result);
-			return $db_entry["HEX(user)"];
+			return $db_entry["user"];
 		}
 	}
 
 	function semver_sort($a, $b)
 	{
 		return semver_compare($a["version"], $b["version"]);
+	}
+
+	function EnwrapColName($col) {
+		return '`' . $col . '`';
 	}
 ?>

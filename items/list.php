@@ -1,14 +1,16 @@
 <?php
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../User.php");
 	require_once("../Assert.php");
-	require_once("../semver.php");
+	require_once("../modules/semver/semver.php");
+	require_once('ItemType.php');
+	require_once('../sql2array.php');
 
 	try
 	{
-		Assert::RequestMethod("GET"); # only allow GET requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_GET); # only allow GET requests
 
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
@@ -18,42 +20,54 @@
 
 		# retrieve conditions for returned data from GET parameters
 		$db_cond = "";
+		$db_having = '';
+		$db_join = '';
+		$db_limit = "";
+
 		if (isset($_GET["type"]))
 		{
-			$db_cond = "WHERE type = '" . mysql_real_escape_string($_GET["type"], $db_connection) . "'";
+			$db_cond = "AND type = '" . ItemType::getCode($_GET["type"]) . "'";
 		}
 		if (isset($_GET["user"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " user = UNHEX('" . User::getID($_GET["user"]) . "')";
+			$db_cond .= " AND user = UNHEX('" . User::getID($_GET["user"]) . "')";
 		}
 		if (isset($_GET["name"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
+			$db_cond .= " AND " . DB_TABLE_ITEMS . ".name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
 		}
 		if (isset($_GET["tags"]))
 		{
-			$db_cond .= ($db_cond) ? " AND" : " WHERE";
-			$db_cond .= " tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
+			$db_cond .= " AND tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
 		}
 
 		# reviewed and unreviewed items
 		# ================================ #
-		$db_cond .= ($db_cond) ? " AND " : " WHERE ";
 		if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("no", "false", "-1")))
 		{
-			$db_cond .= "reviewed = '0'";
+			$db_cond .= " AND reviewed = '0'";
 		}
 		else if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("both", "0")))
 		{
-			$db_cond .= "reviewed = '0' OR reviewed = '1'";
+			$db_cond .= " AND (reviewed = '0' OR reviewed = '1')";
 		}
 		else # default (use "yes", "true", "+1" or "1")
 		{
-			$db_cond .= "reviewed = '1'";
+			$db_cond .= " AND reviewed = '1'";
 		}
 		# ================================ #
+
+		# filter for download count
+		if (isset($_GET['downloads'])) {
+			$db_cond .= ' AND `downloads` = ' . (int)mysql_real_escape_string($_GET['downloads']);
+		} else {
+			if (isset($_GET['downloads-min'])) {
+				$db_cond .= ' AND `downloads` >= ' . (int)mysql_real_escape_string($_GET['downloads-min']);
+			}
+			if (isset($_GET['downloads-max'])) {
+				$db_cond .= ' AND `downloads` <= ' . (int)mysql_real_escape_string($_GET['downloads-max']);
+			}
+		}
 
 		if (isset($_GET["version"]))
 		{
@@ -64,8 +78,28 @@
 			}
 		}
 
+		# enable rating filters if necessary
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
+			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
+
+			# this complicated query ensures items without any ratings are considered to be rated 0
+			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
+			if (isset($_GET['rating'])) {
+				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+			} else {
+				if (isset($_GET['rating-min'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+				}
+				if (isset($_GET['rating-max'])) {
+					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
+					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+				}
+			}
+		}
+
 		# retrieve data limits
-		$db_limit = "";
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
 			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
@@ -80,7 +114,10 @@
 		}
 
 		# query data
-		$db_query = "SELECT name, HEX(id), version, HEX(user) FROM " . DB_TABLE_ITEMS . " $db_cond $db_limit";
+		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, type, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version, HEX(" . DB_TABLE_ITEMS . ".user) AS userID, " . DB_TABLE_USERS . ".name AS userName"
+					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . ', ' . DB_TABLE_USERS
+					. " WHERE " . DB_TABLE_ITEMS . ".user = " . DB_TABLE_USERS . ".id $db_cond $db_having $db_limit";
+
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -88,22 +125,7 @@
 		}
 
 		# parse data to array
-		$data = array();
-		$users = array();
-		while ($item = mysql_fetch_assoc($db_result))
-		{
-			$item["id"] = $item["HEX(id)"];
-			unset($item["HEX(id)"]);
-
-			if (!isset($users[$item["HEX(user)"]]))
-			{
-				$users[$item["HEX(user)"]] = User::getName($item["HEX(user)"]);
-			}
-			$item["user"] = array("name" => $users[$item["HEX(user)"]], "id" => $item["HEX(user)"]);
-			unset($item["HEX(user)"]);
-
-			$data[] = $item;
-		}
+		$data = sql2array($db_result, 'cleanup_item');
 
 		if (isset($version))
 		{
@@ -173,4 +195,14 @@
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
 	}
+?>
+<?php
+function cleanup_item($item) {
+	$item["user"] = array("name" => $item["userName"], "id" => $item["userID"]);
+	unset($item["userName"]);
+	unset($item["userID"]);
+
+	$item['type'] = ItemType::getName($item['type']);
+	return $item;
+}
 ?>

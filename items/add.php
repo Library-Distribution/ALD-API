@@ -1,15 +1,16 @@
 <?php
-	require_once("../HttpException.php");
+	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../Item.php");
 	require_once("../Assert.php");
+	require_once('ItemType.php');
 
 	require_once("../config/upload.php"); # import settings for upload
 
 	try
 	{
-		Assert::RequestMethod("POST"); # only allow POST requests
+		Assert::RequestMethod(Assert::REQUEST_METHOD_POST); # only allow POST requests
 
 		# authentication
 		user_basic_auth("Restricted API");
@@ -22,9 +23,6 @@
 
 		if (isset($_FILES["package"]))
 		{
-			# validate accept header of request
-			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
-
 			$pack_file = $_FILES["package"];
 
 			# connect to database server
@@ -57,18 +55,20 @@
 
 			# escape data to prevent SQL injection
 			$escaped_name = mysql_real_escape_string($pack_name, $db_connection);
-			$escaped_type = mysql_real_escape_string($pack_type, $db_connection);
 			$escaped_version = mysql_real_escape_string($pack_version, $db_connection);
 			$escaped_description = mysql_real_escape_string($pack_description, $db_connection);
 			$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
 
-			# check if there's any version of the app
+			# check if item type is supported and read the code
+			$escaped_type = ItemType::getCode($pack_type); # unsupported types throw an exception
+
+			# check if there's any version of the item yet
 			if (Item::exists($pack_name))
 			{
 				$owner = User::getName(Item::getUser($pack_name, "latest"));
 				if ($owner != $user)
 				{
-					throw new HttpException(403, NULL, "The user '$user' is not allowed to update the library or app '$pack_name'");
+					throw new HttpException(403, NULL, "The user '$user' is not allowed to update the item '$pack_name'");
 				}
 			}
 
@@ -93,18 +93,7 @@
 				throw new HttpException(500);
 			}
 
-			if ($content_type == "application/json")
-			{
-				$content = "{ \"id\" : \"$pack_id\" }";
-			}
-			else if ($content_type == "text/xml" || $content_type == "application/xml")
-			{
-				$content = "<ald:item-id xmlns:ald='ald://api/items/add/schema/2012' ald:id='$pack_id'/>";
-			}
-
-			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
-			header("Content-type: $content_type");
-			echo $content;
+			header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
 			exit;
 		}
 		else
