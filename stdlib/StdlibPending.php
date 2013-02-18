@@ -1,6 +1,6 @@
 <?php
-require_once(__DIR__ . '/../db.php');
-require_once(__DIR__ . '/../HttpException.php');
+require_once(dirname(__FILE__) . '/../db.php');
+require_once(dirname(__FILE__) . '/../HttpException.php');
 
 class StdlibPending
 {
