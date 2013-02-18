@@ -1,6 +1,7 @@
 <?php
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../db.php");
+	require_once("../../sql2array.php");
 	require_once("../../util.php");
 	require_once("../../modules/semver/semver.php");
 	require_once("../../Assert.php");
@@ -40,9 +41,7 @@
 			throw new HttpException(500);
 		}
 
-		$release["libs"] = array();
-		while ($lib = mysql_fetch_assoc($db_result))
-			$release["libs"][] = $lib;
+		$release["libs"] = sql2array($db_result);
 
 		# todo later: get frameworks in the release
 

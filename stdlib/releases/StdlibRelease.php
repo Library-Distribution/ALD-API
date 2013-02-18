@@ -131,12 +131,7 @@ class StdlibRelease
 		}
 
 		# fetch releases in array
-		$releases = array();
-		while ($release = mysql_fetch_assoc($db_result))
-		{
-			$releases[] = $release["release"];
-		}
-		return $releases;
+		return sql2array($db_result, create_function('$release', 'return $release[\'release\'];'));
 	}
 
 	const PUBLISHED_YES = 1;
