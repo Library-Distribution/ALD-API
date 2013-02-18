@@ -54,7 +54,19 @@
 	define('REGISTRATION_MAIL_SUBJECT', 'Confirm your registration');
 
 	# the template for the mail to be sent to the registering user
-	define('REGISTRATION_MAIL_TEMPLATE', '');
+	define('REGISTRATION_MAIL_TEMPLATE', 'Hi {$NAME},
+<p>
+Welcome to the libba.net!
+You have requested registration with the following data:
+	<p>
+	Name: {$NAME}<br/>
+	Mail: {$MAIL}<br/>
+	(Password not included for security)
+	</p>
+To complete your registration, go to <a href="http://libba.net/register/{$ID}">libba.net/register/{$ID}</a> and follow the steps described there.<br/>
+If you do not follow this step, your registration will expire after some time. You can then start a new registration.
+</p>
+If you did not request registration, you may safely ignore this mail.');
 	# When registering, a mail is sent to the new user to validate he's a human and he owns the specified email address.
 	# This template can contain the following variables:
 	# * {$NAME} - the name to be registered
