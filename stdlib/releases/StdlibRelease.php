@@ -93,9 +93,9 @@ class StdlibRelease
 		$db_query = "UPDATE " . DB_TABLE_STDLIB_RELEASES . " Set "
 				. implode(", ",
 					array_map(
-						function($col, $val) { return "`$col` = '" . mysql_real_escape_string($val) . "'"; },
+						create_function('$col, $val', 'return "`$col` = \'$val\'";'),
 						array_keys($data),
-						array_values($data)
+						array_map('mysql_real_escape_string', array_values($data), array_fill(0, count($data), $db_connection))
 						)
 					)
 				. " WHERE `release` = '$release' AND " . self::get_publish_cond(self::PUBLISHED_NO);

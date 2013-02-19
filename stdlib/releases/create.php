@@ -102,9 +102,9 @@
 		$db_connection = db_ensure_connection();
 		$db_query = "INSERT INTO " . DB_TABLE_STDLIB_RELEASES
 				. " ("
-				. implode(", ", array_map(function($item) { return "`$item`"; }, array_keys($data)))
+				. implode(", ", array_map(create_function('$item', 'return "`$item`";'), array_keys($data)))
 				. ") VALUES ("
-				. implode(", ", array_map(function($item) { return "'" . mysql_real_escape_string($item, $db_connection) . "'"; }, array_values($data)))
+				. implode(", ", array_map(create_function('$item', 'return "\'$item\'";'), array_map('mysql_real_escape_string', array_values($data), array_fill(0, count($data), $db_connection))))
 				. ")";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
