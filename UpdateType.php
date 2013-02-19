@@ -34,7 +34,7 @@
 				throw new HttpException(400);
 			}
 
-			if (!isset(self::$usage[$usage]) || !array_search($code, self::$usage[$usage]))
+			if (!isset(self::$usage[$usage]) || array_search($code, self::$usage[$usage]) === FALSE)
 			{
 				throw new HttpException(400);
 			}
