@@ -23,6 +23,7 @@
 		$db_having = '';
 		$db_join = '';
 		$db_limit = "";
+		$db_order = '';
 
 		if (isset($_GET["type"]))
 		{
@@ -91,8 +92,27 @@
 			}
 		}
 
+		# retrieve sorting parameters
+		$sort_by_rating = false;
+		if (isset($_GET['sort'])) {
+			$sort_keys = explode(' ', $_GET['sort']);
+			$sort_dirs = array_map(function($item) { return substr($item, 0, 1) != '!'; }, $sort_keys);
+			$sort_keys = array_map(function($item) { return substr($item, 0, 1) == '!' ? substr($item, 1, strlen($item) - 1 ) : $item; }, $sort_keys);
+			$sorting = array_combine($sort_keys, $sort_dirs);
+
+			# can sort by:
+			$allowed_sorting = array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => 'SUM(`rating`)');
+			foreach ($sorting AS $key => $dir) {
+				if (array_key_exists($key, $allowed_sorting)) {
+					$db_order .= ($db_order) ? ', ' : 'ORDER BY ';
+					$db_order .= $allowed_sorting[$key] . ' ' . ($dir ? 'ASC' : 'DESC');
+					$sort_by_rating = $sort_by_rating || $key == 'rating';
+				}
+			}
+		}
+
 		# enable rating filters if necessary
-		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
 			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
 
 			# this complicated query ensures items without any ratings are considered to be rated 0
@@ -129,7 +149,7 @@
 		# query data
 		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, type, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version, HEX(" . DB_TABLE_ITEMS . ".user) AS userID, " . DB_TABLE_USERS . ".name AS userName"
 					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . ', ' . DB_TABLE_USERS
-					. " WHERE " . DB_TABLE_ITEMS . ".user = " . DB_TABLE_USERS . ".id $db_cond $db_having $db_limit";
+					. " WHERE " . DB_TABLE_ITEMS . ".user = " . DB_TABLE_USERS . ".id $db_cond $db_having $db_order $db_limit";
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
