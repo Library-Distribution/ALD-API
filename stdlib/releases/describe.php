@@ -7,6 +7,7 @@
 	require_once("../../Assert.php");
 	require_once("../../User.php");
 	require_once("StdlibRelease.php");
+	require_once("../Stdlib.php");
 	require_once("../../UpdateType.php");
 
 	try
@@ -16,9 +17,6 @@
 
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
-
-		# connect to database server
-		$db_connection = db_ensure_connection();
 
 		$publish_status = StdlibRelease::PUBLISHED_YES;
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
@@ -33,15 +31,17 @@
 		# handle update type
 		$release["update"] = UpdateType::getName($release["update"]);
 
-		# get libs in the release
-		$db_query = "SELECT HEX(`lib`) AS lib FROM " . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
+		# get libs in release
+		if ($release['date']) { # published
+			$libs = Stdlib::GetItems($release['release']);
+			$release['libs'] = array();
 
-		$release["libs"] = sql2array($db_result);
+			foreach ($libs AS $lib) {
+				$release['libs'][$lib['id']] = $lib['comment'];
+			}
+		} else { # unpublished
+			# ... todo
+		}
 
 		# todo later: get frameworks in the release
 
