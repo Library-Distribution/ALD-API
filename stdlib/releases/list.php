@@ -16,21 +16,13 @@
 		if (!empty($_GET["published"]))
 		{
 			$published = strtolower($_GET["published"]);
-			if (in_array($published, array(-1, "no", "false"), true))
-			{
-				# check auth
-				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
+			$both = false;
+
+			if (in_array($published, array(-1, "no", "false"), true) || ($both = in_array($published, array(0, "both"), true))) {
+				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!"); # check auth
 				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
 					throw new HttpException(403);
-				$publish_status = StdlibRelease::PUBLISHED_NO;
-			}
-			else if (in_array($published, array(0, "both"), true))
-			{
-				# check auth
-				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!");
-				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
-					throw new HttpException(403);
-				$publish_status = StdlibRelease::PUBLISHED_BOTH;
+				$publish_status = $both ? StdlibRelease::PUBLISHED_BOTH : StdlibRelease::PUBLISHED_NO;
 			}
 			# else if (in_array($published, array(1, "+1", "true", "yes"))) # the default
 		}
