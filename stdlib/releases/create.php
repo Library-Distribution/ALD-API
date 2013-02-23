@@ -67,7 +67,7 @@
 				unset($release["build"]);
 				$release["patch"]++;
 
-				if ($type == UpdateType::TYPE_MINOR || $type == UpdateType::MAJOR)
+				if ($type == UpdateType::MINOR || $type == UpdateType::MAJOR)
 				{
 					$release["patch"] = 0;
 					$release["minor"]++;
