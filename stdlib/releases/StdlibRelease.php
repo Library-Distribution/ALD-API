@@ -68,6 +68,21 @@ class StdlibRelease
 		return mysql_fetch_assoc($db_result);
 	}
 
+	public static function create($update, $release, $date = NULL, $description = '') {
+		$db_connection = db_ensure_connection();
+
+		$update = mysql_real_escape_string($update, $db_connection);
+		$release = mysql_real_escape_string($release, $db_connection);
+		$description = mysql_real_escape_string($description, $db_connection);
+		$date = $date !== NULL ? '"' . mysql_real_escape_string($date, $db_connection) . '"' : 'NULL';
+
+		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_RELEASES . ' (`update`, `release`, `description`, `date`) VALUES ("' . $update . '", "' . $release . '", "' . $description . '", ' . $date . ')';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE  || mysql_affected_rows() != 1) {
+			throw new HttpException(500, NULL, mysql_error());
+		}
+	}
+
 	public static function delete($release)
 	{
 		$db_connection = db_ensure_connection();

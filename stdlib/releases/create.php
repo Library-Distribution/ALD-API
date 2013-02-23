@@ -38,7 +38,6 @@
 		# get latest release
 		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $publish_status);
 
-		$data = array("update" => $type);
 		if (isset($_POST["version"]))
 		{
 			try {
@@ -55,7 +54,7 @@
 				throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
 			}
 
-			$data["release"] = $_POST["version"];
+			$release = $_POST["version"];
 		} else {
 			# bump version number according to $type
 			$release = array();
@@ -87,43 +86,20 @@
 			{
 				throw new HttpException(409, NULL, "Release '$release' has already been created!");
 			}
-
-			$data["release"] = $release;
 		}
 
-		if (isset($_POST["date"]))
-		{
-			$data["date"] = $_POST["date"];
-		}
-		if (isset($_POST["description"]))
-		{
-			$data["description"] = $_POST["description"];
-		}
+		$date = isset($_POST['date']) ? $_POST['date'] : NULL;
+		$description = isset($_POST['description']) ? $_POST['description'] : '';
 
-		$db_connection = db_ensure_connection();
-		$db_query = "INSERT INTO " . DB_TABLE_STDLIB_RELEASES
-				. " ("
-				. implode(", ", array_map(create_function('$item', 'return "`$item`";'), array_keys($data)))
-				. ") VALUES ("
-				. implode(", ", array_map(create_function('$item', 'return "\'$item\'";'), array_map('mysql_real_escape_string', array_values($data), array_fill(0, count($data), $db_connection))))
-				. ")";
-		$db_result = mysql_query($db_query, $db_connection);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, mysql_error());
-		}
-		if (mysql_affected_rows() != 1)
-		{
-			throw new HttpException(500);
-		}
+		StdlibRelease::create($type, $release, $date, $description);
 
 		if ($content_type == "application/json")
 		{
-			$content = json_encode(array("release" => $data["release"]));
+			$content = json_encode(array("release" => $release));
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			$content = "<ald:version xmlns:ald=\"ald://api/stdlib/releases/create/schema/2012\">$data[release]</ald:version>";
+			$content = "<ald:version xmlns:ald=\"ald://api/stdlib/releases/create/schema/2012\">$release</ald:version>";
 		}
 		header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 		header("Content-type: $content_type");
