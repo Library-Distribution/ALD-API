@@ -93,7 +93,7 @@
 
 		if (isset($_POST["date"]))
 		{
-			$data["date"] = $_POST["description"];
+			$data["date"] = $_POST["date"];
 		}
 		if (isset($_POST["description"]))
 		{
