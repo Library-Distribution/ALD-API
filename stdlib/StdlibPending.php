@@ -12,14 +12,14 @@ class StdlibPending
 	public static function GetAllEntries()
 	{
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT HEX(`lib`) AS lib FROM ' . DB_TABLE_STDLIB_PENDING;
+		$db_query = 'SELECT HEX(`lib`) AS id, comment FROM ' . DB_TABLE_STDLIB_PENDING;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
 		}
 
-		return sql2array($db_result, create_function('$lib', 'return $lib[\'lib\'];'));
+		return sql2array($db_result);
 	}
 
 	public static function GetEntries($release) {
@@ -34,7 +34,7 @@ class StdlibPending
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
 
-		$libs = array_map(create_function('$id', 'return array(\'id\' => $id);'), self::GetAllEntries()); # get all pending changes
+		$libs = self::GetAllEntries(); # get all pending changes
 		$lib_version = array();
 
 		foreach ($libs AS $i => &$lib) {
