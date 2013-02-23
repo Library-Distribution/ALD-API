@@ -8,6 +8,7 @@
 	require_once("../../User.php");
 	require_once("StdlibRelease.php");
 	require_once("../Stdlib.php");
+	require_once("../StdlibPending.php");
 	require_once("../../UpdateType.php");
 
 	try
@@ -34,13 +35,13 @@
 		# get libs in release
 		if ($release['date']) { # published
 			$libs = Stdlib::GetItems($release['release']);
-			$release['libs'] = array();
-
-			foreach ($libs AS $lib) {
-				$release['libs'][$lib['id']] = $lib['comment'];
-			}
 		} else { # unpublished
-			# ... todo
+			$libs = StdlibPending::GetEntries($release['release']);
+		}
+
+		$release['libs'] = array();
+		foreach ($libs AS $lib) {
+			$release['libs'][] = $lib['id'];
 		}
 
 		# todo later: get frameworks in the release
