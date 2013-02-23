@@ -38,6 +38,16 @@
 
 		# todo: get last prerelease and last stable version
 		# todo: compile changelog (since latest prerelease + since latest stable)
+		if (StdlibRelease::exists($release['release'], StdlibRelease::PUBLISHED_YES)) {
+			# for published releases - TODO
+
+		} else {
+			$pending = StdlibPending::GetEntries($release['release']);
+			$release['changelog'] = array();
+			foreach ($pending AS $entry) {
+				$release['changelog'][$entry['name']] = $entry['comment'];
+			}
+		}
 
 		if ($content_type == "application/json")
 		{
