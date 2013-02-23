@@ -4,7 +4,7 @@ require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 
 class StdlibPending
 {
-	public static function GetEntries()
+	public static function GetAllEntries()
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT HEX(`lib`) AS lib FROM ' . DB_TABLE_STDLIB_PENDING;

@@ -39,7 +39,7 @@
 
 		# get all pending changes (stdlib_pending)
 		#	* several versions of a lib / framework might occur in them
-		$libs = array_map(create_function('$id', 'return array(\'id\' => $id);'), StdlibPending::GetEntries($release));
+		$libs = array_map(create_function('$id', 'return array(\'id\' => $id);'), StdlibPending::GetAllEntries($release));
 
 		$lib_version = array();
 		foreach ($libs AS $i => &$lib)
