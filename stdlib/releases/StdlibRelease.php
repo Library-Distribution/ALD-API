@@ -1,7 +1,7 @@
 <?php
-require_once("../../db.php");
-require_once("../../modules/HttpException/HttpException.php");
-require_once("../../modules/semver/semver.php");
+require_once(dirname(__FILE__) . "/../../db.php");
+require_once(dirname(__FILE__) . "/../../modules/HttpException/HttpException.php");
+require_once(dirname(__FILE__) . "/../../modules/semver/semver.php");
 
 class StdlibRelease
 {
