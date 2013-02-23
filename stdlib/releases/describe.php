@@ -32,17 +32,7 @@
 		# handle update type
 		$release["update"] = UpdateType::getName($release["update"]);
 
-		# get libs in release
-		if ($release['date']) { # published
-			$libs = Stdlib::GetItems($release['release']);
-		} else { # unpublished
-			$libs = StdlibPending::GetEntries($release['release']);
-		}
-
-		$release['libs'] = array();
-		foreach ($libs AS $lib) {
-			$release['libs'][] = $lib['id'];
-		}
+		$release['libs'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 
 		# todo later: get frameworks in the release
 
