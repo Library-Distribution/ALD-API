@@ -9,7 +9,9 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `stdlib_pending` (
   `lib` binary(16) NOT NULL,
-  `update` enum('new','patch','minor','major') NOT NULL
+  `update` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  PRIMARY KEY (`lib`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
