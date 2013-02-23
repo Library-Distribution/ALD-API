@@ -11,6 +11,7 @@
 	{
 		Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
 		Assert::GetParameters("type");
+
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
@@ -61,7 +62,8 @@
 		}
 		$release = semver_string($release);
 
-		# check if (unpublished) release already exists
+		# check if (unpublished) release already exists (unpublished because the latest published is always >= the base for $release)
+		# only check for PUBLISHED_YES as otherwise, $release must be based on the latest release anyway
 		if ($publish_status == StdlibRelease::PUBLISHED_YES && StdlibRelease::exists($release, StdlibRelease::PUBLISHED_BOTH))
 		{
 			throw new HttpException(409, NULL, "Release '$release' has already been created!");
