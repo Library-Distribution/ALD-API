@@ -9,7 +9,7 @@
 	require_once('StdlibRelease.php');
 	require_once('../../User.php');
 	require_once('../../util.php');
-	require_once('get_update.php');
+	require_once('../../UpdateType.php');
 
 	try
 	{
@@ -29,7 +29,7 @@
 		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 
 		# get release update type
-		$release_update = get_update($latest_release, $release);
+		$release_update = UpdateType::getUpdate($latest_release, $release);
 
 		$old_items = Stdlib::GetItems($latest_release);
 		foreach ($old_items AS &$item)
@@ -64,7 +64,7 @@
 				}
 				else # actually an upgrade
 				{
-					$update_type = get_update($old['version'], $lib['version']); # update type
+					$update_type = UpdateType::getUpdate($old['version'], $lib['version']); # update type
 				}
 			}
 			else # not in latest release - must be new
