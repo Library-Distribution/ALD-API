@@ -28,9 +28,7 @@
 		}
 
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
-
-		# handle update type
-		$release["update"] = UpdateType::getName($release["update"]);
+		unset($release['update']);
 
 		$release['libs'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 
