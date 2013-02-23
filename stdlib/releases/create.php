@@ -7,10 +7,6 @@
 	require_once("../../User.php");
 	require_once("StdlibRelease.php");
 
-	define('UPDATE_TYPE_PATCH', UpdateType::getCode("patch", "stdlib_releases"));
-	define('UPDATE_TYPE_MINOR', UpdateType::getCode("minor", "stdlib_releases"));
-	define('UPDATE_TYPE_MAJOR', UpdateType::getCode("major", "stdlib_releases"));
-
 	try
 	{
 		Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
@@ -45,18 +41,18 @@
 		$release = array();
 		semver_parts($prev_release, $release);
 
-		if ($type == UPDATE_TYPE_PATCH || $type == UPDATE_TYPE_MINOR || $type == UPDATE_TYPE_MAJOR)
+		if ($type == UpdateType::PATCH || $type == UpdateType::MINOR || $type == UpdateType::MAJOR)
 		{
 			unset($release["prerelease"]);
 			unset($release["build"]);
 			$release["patch"]++;
 
-			if ($type == UPDATE_TYPE_MINOR || $type == UPDATE_TYPE_MAJOR)
+			if ($type == UpdateType::TYPE_MINOR || $type == UpdateType::MAJOR)
 			{
 				$release["patch"] = 0;
 				$release["minor"]++;
 
-				if ($type == UPDATE_TYPE_MAJOR)
+				if ($type == UpdateType::MAJOR)
 				{
 					$release["minor"] = 0;
 					$release["major"]++;
