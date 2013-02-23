@@ -143,9 +143,9 @@ class StdlibRelease
 		switch ($published)
 		{
 			case self::PUBLISHED_YES:
-				return '(`date` AND NOW() > `date`)';
+				return '(`date` IS NOT NULL AND `date` AND NOW() >= `date`)';
 			case self::PUBLISHED_NO:
-				return '(!`date` OR NOW() < `date`)';
+				return '(`date` IS NULL OR !`date` OR NOW() < `date`)';
 			case self::PUBLISHED_BOTH:
 				return NULL;
 			default:
