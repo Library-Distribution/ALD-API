@@ -38,47 +38,16 @@
 		# get latest release
 		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $publish_status);
 
-		# bump version number according to $type
-		$release = array();
-		semver_parts($prev_release, $release);
-
-		if ($type == UpdateType::PATCH || $type == UpdateType::MINOR || $type == UpdateType::MAJOR)
-		{
-			unset($release["prerelease"]);
-			unset($release["build"]);
-			$release["patch"]++;
-
-			if ($type == UpdateType::TYPE_MINOR || $type == UpdateType::MAJOR)
-			{
-				$release["patch"] = 0;
-				$release["minor"]++;
-
-				if ($type == UpdateType::MAJOR)
-				{
-					$release["minor"] = 0;
-					$release["major"]++;
-				}
-			}
-		}
-		$release = semver_string($release);
-
-		# check if (unpublished) release already exists (unpublished because the latest published is always >= the base for $release)
-		# only check for PUBLISHED_YES as otherwise, $release must be based on the latest release anyway
-		if ($publish_status == StdlibRelease::PUBLISHED_YES && StdlibRelease::exists($release, StdlibRelease::PUBLISHED_BOTH))
-		{
-			throw new HttpException(409, NULL, "Release '$release' has already been created!");
-		}
-
-		$data = array("release" => $release, "update" => $type);
+		$data = array("update" => $type);
 		if (isset($_POST["version"]))
 		{
 			try {
-				$result = semver_compare($_POST["version"], $release);
+				$result = semver_compare($_POST["version"], $prev_release); # compare against previous release
 			} catch (Exception $e) {
 				throw new HttpException(400, NULL, "Bad release version!"); # semver could not validate
 			}
 			if ($result != 1)
-				throw new HttpException(400, NULL, "Bad release version!"); # version is smaller then minimum
+				throw new HttpException(400, NULL, "Bad release version!"); # version <= previous release
 
 			# check if release already exists
 			if (StdlibRelease::exists($_POST["version"], StdlibRelease::PUBLISHED_BOTH))
@@ -87,7 +56,41 @@
 			}
 
 			$data["release"] = $_POST["version"];
+		} else {
+			# bump version number according to $type
+			$release = array();
+			semver_parts($prev_release, $release);
+
+			if ($type == UpdateType::PATCH || $type == UpdateType::MINOR || $type == UpdateType::MAJOR)
+			{
+				unset($release["prerelease"]);
+				unset($release["build"]);
+				$release["patch"]++;
+
+				if ($type == UpdateType::TYPE_MINOR || $type == UpdateType::MAJOR)
+				{
+					$release["patch"] = 0;
+					$release["minor"]++;
+
+					if ($type == UpdateType::MAJOR)
+					{
+						$release["minor"] = 0;
+						$release["major"]++;
+					}
+				}
+			}
+			$release = semver_string($release);
+
+			# check if (unpublished) release already exists (unpublished because the latest published is always >= the base for $release)
+			# only check for PUBLISHED_YES as otherwise, $release must be based on the latest release anyway.
+			if ($publish_status == StdlibRelease::PUBLISHED_YES && StdlibRelease::exists($release, StdlibRelease::PUBLISHED_BOTH))
+			{
+				throw new HttpException(409, NULL, "Release '$release' has already been created!");
+			}
+
+			$data["release"] = $release;
 		}
+
 		if (isset($_POST["date"]))
 		{
 			$data["date"] = $_POST["description"];
