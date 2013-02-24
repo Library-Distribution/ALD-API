@@ -9,6 +9,9 @@
 	require_once('ItemType.php');
 	require_once('../sql2array.php');
 
+	# this complicated query ensures items without any ratings are considered to be rated 0
+	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
+
 	try
 	{
 		Assert::RequestMethod(Assert::REQUEST_METHOD_GET); # only allow GET requests
@@ -96,7 +99,7 @@
 		# retrieve sorting parameters
 		$sort_by_rating = false;
 		if (isset($_GET['sort'])) {
-			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => 'SUM(`rating`)'));
+			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
 			$sort_by_rating = preg_match('/(^|\s)!?rating/', $_GET['sort']) == 1;
 		}
 
@@ -104,19 +107,17 @@
 		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
 			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
 
-			# this complicated query ensures items without any ratings are considered to be rated 0
-			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
 			if (isset($_GET['rating'])) {
 				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . SQL_QUERY_RATING;
 			} else {
 				if (isset($_GET['rating-min'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . SQL_QUERY_RATING;
 				}
 				if (isset($_GET['rating-max'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . SQL_QUERY_RATING;
 				}
 			}
 		}
