@@ -23,38 +23,42 @@ class Stdlib
 
 			return sql2array($db_result);
 		} else {
-			$old_items = Stdlib::GetItems(StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES));
-			foreach ($old_items AS &$item) {
-				$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
-			}
-
-			$pending = StdlibPending::GetEntries($release);
-
-			foreach ($pending AS &$entry) {
-				switch ($entry['update']) {
-					case UpdateType::REMOVE:
-						$index = searchSubArray($old_items, array('id' => $entry['id']));
-						if ($index === NULL)
-							throw new HttpException(500);
-						unset($old_items[$index]);
-						break;
-					case UpdateType::ADD:
-						unset($entry['update']);
-						$old_items[] = $entry;
-						break;
-					default:
-						unset($entry['update']);
-						$index = searchSubArray($old_items, array('name' => $entry['name']));
-						if ($index === NULL)
-							throw new HttpException(500);
-						$old_items[$index] = $entry;
-						break;
-				}
-			}
-
-			sort($old_items); # make array continuous
-			return $old_items;
+			return self::GetItemsUnpublished($release, StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES));
 		}
+	}
+
+	public static function GetItemsUnpublished($release, $base) {
+		$old_items = self::GetItems($base);
+		foreach ($old_items AS &$item) {
+			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
+		}
+
+		$pending = StdlibPending::GetEntries($release);
+
+		foreach ($pending AS &$entry) {
+			switch ($entry['update']) {
+				case UpdateType::REMOVE:
+					$index = searchSubArray($old_items, array('id' => $entry['id']));
+					if ($index === NULL)
+						throw new HttpException(500);
+					unset($old_items[$index]);
+					break;
+				case UpdateType::ADD:
+					unset($entry['update']);
+					$old_items[] = $entry;
+					break;
+				default:
+					unset($entry['update']);
+					$index = searchSubArray($old_items, array('name' => $entry['name']));
+					if ($index === NULL)
+						throw new HttpException(500);
+					$old_items[$index] = $entry;
+					break;
+			}
+		}
+
+		sort($old_items); # make array continuous
+		return $old_items;
 	}
 
 	public static function diff($old, $new) {
