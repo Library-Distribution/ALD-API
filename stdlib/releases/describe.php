@@ -33,11 +33,9 @@
 		# todo later: get frameworks in the release
 
 		if (StdlibRelease::exists($release['release'], StdlibRelease::PUBLISHED_YES)) {
-			$releases = StdlibRelease::ListReleases(StdlibRelease::PUBLISHED_YES);
-			usort($releases, 'semver_sort');
-			$index = array_search($release['release'], $releases) - 1;
-			if ($index >= 0) {
-				$changeset = Stdlib::diff($releases[$index], $release['release']);
+			$prev_release = StdlibRelease::previousRelease($release['release'], StdlibRelease::PUBLISHED_YES);
+			if ($prev_release !== NULL) {
+				$changeset = Stdlib::diff($prev_release, $release['release']);
 			}
 		} else {
 			$changeset = StdlibPending::GetEntries($release['release']);

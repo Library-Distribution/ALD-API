@@ -125,6 +125,20 @@ class StdlibRelease
 		}
 	}
 
+	public static function previousRelease($release, $published) {
+		$releases = self::ListReleases(self::PUBLISHED_BOTH);
+		usort($releases, array('StdlibRelease', 'semver_sort'));
+		$index = array_search($release, $releases);
+		if ($index !== FALSE) {
+			while ($index >= 1) {
+				$prev_release = $releases[--$index];
+				if (self::exists($prev_release, $published))
+					return $prev_release;
+			}
+		}
+		return NULL;
+	}
+
 	static function semver_sort($a, $b)
 	{
 		return semver_compare($a, $b);
