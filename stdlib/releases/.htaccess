@@ -6,4 +6,4 @@ RewriteRule ^list$ list.php [L]
 
 RewriteRule ^create/(major|minor|patch)$ create.php?type=$1 [L,QSA]
 
-RewriteRule ^(describe|delete|modify|publish|update)/(.+)$ $1.php?version=$2 [L]
+RewriteRule ^(describe|delete|modify|publish)/(.+)$ $1.php?version=$2 [L]
