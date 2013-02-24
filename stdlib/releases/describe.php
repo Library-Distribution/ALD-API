@@ -34,15 +34,20 @@
 
 		# todo later: get frameworks in the release
 
-		# todo: get last prerelease and last stable version
-		# todo: compile changelog (since latest prerelease + since latest stable)
 		if (StdlibRelease::exists($release['release'], StdlibRelease::PUBLISHED_YES)) {
-			# for published releases - TODO
-
+			$releases = StdlibRelease::ListReleases(StdlibRelease::PUBLISHED_YES);
+			usort($releases, 'semver_sort');
+			$index = array_search($release['release'], $releases) - 1;
+			if ($index >= 0) {
+				$changeset = Stdlib::diff($releases[$index], $release['release']);
+			}
 		} else {
-			$pending = StdlibPending::GetEntries($release['release']);
-			$release['changelog'] = array();
-			foreach ($pending AS $entry) {
+			$changeset = StdlibPending::GetEntries($release['release']);
+		}
+
+		$release['changelog'] = array();
+		if (isset($changeset)) {
+			foreach ($changeset AS $entry) {
 				$release['changelog'][$entry['name']] = $entry['comment'];
 			}
 		}
@@ -68,5 +73,9 @@
 	catch (Exception $e)
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	}
+
+	function semver_sort($a, $b) {
+		return semver_compare($a, $b);
 	}
 ?>
