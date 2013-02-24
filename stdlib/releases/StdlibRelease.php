@@ -1,5 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
+require_once(dirname(__FILE__) . "/../Stdlib.php");
+require_once(dirname(__FILE__) . "/../StdlibPending.php");
 require_once(dirname(__FILE__) . "/../../modules/HttpException/HttpException.php");
 require_once(dirname(__FILE__) . "/../../modules/semver/semver.php");
 
@@ -137,6 +139,19 @@ class StdlibRelease
 			}
 		}
 		return NULL;
+	}
+
+	public static function publish($release) { # caller must ensure that $release is not published
+		$entries = Stdlib::GetItemsUnpublished($release, self::previousRelease($release, self::PUBLISHED_YES));
+		foreach ($entries AS $entry) {
+			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
+			StdlibPending::DeleteEntry($entry['id']);
+		}
+
+		print_r($release_data = self::describe($release, self::PUBLISHED_BOTH));
+		if ($release_data['date'] === NULL) {
+			self::update($release, array('date' => date('Y-m-d H:i:s')), true);
+		}
 	}
 
 	static function semver_sort($a, $b)

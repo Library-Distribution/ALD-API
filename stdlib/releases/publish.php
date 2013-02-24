@@ -20,7 +20,7 @@
 		if (StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_YES)) # check if already published
 			throw new HttpException(403, NULL, "Must not change published release!");
 
-		StdlibRelease::update($_GET["version"], array("date" => date("c")));
+		StdlibRelease::publish($_GET["version"]);
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}
 	catch (HttpException $e)
