@@ -36,7 +36,7 @@
 			else
 			{
 				$items = sql2array($db_result);
-				usort($items, "semver_sort"); # sort by "version" field, following semver rules
+				usort($items, array('Item', "semver_sort")); # sort by "version" field, following semver rules
 				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
 			}
 
@@ -116,11 +116,10 @@
 			$db_entry = mysql_fetch_assoc($db_result);
 			return $db_entry["user"];
 		}
-	}
 
-	function semver_sort($a, $b)
-	{
-		return semver_compare($a["version"], $b["version"]);
+		static function semver_sort($a, $b) {
+			return semver_compare($a["version"], $b["version"]);
+		}
 	}
 
 	function EnwrapColName($col) {
