@@ -97,6 +97,7 @@
 		$sort_by_rating = false;
 		if (isset($_GET['sort'])) {
 			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => 'SUM(`rating`)'));
+			$sort_by_rating = preg_match('/(^|\s)!?rating/', $_GET['sort']) == 1;
 		}
 
 		# enable rating filters if necessary
