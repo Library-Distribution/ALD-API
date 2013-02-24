@@ -99,7 +99,7 @@ class StdlibRelease
 		}
 	}
 
-	public static function update($release, $data)
+	public static function update($release, $data, $force_unpublished = false)
 	{
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
@@ -112,7 +112,7 @@ class StdlibRelease
 						array_map('mysql_real_escape_string', array_values($data), array_fill(0, count($data), $db_connection))
 						)
 					)
-				. " WHERE `release` = '$release' AND " . self::get_publish_cond(self::PUBLISHED_NO);
+				. " WHERE `release` = '$release'" . (($t = self::get_publish_cond($force_unpublished ? self::PUBLISHED_BOTH : self::PUBLISHED_NO)) ? ' AND ' . $t : '');;
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
