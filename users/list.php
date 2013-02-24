@@ -2,6 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../sort_get_order_clause.php');
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
 
@@ -17,6 +18,8 @@
 
 		# retrieve data limits
 		$db_limit = "";
+		$db_order = '';
+
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all")
 		{
 			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
@@ -30,8 +33,12 @@
 			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
 		}
 
+		if (isset($_GET['sort'])) {
+			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'joined' => '`joined`'));
+		}
+
 		# query for data:
-		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_limit";
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_order $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
