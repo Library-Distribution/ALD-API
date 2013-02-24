@@ -56,5 +56,37 @@ class Stdlib
 			return $old_items;
 		}
 	}
+
+	public static function diff($old, $new) {
+		$old_items = self::GetItems($old);
+		foreach ($old_items AS &$item) {
+			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
+		}
+
+		$new_items = self::GetItems($new);
+		foreach ($new_items AS &$item) {
+				$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
+		}
+
+		$diff = array();
+
+		foreach ($new_items AS &$item) {
+			$old_index = searchSubArray($old_items, array('name' => $item['name']));
+
+			if ($old_index === NULL) {
+				$diff[] = array('id' => $item['id'], 'comment' => $item['comment'], 'name' => $item['name'], 'version' => $item['version'], 'update' => UpdateType::ADD);
+			} else if ($old_items[$old_index]['version'] != $item['version']) {
+				$diff[] = array('id' => $item['id'], 'comment' => $item['comment'], 'name' => $item['name'], 'version' => $item['version'], 'update' => UpdateType::getUpdate($old_items[$old_index]['version'], $item['version']));
+				unset($old_items[$old_index]);
+			} else {
+				unset($old_items[$old_index]);
+			}
+		}
+		foreach ($old_items AS $item) {
+			$diff[] = array('id' => $item['id'], 'comment' => 'Removing ' . $item['name'] . ' v' . $item['version'], 'name' => $item['name'], 'version' => $item['version'], 'update' => UpdateType::REMOVE);
+		}
+
+		return $diff;
+	}
 }
 ?>
