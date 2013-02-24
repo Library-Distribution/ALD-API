@@ -2,6 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../sort_get_order_clause.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
@@ -95,20 +96,7 @@
 		# retrieve sorting parameters
 		$sort_by_rating = false;
 		if (isset($_GET['sort'])) {
-			$sort_keys = explode(' ', $_GET['sort']);
-			$sort_dirs = array_map(function($item) { return substr($item, 0, 1) != '!'; }, $sort_keys);
-			$sort_keys = array_map(function($item) { return substr($item, 0, 1) == '!' ? substr($item, 1, strlen($item) - 1 ) : $item; }, $sort_keys);
-			$sorting = array_combine($sort_keys, $sort_dirs);
-
-			# can sort by:
-			$allowed_sorting = array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => 'SUM(`rating`)');
-			foreach ($sorting AS $key => $dir) {
-				if (array_key_exists($key, $allowed_sorting)) {
-					$db_order .= ($db_order) ? ', ' : 'ORDER BY ';
-					$db_order .= $allowed_sorting[$key] . ' ' . ($dir ? 'ASC' : 'DESC');
-					$sort_by_rating = $sort_by_rating || $key == 'rating';
-				}
-			}
+			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => 'SUM(`rating`)'));
 		}
 
 		# enable rating filters if necessary
