@@ -13,7 +13,6 @@
 		Assert::GetParameters("type");
 
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
-		$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
 
 		$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		if (!empty($_GET["base"]))
@@ -56,6 +55,8 @@
 
 			$release = $_POST["version"];
 		} else {
+			$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
+
 			# bump version number according to $type
 			$release = array();
 			semver_parts($prev_release, $release);
@@ -91,7 +92,7 @@
 		$date = isset($_POST['date']) ? $_POST['date'] : NULL;
 		$description = isset($_POST['description']) ? $_POST['description'] : '';
 
-		StdlibRelease::create($type, $release, $date, $description);
+		StdlibRelease::create($release, $date, $description);
 
 		if ($content_type == "application/json")
 		{

@@ -9,7 +9,6 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `stdlib_releases` (
   `release` tinytext NOT NULL,
-  `update` int(11) NOT NULL,
   `date` timestamp NULL DEFAULT NULL,
   `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

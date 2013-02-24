@@ -28,8 +28,6 @@
 		}
 
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
-		unset($release['update']);
-
 		$release['libs'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 
 		# todo later: get frameworks in the release
