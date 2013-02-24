@@ -23,9 +23,6 @@ class StdlibPending
 	}
 
 	public static function GetEntries($release) {
-		if (StdlibRelease::exists($release, StdlibRelease::PUBLISHED_YES)) # check if not yet released
-			throw new HttpException(400, NULL, 'No pending entries for a published release!');
-
 		$base = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 		$release_update = UpdateType::getUpdate($base, $release); # get release update type
 
