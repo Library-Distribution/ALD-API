@@ -8,7 +8,7 @@ require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 
 class Stdlib
 {
-	public static function GetItems($release)
+	public static function GetItems($release, $suppress_publish = false)
 	{
 		if (StdlibRelease::exists($release, StdlibRelease::PUBLISHED_YES)) { # check if published
 			$db_connection = db_ensure_connection();
@@ -21,7 +21,19 @@ class Stdlib
 				throw new HttpException(500);
 			}
 
-			return sql2array($db_result);
+			$items = sql2array($db_result);
+			if (!$suppress_publish && count($items) == 0) {
+				try {
+					if ($retry = count(StdlibPending::GetEntries($release)) > 0)
+						StdlibRelease::publish($release);
+				} catch (HttpException $e) {
+					$retry = false;
+				}
+				if ($retry) {
+					return self::GetItems($release, true); # avoid never-ending loop
+				}
+			}
+			return $items;
 		} else {
 			return self::GetItemsUnpublished($release, StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES));
 		}
