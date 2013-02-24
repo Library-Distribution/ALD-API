@@ -31,7 +31,7 @@
 		}
 
 		user_basic_auth("Restricted API");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 			throw new HttpException(403);
 
 		# get latest release

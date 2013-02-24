@@ -23,7 +23,7 @@
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
 		{
 			user_basic_auth("");
-			if (User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+			if (User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 				$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		}
 

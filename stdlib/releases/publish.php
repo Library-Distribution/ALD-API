@@ -11,7 +11,7 @@
 		Assert::GetParameters("version");
 
 		user_basic_auth("You must be part of the stdlib team!");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 			throw new HttpException(403, NULL, "You must be part of the stdlib team!");
 
 		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists

@@ -20,7 +20,7 @@
 
 			if (in_array($published, array(-1, "no", "false"), true) || ($both = in_array($published, array(0, "both"), true))) {
 				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!"); # check auth
-				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 					throw new HttpException(403);
 				$publish_status = $both ? StdlibRelease::PUBLISHED_BOTH : StdlibRelease::PUBLISHED_NO;
 			}
