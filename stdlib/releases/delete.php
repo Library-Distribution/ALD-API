@@ -14,6 +14,9 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 			throw new HttpException(403);
 
+		# make sure all releases that should be published are published
+		StdlibRelease::publishPending();
+
 		StdlibRelease::delete($_GET["version"]);
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}

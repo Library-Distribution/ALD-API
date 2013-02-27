@@ -14,6 +14,9 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 			throw new HttpException(403, NULL, "You must be part of the stdlib team!");
 
+		# make sure all releases that should be published are published
+		StdlibRelease::publishPending();
+
 		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
 			throw new HttpException(404, NULL, "Release does not exist!");
 

@@ -34,7 +34,7 @@ class StdlibRelease
 		if (in_array($special_version, array(self::SPECIAL_VERSION_LATEST, self::SPECIAL_VERSION_FIRST)))
 		{
 			$releases = self::ListReleases($published);
-			if (count($releases > 0))
+			if (count($releases) > 0)
 			{
 				usort($releases, array("StdlibRelease", "semver_sort")); # sort following the semver rules
 				return $releases[$special_version == self::SPECIAL_VERSION_LATEST ? count($releases) - 1 : 0]; # latest / first release
@@ -89,7 +89,7 @@ class StdlibRelease
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
 
-		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND " . self::get_publish_cond(self::PUBLISHED_NO);
+		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND !`published`";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -101,8 +101,12 @@ class StdlibRelease
 		}
 	}
 
-	public static function update($release, $data, $force_unpublished = false)
+	public static function update($release, $data)
 	{
+		if (self::exists($release, self::PUBLISHED_YES)) {
+			throw new HttpException(400, NULL, 'Cannot update already published release!');
+		}
+
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
 
@@ -114,7 +118,7 @@ class StdlibRelease
 						array_map('mysql_real_escape_string', array_values($data), array_fill(0, count($data), $db_connection))
 						)
 					)
-				. " WHERE `release` = '$release'" . (($t = self::get_publish_cond($force_unpublished ? self::PUBLISHED_BOTH : self::PUBLISHED_NO)) ? ' AND ' . $t : '');;
+				. " WHERE `release` = '$release' AND !`published`";
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -141,17 +145,41 @@ class StdlibRelease
 		return NULL;
 	}
 
-	public static function publish($release) { # caller must ensure that $release is not published
+	public static function publishPending() {
+		$db_connection = db_ensure_connection();
+		$db_query = 'SELECT `release` FROM ' . DB_TABLE_STDLIB_RELEASES . ' WHERE !`published` AND `date` <= NOW()';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500, NULL, mysql_error());
+		}
+
+		$releases = array();
+		while ($release = mysql_fetch_array($db_result)) { # sort by release
+			$releases[] = $release['release'];
+		}
+
+		usort($releases, array('StdlibRelease', 'semver_sort')); # sort following the semver rules
+		foreach ($releases AS $release) {
+			self::publish($release);
+		}
+	}
+
+	public static function publish($release) {
+		if (self::exists($release, self::PUBLISHED_YES)) {
+			throw new HttpException(400, NULL, 'Cannot publish already published release!');
+		}
+
 		$entries = Stdlib::GetItemsUnpublished($release, self::previousRelease($release, self::PUBLISHED_YES));
 		foreach ($entries AS $entry) {
 			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
 			StdlibPending::DeleteEntry($entry['id']);
 		}
 
-		print_r($release_data = self::describe($release, self::PUBLISHED_BOTH));
+		$release_data = self::describe($release, self::PUBLISHED_BOTH);
 		if ($release_data['date'] === NULL) {
-			self::update($release, array('date' => date('Y-m-d H:i:s')), true);
+			self::update($release, array('date' => date('Y-m-d H:i:s')));
 		}
+		self::update($release, array('published' => true));
 	}
 
 	static function semver_sort($a, $b)
@@ -186,9 +214,9 @@ class StdlibRelease
 		switch ($published)
 		{
 			case self::PUBLISHED_YES:
-				return '(`date` IS NOT NULL AND `date` AND NOW() >= `date`)';
+				return '`published`';
 			case self::PUBLISHED_NO:
-				return '(`date` IS NULL OR !`date` OR NOW() < `date`)';
+				return '!`published`';
 			case self::PUBLISHED_BOTH:
 				return NULL;
 			default:

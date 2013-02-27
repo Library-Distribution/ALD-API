@@ -27,6 +27,9 @@
 			# else if (in_array($published, array(1, "+1", "true", "yes"))) # the default
 		}
 
+		# make sure all releases that should be published are published
+		StdlibRelease::publishPending();
+
 		$releases = StdlibRelease::ListReleases($publish_status);
 
 		if ($content_type == "application/json")
