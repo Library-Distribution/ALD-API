@@ -9,7 +9,7 @@ class Candidate {
 		$user = mysql_real_escape_string($user, $db_connection);
 		$reason = mysql_real_escape_string($reason, $db_connection);
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE . ' (`item`, `user`, `reason`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATES . ' (`item`, `user`, `reason`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -22,7 +22,7 @@ class Candidate {
 		$db_connection = db_ensure_connection();
 		$item = mysql_real_escape_string($item, $db_connection);
 
-		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE . ' WHERE `item` = UNHEX("' . $item . '")';
+		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
