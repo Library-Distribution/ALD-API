@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . "/../../db.php");
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
+require_once(dirname(__FILE__) . '/../../UpdateType.php');
 require_once(dirname(__FILE__) . "/../../modules/HttpException/HttpException.php");
 require_once(dirname(__FILE__) . "/../../modules/semver/semver.php");
 
@@ -173,6 +174,14 @@ class StdlibRelease
 		foreach ($entries AS $entry) {
 			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
 			StdlibPending::DeleteEntry($entry['id']);
+		}
+
+		# removals are not covered by deletion above, so delete these entries here
+		$pending = StdlibPending::GetEntries($release);
+		foreach ($pending AS $entry) {
+			if ($entry['update'] == UpdateType::REMOVE) {
+				StdlibPending::DeleteEntry($entry['id']);
+			}
 		}
 
 		$release_data = self::describe($release, self::PUBLISHED_BOTH);
