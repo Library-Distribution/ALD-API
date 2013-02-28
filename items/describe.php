@@ -79,7 +79,6 @@
 		$output["downloads"] = (int)$db_entry["downloads"];
 		$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
-		$output["default"] = $db_entry["default_include"] == 1;
 		$tag_list  = array();
 		foreach ($data["tags"] AS $tag)
 		{
