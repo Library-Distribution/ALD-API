@@ -46,5 +46,21 @@ class Candidate {
 
 		return sql2array($db_result);
 	}
+
+	public static function rate($candidate, $user, $accept, $reason, $final = false) {
+		$db_connection = db_ensure_connection();
+
+		$candidate = mysql_real_escape_string($candidate, $db_connection);
+		$user = mysql_real_escape_string($user, $db_connection);
+		$reason = mysql_real_escape_string($reason, $db_connection);
+		$accept = $accept ? 'TRUE' : 'FALSE';
+		$final = $final ? 'TRUE' : 'FALSE';
+
+		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE_RATING . ' (`candidate`, `user`, `accept`, `final`, `reason`) VALUES (' . $candidate . ', UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+	}
 }
 ?>
