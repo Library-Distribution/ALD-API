@@ -1,6 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
-require_once(dirname(__FILE__) . '/../../modules/HttpException.php');
+require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
 class Candidate {
 	public static function create($item, $user, $reason) {
