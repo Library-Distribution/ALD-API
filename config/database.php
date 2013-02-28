@@ -11,7 +11,6 @@
 	define('DB_TABLE_STDLIB', 'stdlib'); # 
 	define('DB_TABLE_STDLIB_RELEASES', 'stdlib_releases'); # 
 	define('DB_TABLE_STDLIB_PENDING', 'stdlib_pending'); # 
-	define('DB_TABLE_STDLIB_ACTIONS', 'stdlib_actions'); # 
 	define('DB_TABLE_REGISTRATION', 'registration'); # 
 	define('DB_TABLE_TYPES', 'types'); # 
 
