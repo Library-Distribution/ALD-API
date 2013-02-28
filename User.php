@@ -11,6 +11,7 @@ class User
 	const PRIVILEGE_STDLIB = 8;
 	const PRIVILEGE_ADMIN = 16;
 	const PRIVILEGE_REGISTRATION = 32;
+	const PRIVILEGE_STDLIB_ADMIN = 64;
 
 	public static function hasPrivilegeById($id, $privilege)
 	{
