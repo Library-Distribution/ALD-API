@@ -95,6 +95,12 @@
 		$date = isset($_POST['date']) ? $_POST['date'] : NULL;
 		$description = isset($_POST['description']) ? $_POST['description'] : '';
 
+		if ($date !== NULL) {
+			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN)) {
+				throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
+			}
+		}
+
 		StdlibRelease::create($release, $date, $description);
 
 		if ($content_type == "application/json")

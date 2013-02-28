@@ -46,7 +46,10 @@
 		# verify date
 		if (isset($data["date"]))
 		{
-			# todo: check stdlib admin
+			# check stdlib admin
+			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN)) {
+				throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
+			}
 
 			# check valid date
 			$date = array();

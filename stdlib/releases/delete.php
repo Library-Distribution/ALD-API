@@ -11,7 +11,7 @@
 		Assert::GetParameters("version");
 
 		user_basic_auth("Restricted API");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN))
 			throw new HttpException(403);
 
 		# make sure all releases that should be published are published
