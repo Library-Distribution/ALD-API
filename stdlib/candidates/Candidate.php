@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
+require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
 class Candidate {
@@ -33,6 +34,17 @@ class Candidate {
 
 	public static function accepted($item) {
 		# ... todo ...
+	}
+
+	public static function listCandidates() {
+		$db_connection = db_ensure_connection();
+		$db_query = 'SELECT `id`, HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES; # todo: include status + approval
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		return sql2array($db_result);
 	}
 }
 ?>
