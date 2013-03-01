@@ -79,8 +79,17 @@ class StdlibPending
 		return $libs;
 	}
 
-	public static function AddEntry($id)
+	public static function AddEntry($id, $comment)
 	{
+		$db_connection = db_ensure_connection();
+		$id = mysql_real_escape_string($id, $db_connection);
+		$comment = mysql_real_escape_string($comment, $db_connection);
+
+		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_PENDING . ' (`lib`, `comment`) VALUES (UNHEX("' . $id . '"), "' . $comment . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
 	}
 
 	public static function DeleteEntry($id)
