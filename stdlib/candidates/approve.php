@@ -5,6 +5,7 @@ require_once('../../Assert.php');
 require_once('../../User.php');
 require_once('../../Item.php');
 require_once('Candidate.php');
+require_once('../StdlibPending.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
@@ -18,7 +19,7 @@ try {
 	Candidate::approve($_GET['id']);
 
 	if (Candidate::accepted($_GET['id'])) {
-		Candidate::makePending($_GET['id']);
+		StdlibPending::AddEntry(Candidate::getItem($_GET['id']), '');
 	}
 
 } catch (HttpException $e) {
