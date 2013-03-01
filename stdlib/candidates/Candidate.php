@@ -163,6 +163,19 @@ class Candidate {
 		return sql2array($db_result);
 	}
 
+	public static function listVotings($candidate) {
+		$db_connection = db_ensure_connection();
+		$candidate = (int)mysql_real_escape_string($candidate, $db_connection);
+
+		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		return sql2array($db_result);
+	}
+
 	public static function vote($candidate, $user, $accept, $reason, $final = false) {
 		$db_connection = db_ensure_connection();
 

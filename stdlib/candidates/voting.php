@@ -42,7 +42,22 @@ try {
 
 	} else {
 		Assert::GetParameters('id');
-		# ...
+		$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
+
+		$votings = Candidate::listVotings($_GET['id']);
+		if ($content_type == 'application/json') {
+			$content = json_encode($votings);
+		} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
+			$content = '<ald:votings xmlns:ald="ald://api/stdlib/candidates/voting/schema/2012">';
+			foreach ($votings AS $voting) {
+				$content .= '<ald:voting ald:candidate="' . $voting['candidate'] . '" ald:user="' . $voting['user'] . '" ald:accept="' . ($voting['accept'] ? 'true' : 'false') . '" ald:final="' . ($voting['final'] ? 'true' : 'false') . '" ald:reason="' . $voting['reason'] . '" ald:date="' . $voting['date'] . '"/>';
+			}
+			$content .= '</ald:votings>';
+		}
+		header('HTTP/1.1 200 ' . HttpException::getStatusMessage(200));
+		header('Content-type: ' . $content_type);
+		echo $content;
+		exit;
 	}
 
 } catch (HttpException $e) {
