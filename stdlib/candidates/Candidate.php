@@ -45,8 +45,31 @@ class Candidate {
 		return mysql_num_rows($db_result) > 0;
 	}
 
-	public static function accepted($item) {
-		# ... todo ...
+	public static function accepted($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT COUNT(*) AS count, `final`, `accept` FROM ' . DB_TABLE_CANDIDATE_RATING . ' WHERE `candidate` = ' . $id . ' GROUP BY `final`, `accept`';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		$accept = array();
+		while ($row = mysql_fetch_assoc($db_result)) {
+			if ($row['final'])
+				return $row['accept']; # final decisions overwrite everything else (there must only be one of them)
+			$accept[$row['accept']] = $row['count'];
+		}
+		if (CANDIDATE_ALWAYS_REQUIRE_FINAL)
+			return NULL; # if there had been a final, it would already have exited the loop
+
+		if ($accept[true] >= CANDIDATE_MIN_ACCEPTS && $accept[false] == 0 && !CANDIDATE_ACCEPT_REQUIRE_FINAL)
+			return true; # accepted based on the current (non-final) accepts
+		else if ($accept[false] >= CANDIDATE_MIN_REJECTS && $accept[true] == 0 && !CANDIDATE_REJECT_REQUIRE_FINAL)
+			return false; # rejected based on the current (no-final) rejects
+
+		return NULL; # must still be open
 	}
 
 	public static function getId($item) {
