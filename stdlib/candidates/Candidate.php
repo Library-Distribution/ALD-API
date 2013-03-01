@@ -50,7 +50,7 @@ class Candidate {
 		$db_connection = db_ensure_connection();
 		$id = (int)mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT COUNT(*) AS count, `final`, `accept` FROM ' . DB_TABLE_CANDIDATE_RATING . ' WHERE `candidate` = ' . $id . ' GROUP BY `final`, `accept`';
+		$db_query = 'SELECT COUNT(*) AS count, `final`, `accept` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $id . ' GROUP BY `final`, `accept`';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -163,7 +163,7 @@ class Candidate {
 		return sql2array($db_result);
 	}
 
-	public static function rate($candidate, $user, $accept, $reason, $final = false) {
+	public static function vote($candidate, $user, $accept, $reason, $final = false) {
 		$db_connection = db_ensure_connection();
 
 		$candidate = mysql_real_escape_string($candidate, $db_connection);
@@ -172,19 +172,19 @@ class Candidate {
 		$accept = $accept ? 'TRUE' : 'FALSE';
 		$final = $final ? 'TRUE' : 'FALSE';
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE_RATING . ' (`candidate`, `user`, `accept`, `final`, `reason`) VALUES (' . $candidate . ', UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE_VOTING . ' (`candidate`, `user`, `accept`, `final`, `reason`) VALUES (' . $candidate . ', UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 	}
 
-	public static function hasRated($id, $user) {
+	public static function hasVoted($id, $user) {
 		$db_connection = db_ensure_connection();
 		$id = (int)mysql_real_escape_string($id, $db_connection);
 		$user = mysql_real_escape_string($user, $db_connection);
 
-		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE_RATING . ' WHERE `user` = UNHEX("' . $user . '") AND `candidate` = ' . $id;
+		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `user` = UNHEX("' . $user . '") AND `candidate` = ' . $id;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);

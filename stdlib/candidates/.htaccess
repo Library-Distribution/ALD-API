@@ -4,7 +4,7 @@ RewriteEngine On
 
 RewriteRule ^list$ list.php [L]
 
-RewriteRule ^(rating|approve)/(\d+)$ $1.php?id=$2 [L]
-RewriteRule ^(reject|accept)/(\d+)$ rating.php?id=$2&mode=$1 [L]
+RewriteRule ^(voting|approve)/(\d+)$ $1.php?id=$2 [L]
+RewriteRule ^(reject|accept)/(\d+)$ voting.php?id=$2&mode=$1 [L]
 RewriteRule ^create/([0-9a-fA-F]{32})$ create.php?id=$1 [L]
 RewriteRule ^create/(.+)/(.+)$ create.php?name=$1&version=$2 [L]

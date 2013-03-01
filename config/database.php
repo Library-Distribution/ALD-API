@@ -14,7 +14,7 @@
 	define('DB_TABLE_STDLIB_ACTIONS', 'stdlib_actions'); # 
 
 	define('DB_TABLE_CANDIDATES', 'candidates'); # 
-	define('DB_TABLE_CANDIDATE_RATING', 'candidate_rating'); # 
+	define('DB_TABLE_CANDIDATE_VOTING', 'candidate_voting'); # 
 
 	define('DB_TABLE_REGISTRATION', 'registration'); # 
 	define('DB_TABLE_TYPES', 'types'); # 
