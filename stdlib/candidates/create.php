@@ -32,8 +32,9 @@ try {
 		throw new HttpException(409, NULL, 'This item is already in the stdlib or pending for future inclusion.');
 	}
 
-	if (Candidate::exists($item)) {
-		$status = Candidate::accepted($item);
+	if (Candidate::existsItem($item)) {
+		$id = Candidate::getId($item);
+		$status = Candidate::accepted($id);
 		if ($status === FALSE) { # previously rejected
 			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) { # reject unless privilege stdlib
 				throw new HttpException(403, NULL, 'This item has been refused earlier. Only members of the stdlib team can make it a candidate again!');

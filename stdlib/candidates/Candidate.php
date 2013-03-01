@@ -19,7 +19,20 @@ class Candidate {
 		return mysql_insert_id($db_connection);
 	}
 
-	public static function exists($item) {
+	public static function exists($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		return mysql_num_rows($db_result) > 0;
+	}
+
+	public static function existsItem($item) {
 		$db_connection = db_ensure_connection();
 		$item = mysql_real_escape_string($item, $db_connection);
 
