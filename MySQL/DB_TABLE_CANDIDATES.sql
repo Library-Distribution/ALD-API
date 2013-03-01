@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `candidates` (
   `user` binary(16) NOT NULL,
   `reason` text NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `approval` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 

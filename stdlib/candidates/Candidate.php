@@ -66,6 +66,17 @@ class Candidate {
 		return $t['id'];
 	}
 
+	public static function approve($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'UPDATE ' . DB_TABLE_CANDIDATES . ' SET `approval` = NOW() WHERE `id` = ' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+	}
+
 	public static function getUser($id) {
 		$db_connection = db_ensure_connection();
 		$id = (int)mysql_real_escape_string($id, $db_connection);
