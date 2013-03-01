@@ -58,6 +58,9 @@ class Candidate {
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
+		if (mysql_num_rows($db_result) < 1) {
+			throw new HttpException(404);
+		}
 
 		$t = mysql_fetch_assoc($db_result);
 		return $t['id'];
@@ -72,6 +75,9 @@ class Candidate {
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
+		if (mysql_num_rows($db_result) < 1) {
+			throw new HttpException(404);
+		}
 
 		$t = mysql_fetch_assoc($db_result);
 		return $t['user'];
@@ -85,6 +91,9 @@ class Candidate {
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
+		}
+		if (mysql_num_rows($db_result) < 1) {
+			throw new HttpException(404);
 		}
 
 		$t = mysql_fetch_assoc($db_result);
