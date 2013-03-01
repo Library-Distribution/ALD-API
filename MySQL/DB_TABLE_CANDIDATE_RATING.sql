@@ -7,7 +7,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 
-CREATE TABLE IF NOT EXISTS `candidate-rating` (
+CREATE TABLE IF NOT EXISTS `candidate_rating` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `candidate` int(11) NOT NULL,
   `user` binary(16) NOT NULL,
@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS `candidate-rating` (
   `final` tinyint(1) NOT NULL DEFAULT '0',
   `reason` text NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `rating` (`candidate`,`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

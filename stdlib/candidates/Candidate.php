@@ -178,5 +178,19 @@ class Candidate {
 			throw new HttpException(500);
 		}
 	}
+
+	public static function hasRated($id, $user) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$user = mysql_real_escape_string($user, $db_connection);
+
+		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE_RATING . ' WHERE `user` = UNHEX("' . $user . '") AND `candidate` = ' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		return mysql_num_rows($db_result) > 0;
+	}
 }
 ?>

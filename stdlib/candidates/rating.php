@@ -24,6 +24,16 @@ try {
 			throw new HttpException(403, NULL, 'Only stdlib admins can make a final decision.');
 		}
 
+		# reject if same user already rated
+		if (Candidate::hasRated($_GET['id'], User::getId($_SERVER['PHP_AUTH_USER']))) {
+			throw new HttpException(403, NULL, 'You cannot rate the same candidate twice.');
+		}
+
+		# reject if already closed
+		if (Candidate::accepted($_GET['id']) != NULL) {
+			throw new HttpException(403, NULL, 'Cannot rate a candidate that has already been accepted or rejected.');
+		}
+
 		Candidate::rate($_GET['id'], User::getId($_SERVER['PHP_AUTH_USER']), $_GET['mode'] == 'accept', $_POST['reason'], $final);
 
 		if (Candidate::accepted($_GET['id']) && Candidate::isApproved($_GET['id'])) {
