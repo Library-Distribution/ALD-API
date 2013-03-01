@@ -36,6 +36,20 @@ class Candidate {
 		# ... todo ...
 	}
 
+	public static function getUser($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		$t = mysql_fetch_assoc($db_result);
+		return $t['user'];
+	}
+
 	public static function listCandidates() {
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT `id`, HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES; # todo: include status + approval
