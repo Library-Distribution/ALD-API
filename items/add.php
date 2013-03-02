@@ -88,17 +88,16 @@
 		}
 
 		ensure_upload_dir(); # ensure the directory for uploads exists
-		$file = find_free_file(UPLOAD_FOLDER, ".zip");
-		rename($temp_stat['uri'], $file);
+		rename($temp_stat['uri'], UPLOAD_FOLDER . $pack_id . '.zip');
 		unlink($temp_stat['uri']);
 
 		# add the database entry
-		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags)
-					VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', '".basename($file)."', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
+		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, user, description, tags)
+					VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
-			unlink($file);
+			unlink(UPLOAD_FOLDER . $pack_id . '.zip');
 			throw new HttpException(500);
 		}
 

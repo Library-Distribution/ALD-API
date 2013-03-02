@@ -188,15 +188,6 @@
 		return true;
 	}
 
-	function find_free_file($dir = "", $ext = "")
-	{
-		do
-		{
-			$file = rand().$ext;
-		} while(file_exists($dir . $file));
-		return $dir . $file;
-	}
-
 	function find_free_directory($parent = "")
 	{
 		do
