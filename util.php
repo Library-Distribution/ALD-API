@@ -27,7 +27,7 @@
 		$output = array();
 
 		$archive = new ZipArchive();
-		if (@$archive->open($package) != TRUE)
+		if (@$archive->open($package) !== TRUE)
 		{
 			@$archive->close();
 			throw new HttpException(500, NULL, "Package file could not be opened!");
