@@ -30,7 +30,6 @@
 			fwrite($temp,$data);
 		$temp_stat = array_merge(fstat($temp), stream_get_meta_data($temp));
 		fclose($input);
-		fclose($temp);
 
 		# connect to database server
 		$db_connection = db_ensure_connection();
@@ -89,7 +88,7 @@
 
 		ensure_upload_dir(); # ensure the directory for uploads exists
 		rename($temp_stat['uri'], UPLOAD_FOLDER . $pack_id . '.zip');
-		unlink($temp_stat['uri']);
+		fclose($temp);
 
 		# add the database entry
 		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, user, description, tags)
