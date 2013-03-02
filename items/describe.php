@@ -29,17 +29,33 @@
 			$id = mysql_real_escape_string($_GET["id"], $db_connection);
 		}
 
+		$file = UPLOAD_FOLDER . $id . '.zip';
 		if ($content_type == "application/x-ald-package")
 		{
-			$db_query = "SELECT file FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id') AND reviewed != '-1'";
+			if (!Item::existsId($id)) {
+				throw new HttpException(404);
+			}
+
+			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
+			$db_result = mysql_query($db_query, $db_connection);
+			if (!$db_result)
+			{
+				throw new HttpException(500);
+			}
+
+			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+			header("Content-Type: $content_type");
+			header("Content-Length: " . filesize($file));
+			header("Content-Disposition: attachment; filename=$id.alp");
+			header("Content-MD5: " . base64_encode(md5_file($file)));
+			@readfile($file);
+			exit;
 		}
-		else
-		{
-			$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, SUM(`rating`) AS rating" # field list
-						. " FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . ', ' . DB_TABLE_RATINGS															# tables to read from
-						. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
-						. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
-		}
+
+		$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, SUM(`rating`) AS rating" # field list
+					. " FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . ', ' . DB_TABLE_RATINGS															# tables to read from
+					. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
+					. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
@@ -52,26 +68,7 @@
 		}
 		$db_entry = mysql_fetch_assoc($db_result);
 
-		if ($content_type == "application/x-ald-package")
-		{
-			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
-
-			$file = UPLOAD_FOLDER . $db_entry["file"];
-			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
-			header("Content-Type: $content_type");
-			header("Content-Length: " . filesize($file));
-			header("Content-Disposition: attachment; filename=$id.alp");
-			header("Content-MD5: " . base64_encode(md5_file($file)));
-			@readfile($file);
-			exit;
-		}
-
-		$data = read_package(UPLOAD_FOLDER . $db_entry["file"]);
+		$data = read_package($file);
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
