@@ -89,7 +89,7 @@
 
 		ensure_upload_dir(); # ensure the directory for uploads exists
 		$file = find_free_file(UPLOAD_FOLDER, ".zip");
-		move_uploaded_file($temp_stat['uri'], $file);
+		rename($temp_stat['uri'], $file);
 		unlink($temp_stat['uri']);
 
 		# add the database entry
