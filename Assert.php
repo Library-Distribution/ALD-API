@@ -53,6 +53,18 @@
 				throw new HttpException(400);
 		}
 
+		public static function ContentType($mime) {
+			if (!isset($_SERVER['CONTENT_TYPE']) || $_SERVER['CONTENT_TYPE'] != $mime) {
+				throw new HttpException(415);
+			}
+		}
+
+		public static function ContentLengthSpecified() {
+			if (!isset($_SERVER['CONTENT_LENGTH'])) {
+				throw new HttpException(411);
+			}
+		}
+
 		public static function HTTPS() {
 			if (empty($_SERVER['HTTPS']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1') {
 				throw new HttpException(403, NULL, 'Must use HTTPS for authenticated API!');
