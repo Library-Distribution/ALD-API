@@ -98,6 +98,7 @@
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
+			unlink($file);
 			throw new HttpException(500);
 		}
 
