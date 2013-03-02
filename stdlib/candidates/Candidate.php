@@ -168,9 +168,35 @@ class Candidate {
 		return $t['item'];
 	}
 
-	public static function listCandidates() {
+	public static function listCandidates($filters = array()) {
+		if (!is_array($filters)) {
+			throw new Exception('Must provide a valid array as candidate filter');
+		}
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT `id`, HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES; # todo: include status + approval
+		$db_cond = '';
+
+		foreach (array('item', 'user') AS $field) { # filter binary fields
+			if (isset($filters[$field])) {
+				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`' . $field . '` = UNHEX("' . mysql_real_escape_string($filters[$field], $db_connection) . '")';
+			}
+		}
+
+		foreach (array('created' => '=', 'created-after' => '>', 'created-before' => '<') AS $field => $op) { # filter creation date
+			if (isset($filters[$field])) {
+				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`date` ' . $op . ' "' . mysql_real_escape_string($filters[$field], $db_connection) . '"';
+			}
+		}
+
+		if (isset($filters['approved'])) {
+			if (in_array($filters['approved'], array(1, '+1', 'yes', 'true'))) {
+				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`approval` IS NOT NULL';
+			} else if (in_array($filters['approved'], array(-1, 'no', 'false'))) {
+				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`approval` IS NULL';
+			}
+			# else if (in_array($filters['approved'], array(0, 'both'))) - the default
+		}
+
+		$db_query = 'SELECT `id`, HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);

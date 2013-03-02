@@ -9,7 +9,7 @@ try {
 
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-	$candidates = Candidate::listCandidates();
+	$candidates = Candidate::listCandidates(array_intersect_key($_GET, array_flip(array('user', 'item', 'created', 'created-after', 'created-before', 'approved'))));
 
 	if ($content_type == 'application/json') {
 		$content = json_encode($candidates);
