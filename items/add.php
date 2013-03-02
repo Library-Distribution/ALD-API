@@ -42,12 +42,7 @@
 			throw new HttpException(413, NULL, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
 		}
 
-		ensure_upload_dir(); # ensure the directory for uploads exists
-		$file = find_free_file(UPLOAD_FOLDER, ".zip");
-		move_uploaded_file($temp_stat["uri"], $file);
-		unlink($temp_stat['uri']);
-
-		$data = read_package($file, array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
+		$data = read_package($temp_stat['uri'], array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
 		$pack_id = $data["id"]; $pack_name = $data["name"]; $pack_version = $data["version"]; $pack_type = $data["type"];
 		$pack_description = $data["description"];
 
@@ -91,6 +86,11 @@
 		{
 			throw new HttpException(409, NULL, "An item with the specified GUID '$pack_id' has already been uploaded!");
 		}
+
+		ensure_upload_dir(); # ensure the directory for uploads exists
+		$file = find_free_file(UPLOAD_FOLDER, ".zip");
+		move_uploaded_file($temp_stat['uri'], $file);
+		unlink($temp_stat['uri']);
 
 		# add the database entry
 		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, file, user, description, tags)
