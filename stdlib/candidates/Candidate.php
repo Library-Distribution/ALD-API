@@ -20,6 +20,22 @@ class Candidate {
 		return mysql_insert_id($db_connection);
 	}
 
+	public static function describe($id) {
+		$db_connection = db_ensure_connection();
+		$id = (int)mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT *, HEX(`item`) AS item, HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+		if (mysql_num_rows($db_result) < 1) {
+			throw new HttpException(404);
+		}
+
+		return mysql_fetch_assoc($db_result);
+	}
+
 	public static function exists($id) {
 		$db_connection = db_ensure_connection();
 		$id = (int)mysql_real_escape_string($id, $db_connection);
