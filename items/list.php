@@ -187,10 +187,10 @@
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			$content = "<ald:item-list xmlns:ald=\"ald://api/items/list/schema/2012\">";
+			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:item-list xmlns:ald=\"ald://api/items/list/schema/2012\">";
 			foreach ($data AS $item)
 			{
-				$content .= "<ald:item ald:name=\"{$item['name']}\" ald:version=\"{$item['version']}\" ald:id=\"{$item['id']}\" ald:user-id=\"{$item['user']['id']}\" ald:user=\"{$item['user']['name']}\"/>";
+				$content .= '<ald:item ald:name="' . htmlspecialchars($item['name'], ENT_QUOTES) . '" ald:version="' . htmlspecialchars($item['version'], ENT_QUOTES) . '" ald:id="' . htmlspecialchars($item['id'], ENT_QUOTES) . '" ald:user-id="' . htmlspecialchars($item['user']['id'], ENT_QUOTES) . '" ald:user="' . htmlspecialchars($item['user']['name'], ENT_QUOTES) . '"/>';
 			}
 			$content .= "</ald:item-list>";
 		}

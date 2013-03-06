@@ -91,27 +91,29 @@
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			$content = "<ald:item xmlns:ald=\"ald://api/items/describe/schema/2012\"";
+			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:item xmlns:ald=\"ald://api/items/describe/schema/2012\"";
 			# ...
 			foreach ($output AS $key => $value)
 			{
 				if (!is_array($value))
 				{
-					$content .= " ald:$key=\"" . (is_bool($value) ? ($value ? "true" : "false") : $value) . "\"";
+					$content .= " ald:$key=\"" . htmlspecialchars(is_bool($value) ? ($value ? "true" : "false") : $value, ENT_QUOTES) . "\"";
 				}
 			}
-			$content .= " ald:userID=\"{$output["user"]["id"]}\" ald:user=\"{$output["user"]["name"]}\"";
+			$content .= ' ald:userID="' . htmlspecialchars($output["user"]["id"], ENT_QUOTES) . '" ald:user="' . $output["user"]["name"] . '"';
 			$content .= ">";
 			if (isset($output["authors"]) && is_array($output["authors"]))
 			{
 				$content .= "<ald:authors>";
 				foreach ($output["authors"] AS $author)
 				{
-					$content .= "<ald:author ald:name=\"{$author["name"]}\""
-									. (isset($author["user-name"]) ? " ald:user-name=\"{$author["user-name"]}\"" : "")
-									. (isset($author["homepage"]) ? " ald:homepage=\"{$author["homepage"]}\"" : "")
-									. (isset($author["mail"]) ? " ald:mail=\"{$author["mail"]}\"" : "")
-							. "/>";
+					$content .= '<ald:author ald:name="' . htmlspecialchars($author["name"], ENT_QUOTES) . '"';
+					foreach (array('user-name', 'homepage', 'mail') AS $key){
+						if (isset($author[$key])) {
+							$content .= ' ald:' . $key . '="' . htmlspecialchars($author[$key], ENT_QUOTES) . '"';
+						}
+					}
+					$content .= '/>';
 				}
 				$content .= "</ald:authors>";
 			}
@@ -120,7 +122,7 @@
 				$content .= "<ald:dependencies>";
 				foreach ($output["dependencies"] AS $dependency)
 				{
-					$content .= "<ald:dependency ald:name=\"{$dependency["name"]}\">" . xml_version_switch($dependency) . "</ald:dependency>";
+					$content .= '<ald:dependency ald:name="' . htmlspecialchars($dependency["name"], ENT_QUOTES) . '">' . xml_version_switch($dependency) . "</ald:dependency>";
 				}
 				$content .= "</ald:dependencies>";
 			}
@@ -129,7 +131,7 @@
 				$content .= "<ald:requirements>";
 				foreach ($output["requirements"] AS $requirement)
 				{
-					$content .= "<ald:requirement ald:type=\"{$requirement["type"]}\">" . xml_version_switch($requirement) . "</ald:requirement>";
+					$content .= '<ald:requirement ald:type="' . htmlspecialchars($requirement["type"], ENT_QUOTES) . '">' . xml_version_switch($requirement) . "</ald:requirement>";
 				}
 				$content .= "</ald:requirements>";
 			}
@@ -138,7 +140,7 @@
 				$content .= "<ald:tags>";
 				foreach ($output["tags"] AS $tag)
 				{
-					$content .= "<ald:tag ald:name=\"{$tag}\"/>";
+					$content .= '<ald:tag ald:name="' . htmlspecialchars($tag, ENT_QUOTES) . '"/>';
 				}
 				$content .= "</ald:tags>";
 			}
@@ -147,7 +149,7 @@
 				$content .= "<ald:links>";
 				foreach ($output["links"] AS $link)
 				{
-					$content .= "<ald:link ald:name=\"{$link["name"]}\" ald:description=\"{$link["description"]}\" ald:href=\"{$link["href"]}\"/>";
+					$content .= '<ald:link ald:name="' . htmlspecialchars($link["name"], ENT_QUOTES) . '" ald:description="' . htmlspecialchars($link["description"], ENT_QUOTES) . '" ald:href="' . htmlspecialchars($link["href"], ENT_QUOTES) . '"/>';
 				}
 				$content .= "</ald:links>";
 			}
@@ -173,18 +175,18 @@
 		$content = "";
 		if (isset($data["version"]))
 		{
-			$content .= "<ald:version ald:value=\"{$data["version"]}\"/>";
+			$content .= '<ald:version ald:value="' . htmlspecialchars($data["version"], ENT_QUOTES) . '"/>';
 		}
 		else if (isset($data["version-range"]))
 		{
-			$content .= "<ald:version-range ald:min-value=\"{$data["version-range"]["min"]}\" ald:max-value=\"{$data["version-range"]["max"]}\"/>";
+			$content .= '<ald:version-range ald:min-value="' . htmlspecialchars($data["version-range"]["min"], ENT_QUOTES) . '" ald:max-value="' . htmlspecialchars($data["version-range"]["max"], ENT_QUOTES) . '"/>';
 		}
 		else if (isset($data["version-list"]) && is_array($data["version-list"]))
 		{
 			$content .= "<ald:version-list>";
 			foreach ($data["version-list"] AS $version)
 			{
-				$content .= "<ald:version ald:value=\"$version\"/>";
+				$content .= '<ald:version ald:value="' . htmlspecialchars($version, ENT_QUOTES) . '"/>';
 			}
 			$content .= "</ald:version-list>";
 		}

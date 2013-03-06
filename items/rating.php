@@ -80,9 +80,9 @@
 			if ($content_type == "application/json") {
 				$content = json_encode($ratings);
 			} else if ($content_type == "text/xml" || $content_type == "application/xml") {
-				$content  = '<ald:ratings xmlns:ald="ald://api/items/rating/schema/2012">';
+				$content  = '<?xml version="1.0" encoding="utf-8" ?><ald:ratings xmlns:ald="ald://api/items/rating/schema/2012">';
 				foreach ($ratings AS $user => $rating) {
-					$content .= '<ald:rating ald:user="' . $user . '" ald:value="' . $rating . '"/>';
+					$content .= '<ald:rating ald:user="' . htmlspecialchars($user, ENT_QUOTES) . '" ald:value="' . htmlspecialchars($rating, ENT_QUOTES) . '"/>';
 				}
 				$content .= '</ald:ratings>';
 			}
