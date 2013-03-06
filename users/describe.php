@@ -48,6 +48,7 @@
 
 			$user["mail-md5"] = md5($user["mail"]);
 			$user["id"] = $id;
+			$user['privileges'] = User::privilegeToArray($user['privileges']);
 
 			if (!$trusted_user) {
 				unset($user["mail"]);
@@ -63,7 +64,7 @@
 			{
 				$content = "<ald:user xmlns:ald=\"ald://api/users/describe/schema/2012\"";
 				foreach ($user AS $key => $value)
-					$content .= " ald:$key=\"" . (is_bool($value) ? ($value ? "true" : "false") : $value) . "\"";
+					$content .= " ald:$key=\"" . (is_bool($value) ? ($value ? "true" : "false") : (is_array($value) ? implode(' ', $value) : $value)) . "\"";
 				$content .= "/>";
 			}
 

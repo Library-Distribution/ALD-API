@@ -12,6 +12,59 @@ class User
 	const PRIVILEGE_ADMIN = 16;
 	const PRIVILEGE_REGISTRATION = 32;
 
+	public static function privilegeToArray($privilege) {
+		$arr = array();
+
+		if ($privilege == self::PRIVILEGE_NONE) {
+			$arr[] = 'none';
+		}
+		if (($privilege & self::PRIVILEGE_USER_MANAGE) == self::PRIVILEGE_USER_MANAGE) {
+			$arr[] = 'user-mod';
+		}
+		if (($privilege & self::PRIVILEGE_REVIEW) == self::PRIVILEGE_REVIEW) {
+			$arr[] = 'review';
+		}
+		if (($privilege & self::PRIVILEGE_DEFAULT_INCLUDE) == self::PRIVILEGE_DEFAULT_INCLUDE) {
+			$arr[] = 'stdlib';
+		}
+		if (($privilege & self::PRIVILEGE_ADMIN) == self::PRIVILEGE_ADMIN) {
+			$arr[] = 'admin';
+		}
+		if (($privilege & self::PRIVILEGE_REGISTRATION) == self::PRIVILEGE_REGISTRATION) {
+			$arr[] = 'registration';
+		}
+
+		return $arr;
+	}
+
+	public static function privilegeFromArray($arr) {
+		$privilege = self::PRIVILEGE_NONE;
+
+		foreach ($arr AS $priv) {
+			switch ($priv) {
+				case 'none':
+					if (count($arr) > 1) {
+						throw new HttpException(500);
+					}
+					break;
+				case 'user-mod': $privilege |= self::PRIVILEGE_USER_MANAGE;
+					break;
+				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
+					break;
+				case 'stdlib': $privilege |= self::PRIVILEGE_DEFAULT_INCLUDE;
+					break;
+				case 'admin': $privilege |= self::PRIVILEGE_ADMIN;
+					break;
+				case 'registration': $privilege |= self::PRIVILEGE_REGISTRATION;
+					break;
+				default:
+					throw new HttpException(500);
+			}
+		}
+
+		return $privilege;
+	}
+
 	public static function hasPrivilegeById($id, $privilege)
 	{
 		$db_connection = db_ensure_connection();
