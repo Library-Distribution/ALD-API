@@ -4,6 +4,7 @@
 	require_once("../util.php");
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
+	require_once("../User.php");
 
 	try
 	{
@@ -17,6 +18,8 @@
 
 		# retrieve data limits
 		$db_limit = "";
+		$db_cond = '';
+
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all")
 		{
 			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
@@ -30,8 +33,18 @@
 			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
 		}
 
+		# retrieve filters
+		if (isset($_GET['privileges'])) {
+			$privilege = User::privilegeFromArray(explode(' ', $_GET['privileges']));
+			if ($privilege == User::PRIVILEGE_NONE) {
+				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '`privileges` = ' . $privilege;
+			} else {
+				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '(`privileges` & ' . $privilege . ') = ' . $privilege;
+			}
+		}
+
 		# query for data:
-		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_limit";
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_cond $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{

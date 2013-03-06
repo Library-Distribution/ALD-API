@@ -37,6 +37,34 @@ class User
 		return $arr;
 	}
 
+	public static function privilegeFromArray($arr) {
+		$privilege = self::PRIVILEGE_NONE;
+
+		foreach ($arr AS $priv) {
+			switch ($priv) {
+				case 'none':
+					if (count($arr) > 1) {
+						throw new HttpException(500);
+					}
+					break;
+				case 'user-mod': $privilege |= self::PRIVILEGE_USER_MANAGE;
+					break;
+				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
+					break;
+				case 'stdlib': $privilege |= self::PRIVILEGE_DEFAULT_INCLUDE;
+					break;
+				case 'admin': $privilege |= self::PRIVILEGE_ADMIN;
+					break;
+				case 'registration': $privilege |= self::PRIVILEGE_REGISTRATION;
+					break;
+				default:
+					throw new HttpException(500);
+			}
+		}
+
+		return $privilege;
+	}
+
 	public static function hasPrivilegeById($id, $privilege)
 	{
 		$db_connection = db_ensure_connection();
