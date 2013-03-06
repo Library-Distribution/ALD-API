@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS `data` (
   `authors` tinytext,
   `type` int(11) DEFAULT NULL,
   `version` varchar(50) DEFAULT NULL,
-  `file` varchar(100) DEFAULT NULL,
   `user` binary(16) DEFAULT NULL,
   `description` text,
   `uploaded` timestamp NULL DEFAULT CURRENT_TIMESTAMP,

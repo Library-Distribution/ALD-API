@@ -16,6 +16,7 @@
 		const REQUEST_METHOD_GET = 'GET';
 		const REQUEST_METHOD_POST = 'POST';
 		const REQUEST_METHOD_DELETE = 'DELETE';
+		const REQUEST_METHOD_PUT = 'PUT';
 
 		public static function GetParameters()
 		{
@@ -50,6 +51,18 @@
 			}
 			if (!$satisfied)
 				throw new HttpException(400);
+		}
+
+		public static function ContentType($mime) {
+			if (!isset($_SERVER['CONTENT_TYPE']) || $_SERVER['CONTENT_TYPE'] != $mime) {
+				throw new HttpException(415);
+			}
+		}
+
+		public static function ContentLengthSpecified() {
+			if (!isset($_SERVER['CONTENT_LENGTH'])) {
+				throw new HttpException(411);
+			}
 		}
 
 		public static function HTTPS() {
