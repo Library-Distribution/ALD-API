@@ -8,6 +8,8 @@ try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 	Assert::GetParameters('id');
 
+	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
+
 	$candidate = Candidate::describe($_GET['id']);
 
 	if ($content_type == 'application/json') {
