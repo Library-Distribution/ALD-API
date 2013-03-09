@@ -204,7 +204,6 @@ class Candidate {
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-
 		return sql2array($db_result);
 	}
 
@@ -218,7 +217,12 @@ class Candidate {
 			throw new HttpException(500);
 		}
 
-		return sql2array($db_result);
+		return sql2array($db_result, array('Candidate', '_cleanup_voting'));
+	}
+	static function _cleanup_voting($item, $key) {
+		$item['accept'] = (bool)$item['accept'];
+		$item['final'] = (bool)$item['final'];
+		return $item;
 	}
 
 	public static function vote($candidate, $user, $accept, $reason, $final = false) {
