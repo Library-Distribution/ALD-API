@@ -109,7 +109,7 @@ class StdlibPending
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `lib` = UNHEX"' . $id . '")';
+		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `lib` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
