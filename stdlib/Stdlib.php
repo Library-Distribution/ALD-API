@@ -105,5 +105,19 @@ class Stdlib
 			throw new HttpException(500);
 		}
 	}
+
+	public static function releaseHasItem($release, $id) {
+		$db_connection = db_ensure_connection();
+		$release = mysql_real_escape_string($release, $db_connection);
+		$id= mysql_real_escape_string($id, $db_connection);
+
+		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `lib` = UNHEX("' . $id . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		return mysql_num_rows($db_result) > 0;
+	}
 }
 ?>
