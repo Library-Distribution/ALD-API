@@ -28,8 +28,16 @@ try {
 	user_basic_auth('Restricted API');
 
 	# reject if pending or in latest published release (don't check for unpublished releases - equals pending)
-	if (StdlibPending::IsPending($item) || Stdlib::releaseHasItem(StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES), $item)) {
-		throw new HttpException(409, NULL, 'This item is already in the stdlib or pending for future inclusion.');
+	if (StdlibPending::IsPending($item)) {
+		throw new HttpException(409, NULL, 'This item is already pending for future inclusion.');
+	}
+
+	$deletion = false;
+	if (Stdlib::releaseHasItem(StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES), $item)) {
+		if (!isset($_POST['delete']) || !in_array($_POST['delete'], array('1', 'true', 'yes'))) {
+			throw new HttpException(409, NULL, 'This item is already in the stdlib.');
+		}
+		$deletion = true;
 	}
 
 	if (Candidate::existsItem($item)) {
@@ -46,7 +54,7 @@ try {
 	}
 
 	# create DB entry
-	$candidate = Candidate::create($item, User::getId($_SERVER['PHP_AUTH_USER']), $_POST['reason']);
+	$candidate = Candidate::create($item, User::getId($_SERVER['PHP_AUTH_USER']), $_POST['reason'], $deletion);
 
 	# return the ID
 	if ($content_type == 'application/json') {

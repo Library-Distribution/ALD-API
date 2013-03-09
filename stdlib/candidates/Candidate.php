@@ -5,13 +5,14 @@ require_once(dirname(__FILE__) . '/../../config/stdlib.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
 class Candidate {
-	public static function create($item, $user, $reason) {
+	public static function create($item, $user, $reason, $deletion = false) {
 		$db_connection = db_ensure_connection();
 		$item = mysql_real_escape_string($item, $db_connection);
 		$user = mysql_real_escape_string($user, $db_connection);
 		$reason = mysql_real_escape_string($reason, $db_connection);
+		$deletion = $deletion ? '0' : 'NULL';
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATES . ' (`item`, `user`, `reason`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATES . ' (`item`, `user`, `reason`, `approval`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '", ' . $deletion . ')';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
