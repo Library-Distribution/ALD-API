@@ -177,6 +177,7 @@ class Candidate {
 		}
 		$db_connection = db_ensure_connection();
 		$db_cond = '';
+		$db_join = '';
 
 		foreach (array('item', 'user') AS $field) { # filter binary fields
 			if (isset($filters[$field])) {
@@ -199,7 +200,12 @@ class Candidate {
 			# else if (in_array($filters['approved'], array(0, 'both'))) - the default
 		}
 
-		$db_query = 'SELECT `id`, HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_cond;
+		if (isset($filters['owner'])) {
+			$db_join = ' LEFT JOIN ' . DB_TABLE_ITEMS . ' ON ' . DB_TABLE_CANDIDATES . '.`item` = ' . DB_TABLE_ITEMS . '.`id`';
+			$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . DB_TABLE_ITEMS . '.`user` = UNHEX("' . mysql_real_escape_string($filters['owner'], $db_connection) . '")';
+		}
+
+		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
