@@ -38,10 +38,10 @@
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			$content = "<ald:releases xmlns:ald=\"ald://api/stdlib/releases/list/schema/2012\">";
+			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:releases xmlns:ald=\"ald://api/stdlib/releases/list/schema/2012\">";
 			foreach ($releases AS $release)
 			{
-				$content .= "<ald:release ald:version=\"$release\"/>";
+				$content .= '<ald:release ald:version="' . htmlspecialchars($release, ENT_QUOTES) . '"/>';
 			}
 			$content .= "</ald:releases>";
 		}
