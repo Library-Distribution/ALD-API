@@ -40,6 +40,9 @@ try {
 			StdlibPending::AddEntry(Candidate::getItem($_GET['id']), '');
 		}
 
+		header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
+		exit;
+
 	} else {
 		Assert::GetParameters('id');
 		$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
