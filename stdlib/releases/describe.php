@@ -57,7 +57,19 @@
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			throw new HttpException(501);
+			$content = '<?xml version="1.0" encoding="utf-8" ?><ald:release xmlns:ald="ald://api/stdlib/releases/describe/schema/2012"';
+			foreach (array('release', 'date', 'published') AS $key) {
+				$content .= ' ald:' . $key . '="' . htmlspecialchars(is_bool($release[$key]) ? ($release[$key] ? 'true' : 'false') : $release[$key], ENT_QUOTES) . '"';
+			}
+			$content .= '><ald:description>' . htmlspecialchars($release['description'], ENT_QUOTES) . '</ald:description><ald:items>';
+			foreach ($release['libs'] AS $lib) {
+				$content .= '<ald:item ald:id="' . htmlspecialchars($lib, ENT_QUOTES) . '"/>';
+			}
+			$content .= '</ald:items><ald:changelog>';
+			foreach ($release['changelog'] AS $item => $text) {
+				$content .= '<ald:changelog-entry ald:item-name="' . htmlspecialchars($item, ENT_QUOTES) . '" ald:comment="' . htmlspecialchars($text, ENT_QUOTES) . '"/>';
+			}
+			$content .= '</ald:changelog></ald:release>';
 		}
 
 		header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
