@@ -15,9 +15,9 @@ try {
 	if ($content_type == 'application/json') {
 		$content = json_encode($candidate);
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
-		$content = '<ald:candidate xmlns:ald="ald://api/stdlib/candidates/describe/schema/2012"';
+		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:candidate xmlns:ald="ald://api/stdlib/candidates/describe/schema/2012"';
 		foreach ($candidate AS $k => $v) {
-			$content .= ' ald:' . $k . '="' . $v . '"';
+			$content .= ' ald:' . $k . '="' . htmlspecialchars($v, ENT_QUOTES) . '"';
 		}
 		$content .= '/>';
 	}

@@ -14,9 +14,9 @@ try {
 	if ($content_type == 'application/json') {
 		$content = json_encode($candidates);
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
-		$content = '<ald:candidates xmlns:ald="ald://api/stdlib/candidates/list/schema/2012">';
+		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:candidates xmlns:ald="ald://api/stdlib/candidates/list/schema/2012">';
 		foreach ($candidates AS $candidate) {
-			$content .= '<ald:candidate ald:item="' . $candidate['item'] . '" ald:id="' . $candidate['id'] . '"/>';
+			$content .= '<ald:candidate ald:item="' . htmlspecialchars($candidate['item'], ENT_QUOTES) . '" ald:id="' . htmlspecialchars($candidate['id'], ENT_QUOTES) . '"/>';
 		}
 		$content .= '</ald:candidates>';
 	}

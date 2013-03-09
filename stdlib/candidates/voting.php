@@ -51,9 +51,9 @@ try {
 		if ($content_type == 'application/json') {
 			$content = json_encode($votings);
 		} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
-			$content = '<ald:votings xmlns:ald="ald://api/stdlib/candidates/voting/schema/2012">';
+			$content = '<?xml version="1.0" encoding="utf-8" ?><ald:votings xmlns:ald="ald://api/stdlib/candidates/voting/schema/2012">';
 			foreach ($votings AS $voting) {
-				$content .= '<ald:voting ald:candidate="' . $voting['candidate'] . '" ald:user="' . $voting['user'] . '" ald:accept="' . ($voting['accept'] ? 'true' : 'false') . '" ald:final="' . ($voting['final'] ? 'true' : 'false') . '" ald:reason="' . $voting['reason'] . '" ald:date="' . $voting['date'] . '"/>';
+				$content .= '<ald:voting ald:candidate="' . htmlspecialchars($voting['candidate'], ENT_QUOTES) . '" ald:user="' . htmlspecialchars($voting['user'], ENT_QUOTES) . '" ald:accept="' . htmlspecialchars($voting['accept'] ? 'true' : 'false', ENT_QUOTES) . '" ald:final="' . htmlspecialchars($voting['final'] ? 'true' : 'false', ENT_QUOTES) . '" ald:reason="' . htmlspecialchars($voting['reason'], ENT_QUOTES) . '" ald:date="' . htmlspecialchars($voting['date'], ENT_QUOTES) . '"/>';
 			}
 			$content .= '</ald:votings>';
 		}
