@@ -17,7 +17,7 @@ try {
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
 		$content = '<ald:candidate xmlns:ald="ald://api/stdlib/candidates/describe/schema/2012"';
 		foreach ($candidate AS $k => $v) {
-			$content .= ' ald:' . $key . '="' . $v . '"';
+			$content .= ' ald:' . $k . '="' . $v . '"';
 		}
 		$content .= '/>';
 	}
