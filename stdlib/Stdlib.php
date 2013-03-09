@@ -113,7 +113,7 @@ class Stdlib
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `lib` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
