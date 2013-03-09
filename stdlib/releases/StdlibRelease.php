@@ -68,7 +68,9 @@ class StdlibRelease
 		{
 			throw new HttpException(404);
 		}
-		return mysql_fetch_assoc($db_result);
+		$t = mysql_fetch_assoc($db_result);
+		$t['published'] = (bool)$t['published'];
+		return $t;
 	}
 
 	public static function create($release, $date = NULL, $description = '') {
