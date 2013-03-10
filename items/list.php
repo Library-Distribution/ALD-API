@@ -96,7 +96,7 @@
 			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
 
 			# this complicated query ensures items without any ratings are considered to be rated 0
-			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
+			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT ROUND(AVG(rating), 1) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
 			if (isset($_GET['rating'])) {
 				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
 				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;

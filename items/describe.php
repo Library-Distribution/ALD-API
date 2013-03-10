@@ -52,7 +52,7 @@
 			exit;
 		}
 
-		$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, SUM(`rating`) AS rating" # field list
+		$db_query = "SELECT `" . DB_TABLE_ITEMS . "`.*, HEX(`" . DB_TABLE_ITEMS . "`.`user`) AS userID, `" . DB_TABLE_USERS . "`.`name` AS userName, ROUND(AVG(`rating`), 1) AS rating" # field list
 					. " FROM " . DB_TABLE_ITEMS . ", " . DB_TABLE_USERS . ', ' . DB_TABLE_RATINGS															# tables to read from
 					. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
 					. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
@@ -72,7 +72,7 @@
 
 		$output = $data;
 		$output["uploaded"] = $db_entry["uploaded"];
-		$output["rating"] = (int)$db_entry["rating"] ;
+		$output["rating"] = (float)$db_entry["rating"] ;
 		$output["downloads"] = (int)$db_entry["downloads"];
 		$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
 		$output["reviewed"] = $db_entry["reviewed"] == 1;
