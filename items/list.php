@@ -190,7 +190,7 @@
 			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:item-list xmlns:ald=\"ald://api/items/list/schema/2012\">";
 			foreach ($data AS $item)
 			{
-				$content .= '<ald:item ald:name="' . htmlspecialchars($item['name'], ENT_QUOTES) . '" ald:version="' . htmlspecialchars($item['version'], ENT_QUOTES) . '" ald:id="' . htmlspecialchars($item['id'], ENT_QUOTES) . '" ald:user-id="' . htmlspecialchars($item['user']['id'], ENT_QUOTES) . '" ald:user="' . htmlspecialchars($item['user']['name'], ENT_QUOTES) . '"/>';
+				$content .= '<ald:item ald:name="' . htmlspecialchars($item['name'], ENT_QUOTES) . '" ald:version="' . htmlspecialchars($item['version'], ENT_QUOTES) . '" ald:id="' . htmlspecialchars($item['id'], ENT_QUOTES) . '"/>';
 			}
 			$content .= "</ald:item-list>";
 		}
