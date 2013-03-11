@@ -1,11 +1,13 @@
 <?php
 require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
+require_once(dirname(__FILE__) . '/../modules/semver/semver.php');
 require_once(dirname(__FILE__) . '/../UpdateType.php');
 require_once(dirname(__FILE__) . '/../Item.php');
 require_once(dirname(__FILE__) . '/../util.php');
 require_once(dirname(__FILE__) . '/Stdlib.php');
 require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
+require_once(dirname(__FILE__) . '/../config/stdlib.php');
 
 class StdlibPending
 {
@@ -44,8 +46,10 @@ class StdlibPending
 				if (semver_compare($old_items[$old]['version'], $lib['version']) == 0) { # same version means removal
 					$update_type = UpdateType::REMOVE;
 				} else if (semver_compare($old_items[$old]['version'], $lib['version']) == 1) { # if any of them means a downgrade (old > new), delete the entry
-					self::DeleteEntry($lib['id']);
-					unset($libs[$i]);
+					if (!STDLIB_RELEASES_ALLOW_DOWNGRADE) {
+						throw new HttpException(500);
+					}
+					$update_type = UpdateType::getUpdate($lib['version'], $old_items[$old]['version']);
 				} else { # actually an update
 					$update_type = UpdateType::getUpdate($old_items[$old]['version'], $lib['version']); # retrieve update type
 				}
