@@ -33,7 +33,7 @@ class Stdlib
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
 
-		$pending = StdlibPending::GetEntries($release);
+		$pending = StdlibPending::GetEntries(UpdateType::getUpdate($base, $release));
 
 		foreach ($pending AS &$entry) {
 			switch ($entry['update']) {
