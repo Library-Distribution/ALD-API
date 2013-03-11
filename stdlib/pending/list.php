@@ -2,13 +2,30 @@
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
+require_once('../../UpdateType.php');
 require_once('../StdlibPending.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-	$data = StdlibPending::GetAllEntries();
+	if (isset($_GET['action'])) {
+		$action = UpdateType::getCode($_GET['action'], UpdateType::USAGE_STDLIB);
+	}
+
+	$release_update = UpdateType::MAJOR; # the default because any change can go into major
+	if (isset($_GET['release-type'])) {
+		$release_update = UpdateType::getCode($_GET['release-type'], UpdateType::USAGE_STDLIB_RELEASES);
+	}
+
+	$data = StdlibPending::GetEntries($release_update);
+	foreach ($data AS $i => &$entry) {
+		if (isset($action) && $entry['update'] != $action) {
+			unset($data[$i]);
+		}
+		$entry['update'] = UpdateType::getName($entry['update'], UpdateType::USAGE_STDLIB);
+	}
+	sort($data); # make array continous
 
 	if ($content_type == 'application/json') {
 		$content = json_encode($data);
