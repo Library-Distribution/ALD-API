@@ -1,0 +1,3 @@
+RewriteEngine On
+
+RewriteRule ^list$ list.php [L]
