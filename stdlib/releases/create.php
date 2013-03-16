@@ -58,7 +58,7 @@
 
 			$release = $_POST["version"];
 		} else {
-			$type = UpdateType::getCode($_GET["type"], "stdlib_releases");
+			$type = UpdateType::getCode($_GET["type"], UpdateType::USAGE_STDLIB_RELEASES);
 
 			# bump version number according to $type
 			$release = array();
