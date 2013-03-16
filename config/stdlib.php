@@ -1,6 +1,6 @@
 <?php
 	# Whether or not downgrading a lib in the stdlib to a previous version (in a new stdlib release) is allowed
-	define('STDLIB_RELEASES_ALLOW_DOWNGRADE', true);
+	define('STDLIB_ALLOW_DOWNGRADE', true);
 
 	# The item types allowed in the stdlib, separated by \0
 	define('STDLIB_ALLOWED_TYPES', 'lib');

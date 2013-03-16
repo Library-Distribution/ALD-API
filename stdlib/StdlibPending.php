@@ -46,7 +46,7 @@ class StdlibPending
 				if (semver_compare($old_items[$old]['version'], $lib['version']) == 0) { # same version means removal
 					$update_type = UpdateType::REMOVE;
 				} else if (semver_compare($old_items[$old]['version'], $lib['version']) == 1) { # if any of them means a downgrade (old > new), delete the entry
-					if (!STDLIB_RELEASES_ALLOW_DOWNGRADE) {
+					if (!STDLIB_ALLOW_DOWNGRADE) {
 						throw new HttpException(500);
 					}
 					$update_type = UpdateType::getUpdate($lib['version'], $old_items[$old]['version']);
