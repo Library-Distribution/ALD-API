@@ -4,6 +4,7 @@ require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../UpdateType.php');
 require_once('../StdlibPending.php');
+require_once('../releases/StdlibRelease.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
@@ -18,7 +19,9 @@ try {
 		$release_update = UpdateType::getCode($_GET['release-type'], UpdateType::USAGE_STDLIB_RELEASES);
 	}
 
-	$data = StdlibPending::GetEntries($release_update);
+	$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+	$data = StdlibPending::GetEntries(UpdateType::bumpVersion($latest_release, $release_update));
+
 	foreach ($data AS $i => &$entry) {
 		if (isset($action) && $entry['update'] != $action) {
 			unset($data[$i]);
