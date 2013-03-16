@@ -6,6 +6,8 @@ require_once(dirname(__FILE__) . '/StdlibPending.php');
 require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 
+Stdlib::cleanup();
+
 class Stdlib
 {
 	public static function GetItems($release)
@@ -118,6 +120,25 @@ class Stdlib
 		}
 
 		return mysql_num_rows($db_result) > 0;
+	}
+
+	public static function cleanup() {
+		$db_connection = db_ensure_connection();
+
+		# ensure not 2x stdlib with same item and release
+		$db_query = 'SELECT `release`, `item` FROM ' . DB_TABLE_STDLIB . ' GROUP BY `release`, `item` HAVING COUNT(*) > 1';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500, NULL, mysql_error());
+		}
+
+		while ($dup = mysql_fetch_assoc($db_result)) {
+			$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $dup['release'] . '" AND `item` = "' . $dup['item'] . '" LIMIT 1';
+			$db_result2 = mysql_query($db_query, $db_connection);
+			if ($db_result2 === FALSE) {
+				throw new HttpException(500);
+			}
+		}
 	}
 }
 ?>

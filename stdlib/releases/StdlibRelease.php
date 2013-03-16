@@ -6,6 +6,8 @@ require_once(dirname(__FILE__) . '/../../UpdateType.php');
 require_once(dirname(__FILE__) . "/../../modules/HttpException/HttpException.php");
 require_once(dirname(__FILE__) . "/../../modules/semver/semver.php");
 
+StdlibRelease::cleanup();
+
 class StdlibRelease
 {
 	const RELEASE_BASE_ALL = "all";
@@ -214,6 +216,21 @@ class StdlibRelease
 
 		# fetch releases in array
 		return sql2array($db_result, create_function('$release', 'return $release[\'release\'];'));
+	}
+
+	public static function cleanup() {
+		$latest_release = self::getVersion(self::SPECIAL_VERSION_LATEST, self::PUBLISHED_YES);
+
+		# ensure everything that should be published is published
+		self::publishPending();
+
+		# ensure there are no downgrade releases
+		$releases = self::ListReleases(self::PUBLISHED_NO);
+		foreach ($releases AS $release) {
+			if (semver_compare($latest_release, $release) > -1) {
+				self::delete($release);
+			}
+		}
 	}
 
 	const PUBLISHED_YES = 1;

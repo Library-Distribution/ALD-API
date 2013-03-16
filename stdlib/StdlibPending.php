@@ -9,6 +9,8 @@ require_once(dirname(__FILE__) . '/Stdlib.php');
 require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
 require_once(dirname(__FILE__) . '/../config/stdlib.php');
 
+StdlibPending::cleanup();
+
 class StdlibPending
 {
 	public static function GetAllEntries()
@@ -145,6 +147,33 @@ class StdlibPending
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
 		}
+	}
+
+	public static function cleanup() {
+		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+		$live_items = array_map(array('StdlibPending', 'sanitize_items'), Stdlib::GetItems($latest_release));
+		$pending = array_map(array('StdlibPending', 'sanitize_items'), self::GetAllEntries());
+
+		# ensure there are no pending entries < live entries if downgrades not allowed
+		if (!STDLIB_ALLOW_DOWNGRADE) {
+			$pending_copy = $pending;
+
+			foreach ($live_items AS $item) {
+				while (($i = searchSubArray($pending_copy, array('name' => $item['name']))) !== NULL) {
+					if (semver_compare($item['version'], $pending_copy[$i]['version']) > 0) { # if the live version is > the pending (and no downgrades allowed, see above)
+						self::DeleteEntry($pending_copy[$i]['id']); # delete the pending downgrade
+					}
+					unset($pending_copy[$i]);
+				}
+			}
+		}
+
+		# todo: ensure not removal + addition of the same item pending >> delete both
+		# todo: ensure not removal + addition of different versions of the same item pending >> make upgrade
+	}
+
+	static function sanitize_items($item) {
+		return array_merge($item, Item::get($item['id'], array('name', 'version')));
 	}
 }
 ?>
