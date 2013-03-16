@@ -14,7 +14,7 @@ class Stdlib
 			$db_connection = db_ensure_connection();
 			$release = mysql_real_escape_string($release, $db_connection);
 
-			$db_query = 'SELECT HEX(`lib`) AS id, comment FROM ' . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
+			$db_query = 'SELECT HEX(`item`) AS id, comment FROM ' . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
 			$db_result = mysql_query($db_query, $db_connection);
 			if (!$db_result)
 			{
@@ -99,7 +99,7 @@ class Stdlib
 		$lib = mysql_real_escape_string($lib, $db_connection);
 		$comment = mysql_real_escape_string($comment, $db_connection);
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `lib`, `comment`) VALUES ("' . $release . '", UNHEX("' . $lib . '"), "' . $comment . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $lib . '"), "' . $comment . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
@@ -111,7 +111,7 @@ class Stdlib
 		$release = mysql_real_escape_string($release, $db_connection);
 		$id= mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `lib` = UNHEX("' . $id . '")';
+		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `item` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
