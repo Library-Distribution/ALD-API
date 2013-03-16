@@ -25,7 +25,7 @@
 
 		private static $usage = array(self::USAGE_ITEMS => array(self::MAJOR, self::MINOR, self::PATCH, self::BUILD_INCREASE, self::PRERELEASE_INCREASE, self::ADD),
 							self::USAGE_STDLIB => array(self::MAJOR, self::MINOR, self::PATCH, self::ADD, self::REMOVE),
-							self::USAGE_STDLIB_RELEASES => array(self::MAJOR, self::MINOR, self::PATCH));
+							self::USAGE_STDLIB_RELEASES => array(self::MAJOR, self::MINOR, self::PATCH)); # stdlib/pending/list relies on this not to be changed
 
 		public static function getCode($str, $usage)
 		{
@@ -94,6 +94,36 @@
 			}
 
 			throw new HttpException(500);
+		}
+
+		public static function bumpVersion($base, $type) {
+			$parts = array();
+			if (!semver_parts($base, $parts)) { # split into parts
+				throw new HttpException(500);
+			}
+
+			$reset = array('minor' => 0, 'patch' => 0, 'prerelease' => NULL, 'build' => NULL);
+			switch ($type) {
+				case self::MAJOR: $field = 'major';
+					break;
+				case self::MINOR: $field = 'minor';
+					unset($reset['minor']); # must not reset minor field
+					break;
+				case self::PATCH: $field = 'patch';
+					unset($reset['minor']); # must not reset minor field
+					unset($reset['patch']); # must not reset patch field
+					break;
+				default:
+					throw new HttpException(500); # bumping other parts is not supported
+					break;
+			}
+
+			$parts[$field] = ((int)$parts[$field]) + 1; # increase bumped version part
+			foreach ($reset AS $field => $value) { # reset lower parts to default value
+				$parts[$field] = $value;
+			}
+
+			return semver_string($parts);
 		}
 	}
 ?>

@@ -1,0 +1,4 @@
+RewriteEngine On
+
+RewriteRule ^list$ list.php [L]
+RewriteRule ^(edit|delay)/([0-9a-fA-F]{32})$ $1.php?id=$2 [L]
