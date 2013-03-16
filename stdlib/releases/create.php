@@ -59,30 +59,7 @@
 			$release = $_POST["version"];
 		} else {
 			$type = UpdateType::getCode($_GET["type"], UpdateType::USAGE_STDLIB_RELEASES);
-
-			# bump version number according to $type
-			$release = array();
-			semver_parts($prev_release, $release);
-
-			if ($type == UpdateType::PATCH || $type == UpdateType::MINOR || $type == UpdateType::MAJOR)
-			{
-				unset($release["prerelease"]);
-				unset($release["build"]);
-				$release["patch"]++;
-
-				if ($type == UpdateType::MINOR || $type == UpdateType::MAJOR)
-				{
-					$release["patch"] = 0;
-					$release["minor"]++;
-
-					if ($type == UpdateType::MAJOR)
-					{
-						$release["minor"] = 0;
-						$release["major"]++;
-					}
-				}
-			}
-			$release = semver_string($release);
+			$release = UpdateType::bumpVersion($prev_release, $type); # bump version number according to $type
 
 			# check if (unpublished) release already exists (unpublished because the latest published is always >= the base for $release)
 			# only check for PUBLISHED_YES as otherwise, $release must be based on the latest release anyway.

@@ -118,7 +118,7 @@
 					break;
 			}
 
-			$parts[$field] = ((int)$parts[$field]) + 1; # increase bumped version part
+			$parts[$field]++;
 			foreach ($reset AS $field => $value) { # reset lower parts to default value
 				$parts[$field] = $value;
 			}
