@@ -20,7 +20,13 @@ try {
 	}
 
 	$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
-	$data = StdlibPending::GetEntries(UpdateType::bumpVersion($latest_release, $release_update));
+	$version = UpdateType::bumpVersion($latest_release, $release_update);
+
+	if (isset($_GET['release'])) {
+		$version = $_GET['release'];
+	}
+
+	$data = StdlibPending::GetEntries($version);
 
 	foreach ($data AS $i => &$entry) {
 		if (isset($action) && $entry['update'] != $action) {
