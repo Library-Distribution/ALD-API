@@ -35,13 +35,13 @@
 
 		# todo later: get frameworks in the release
 
-		$prev_release = StdlibRelease::previousRelease($release['release'], StdlibRelease::PUBLISHED_YES);
 		if (StdlibRelease::exists($release['release'], StdlibRelease::PUBLISHED_YES)) {
+			$prev_release = StdlibRelease::previousRelease($release['release'], StdlibRelease::PUBLISHED_YES);
 			if ($prev_release !== NULL) {
 				$changeset = Stdlib::diff($prev_release, $release['release']);
 			}
 		} else {
-			$changeset = StdlibPending::GetEntries(UpdateType::getUpdate($prev_release, $release['release']));
+			$changeset = StdlibPending::GetEntries($release['release']);
 		}
 
 		$release['changelog'] = array();

@@ -24,8 +24,9 @@ class StdlibPending
 		return sql2array($db_result);
 	}
 
-	public static function GetEntries($release_update) {
+	public static function GetEntries($release) {
 		$base = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+		$release_update = UpdateType::getUpdate($base, $release); # get release update type
 
 		$old_items = Stdlib::GetItems($base); # get items in base
 		foreach ($old_items AS &$item) {

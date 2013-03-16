@@ -172,15 +172,14 @@ class StdlibRelease
 			throw new HttpException(400, NULL, 'Cannot publish already published release!');
 		}
 
-		$previous_release = self::previousRelease($release, self::PUBLISHED_YES);
-		$entries = Stdlib::GetItemsUnpublished($release, $previous_release);
+		$entries = Stdlib::GetItemsUnpublished($release, self::previousRelease($release, self::PUBLISHED_YES));
 		foreach ($entries AS $entry) {
 			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
 			StdlibPending::DeleteEntry($entry['id']);
 		}
 
 		# removals are not covered by deletion above, so delete these entries here
-		$pending = StdlibPending::GetEntries(UpdateType::getUpdate($previous_release, $release));
+		$pending = StdlibPending::GetEntries($release);
 		foreach ($pending AS $entry) {
 			if ($entry['update'] == UpdateType::REMOVE) {
 				StdlibPending::DeleteEntry($entry['id']);
