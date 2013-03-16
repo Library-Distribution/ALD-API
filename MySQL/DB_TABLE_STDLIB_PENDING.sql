@@ -10,6 +10,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `stdlib_pending` (
   `lib` binary(16) NOT NULL,
   `comment` text NOT NULL,
+  `delay` tinytext,
   PRIMARY KEY (`lib`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
