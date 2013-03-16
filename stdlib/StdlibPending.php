@@ -14,7 +14,7 @@ class StdlibPending
 	public static function GetAllEntries()
 	{
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT HEX(`lib`) AS id, comment FROM ' . DB_TABLE_STDLIB_PENDING;
+		$db_query = 'SELECT HEX(`lib`) AS id, comment, delay FROM ' . DB_TABLE_STDLIB_PENDING;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -24,7 +24,7 @@ class StdlibPending
 		return sql2array($db_result);
 	}
 
-	public static function GetEntries($release) {
+	public static function GetEntries($release) { # $release is not required to exist!
 		$base = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 		$release_update = UpdateType::getUpdate($base, $release); # get release update type
 
@@ -61,13 +61,14 @@ class StdlibPending
 
 			# filter according to release update type
 			#################################################
+			$delayed = $lib['delay'] !== NULL && semver_compare($release, $lib['delay']) < 0;
 			$include = false;
 			switch ($release_update) {
-				case UpdateType::MAJOR: 	$include = true; # everything can go in a major release
+				case UpdateType::MAJOR:  $include = !$delayed; # everything can go in a major release, just exclude delayed items
 					break;
-				case UpdateType::MINOR: $include = $update_type == UpdateType::MINOR || $update_type == UpdateType::PATCH;
+				case UpdateType::MINOR: $include = !$delayed && ($update_type == UpdateType::MINOR || $update_type == UpdateType::PATCH);
 					break;
-				case UpdateType::PATCH: $include = $update_type == UpdateType::PATCH;
+				case UpdateType::PATCH: $include = !$delayed && ($update_type == UpdateType::PATCH);
 					break;
 			}
 
@@ -128,6 +129,18 @@ class StdlibPending
 		$comment = mysql_real_escape_string($comment, $db_connection);
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `lib` = UNHEX("' . $id . '")';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+			throw new HttpException(500);
+		}
+	}
+
+	public static function SetDelay($id, $delay = NULL) {
+		$db_connection = db_ensure_connection();
+		$id = mysql_real_escape_string($id, $db_connection);
+		$delay = ($delay !== NULL) ? '"' . mysql_real_escape_string($delay, $db_connection) . '"' : 'NULL';
+
+		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `lib` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
