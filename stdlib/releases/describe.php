@@ -31,7 +31,7 @@
 		StdlibRelease::publishPending();
 
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
-		$release['libs'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
+		$release['items'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 
 		# todo later: get frameworks in the release
 
@@ -62,8 +62,8 @@
 				$content .= ' ald:' . $key . '="' . htmlspecialchars(is_bool($release[$key]) ? ($release[$key] ? 'true' : 'false') : $release[$key], ENT_QUOTES) . '"';
 			}
 			$content .= '><ald:description>' . htmlspecialchars($release['description'], ENT_QUOTES) . '</ald:description><ald:items>';
-			foreach ($release['libs'] AS $lib) {
-				$content .= '<ald:item ald:id="' . htmlspecialchars($lib, ENT_QUOTES) . '"/>';
+			foreach ($release['items'] AS $item) {
+				$content .= '<ald:item ald:id="' . htmlspecialchars($item, ENT_QUOTES) . '"/>';
 			}
 			$content .= '</ald:items><ald:changelog>';
 			foreach ($release['changelog'] AS $item => $text) {

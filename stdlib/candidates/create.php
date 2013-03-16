@@ -4,10 +4,12 @@ require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../User.php');
 require_once('../../Item.php');
+require_once('../../items/ItemType.php');
 require_once('../StdlibPending.php');
 require_once('../Stdlib.php');
 require_once('../releases/StdlibRelease.php');
 require_once('Candidate.php');
+require_once('../../config/stdlib.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
@@ -26,6 +28,12 @@ try {
 	}
 
 	user_basic_auth('Restricted API');
+
+	$allowed_types = explode("\0", STDLIB_ALLOWED_TYPES);
+	$t = Item::get($item, array('type'));
+	if (!in_array(ItemType::getName($t['type']), $allowed_types)) {
+		throw new HttpException(403, NULL, 'This type of item can not be part of the stdlib.');
+	}
 
 	# reject if pending or in latest published release (don't check for unpublished releases - equals pending)
 	if (StdlibPending::IsPending($item)) {

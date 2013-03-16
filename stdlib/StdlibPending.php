@@ -14,7 +14,7 @@ class StdlibPending
 	public static function GetAllEntries()
 	{
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT HEX(`lib`) AS id, comment, delay FROM ' . DB_TABLE_STDLIB_PENDING;
+		$db_query = 'SELECT HEX(`item`) AS id, comment, delay FROM ' . DB_TABLE_STDLIB_PENDING;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -90,7 +90,7 @@ class StdlibPending
 		$id = mysql_real_escape_string($id, $db_connection);
 		$comment = mysql_real_escape_string($comment, $db_connection);
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_PENDING . ' (`lib`, `comment`) VALUES (UNHEX("' . $id . '"), "' . $comment . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_PENDING . ' (`item`, `comment`) VALUES (UNHEX("' . $id . '"), "' . $comment . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -102,7 +102,7 @@ class StdlibPending
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB_PENDING . " WHERE `lib` = UNHEX('$id')";
+		$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB_PENDING . " WHERE `item` = UNHEX('$id')";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -114,7 +114,7 @@ class StdlibPending
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
 
-		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `lib` = UNHEX("' . $id . '")';
+		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `item` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -128,7 +128,7 @@ class StdlibPending
 		$id = mysql_real_escape_string($id, $db_connection);
 		$comment = mysql_real_escape_string($comment, $db_connection);
 
-		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `lib` = UNHEX("' . $id . '")';
+		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `item` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
@@ -140,7 +140,7 @@ class StdlibPending
 		$id = mysql_real_escape_string($id, $db_connection);
 		$delay = ($delay !== NULL) ? '"' . mysql_real_escape_string($delay, $db_connection) . '"' : 'NULL';
 
-		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `lib` = UNHEX("' . $id . '")';
+		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `item` = UNHEX("' . $id . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);

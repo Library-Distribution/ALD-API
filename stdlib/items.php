@@ -22,7 +22,7 @@ try {
 		$db_cond .= 'AND id = UNHEX("' . mysql_real_escape_string($_GET['id'], $db_connection) . '")';
 	}
 
-	$db_query = 'SELECT name, version, HEX(`id`) AS id, GROUP_CONCAT(DISTINCT `release` SEPARATOR "\0") AS releases FROM ' . DB_TABLE_STDLIB . ', ' . DB_TABLE_ITEMS . ' WHERE lib = id ' . $db_cond . ' GROUP BY name, version';
+	$db_query = 'SELECT name, version, HEX(`id`) AS id, GROUP_CONCAT(DISTINCT `release` SEPARATOR "\0") AS releases FROM ' . DB_TABLE_STDLIB . ', ' . DB_TABLE_ITEMS . ' WHERE item = id ' . $db_cond . ' GROUP BY name, version';
 	$db_result = mysql_query($db_query, $db_connection);
 	if ($db_result === FALSE) {
 		throw new HttpException(500, NULL, mysql_error());
