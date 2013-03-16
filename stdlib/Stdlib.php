@@ -93,13 +93,13 @@ class Stdlib
 		return $diff;
 	}
 
-	public static function writeEntry($release, $lib, $comment) {
+	public static function writeEntry($release, $id, $comment) {
 		$db_connection = db_ensure_connection();
 		$release = mysql_real_escape_string($release, $db_connection);
-		$lib = mysql_real_escape_string($lib, $db_connection);
+		$id = mysql_real_escape_string($id, $db_connection);
 		$comment = mysql_real_escape_string($comment, $db_connection);
 
-		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $lib . '"), "' . $comment . '")';
+		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $id . '"), "' . $comment . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
