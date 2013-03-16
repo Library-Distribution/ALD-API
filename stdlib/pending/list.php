@@ -32,6 +32,9 @@ try {
 		if (isset($action) && $entry['update'] != $action) {
 			unset($data[$i]);
 		}
+		if (isset($_GET['name']) && $_GET['name'] != $entry['name']) {
+			unset($data[$i]);
+		}
 		$entry['update'] = UpdateType::getName($entry['update'], UpdateType::USAGE_STDLIB);
 	}
 	sort($data); # make array continous
