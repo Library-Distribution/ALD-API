@@ -5,6 +5,7 @@
 	require_once('../sort_get_order_clause.php');
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
+	require_once("../User.php");
 
 	try
 	{
@@ -19,6 +20,7 @@
 		# retrieve data limits
 		$db_limit = "";
 		$db_order = '';
+		$db_cond = '';
 
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all")
 		{
@@ -37,8 +39,18 @@
 			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'joined' => '`joined`'));
 		}
 
+		# retrieve filters
+		if (isset($_GET['privileges'])) {
+			$privilege = User::privilegeFromArray(explode(' ', $_GET['privileges']));
+			if ($privilege == User::PRIVILEGE_NONE) {
+				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '`privileges` = ' . $privilege;
+			} else {
+				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '(`privileges` & ' . $privilege . ') = ' . $privilege;
+			}
+		}
+
 		# query for data:
-		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_order $db_limit";
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_cond $db_order $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
@@ -55,10 +67,10 @@
 		}
 		else if ($content_type == "text/xml" || $content_type == "application/xml")
 		{
-			$content = "<ald:user-list xmlns:ald=\"ald://api/users/list/schema/2012\">";
+			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:user-list xmlns:ald=\"ald://api/users/list/schema/2012\">";
 			foreach ($data AS $item)
 			{
-				$content .= "<ald:user ald:name=\"{$item["name"]}\" ald:id=\"{$item["id"]}\"/>";
+				$content .= '<ald:user ald:name="' . htmlspecialchars($item["name"], ENT_QUOTES) . '" ald:id="' . htmlspecialchars($item["id"], ENT_QUOTES) . '"/>';
 			}
 			$content .= "</ald:user-list>";
 		}

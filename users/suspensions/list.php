@@ -48,11 +48,11 @@ try {
 	if ($content_type == 'application/json') {
 		$content = json_encode($suspensions);
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
-		$content = '<ald:suspensions xmlns:ald="ald://api/users/suspend/schema/2012">';
+		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:suspensions xmlns:ald="ald://api/users/suspend/schema/2012">';
 		foreach ($suspensions AS $suspension) {
 			$content .= '<ald:suspension ';
 			foreach ($suspension AS $key => $val) {
-				$content .= 'ald:' . $key . '="' . (is_bool($val) ? ($val ? 'true' : 'false') : $val) . '" ';
+				$content .= 'ald:' . $key . '="' . htmlspecialchars(is_bool($val) ? ($val ? 'true' : 'false') : $val, ENT_QUOTES) . '" ';
 			}
 			$content .= '/>';
 		}

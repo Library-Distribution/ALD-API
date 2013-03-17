@@ -68,27 +68,6 @@
 				throw new HttpException(404);
 			}
 		}
-		if (isset($_POST["default"]))
-		{
-			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_DEFAULT_INCLUDE))
-			{
-				throw new HttpException(403);
-			}
-			if (!in_array((int)$_POST["default"], array(0, 1)))
-			{
-				throw new HttpException(400);
-			}
-
-			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set default_include = '" . mysql_real_escape_string($_POST["default"]) . "' WHERE id = UNHEX('$id')";
-			if (!mysql_query($db_query, $db_connection))
-			{
-				throw new HttpException(500);
-			}
-			if (mysql_affected_rows() != 1)
-			{
-				throw new HttpException(404);
-			}
-		}
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}
 	catch (HttpException $e)

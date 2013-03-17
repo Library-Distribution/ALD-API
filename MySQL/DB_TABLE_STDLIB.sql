@@ -7,20 +7,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 
-CREATE TABLE IF NOT EXISTS `data` (
-  `id` binary(16) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-  `name` varchar(25) DEFAULT NULL,
-  `authors` tinytext,
-  `type` int(11) DEFAULT NULL,
-  `version` varchar(50) DEFAULT NULL,
-  `user` binary(16) DEFAULT NULL,
-  `description` text,
-  `uploaded` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `tags` tinytext,
-  `default_include` tinyint(1) DEFAULT '0',
-  `reviewed` tinyint(1) DEFAULT '0',
-  `downloads` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+CREATE TABLE IF NOT EXISTS `stdlib` (
+  `release` tinytext NOT NULL,
+  `item` binary(16) NOT NULL,
+  `comment` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

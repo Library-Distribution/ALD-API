@@ -14,9 +14,9 @@
 	}
 	else
 	{
-		$content = '<ald:types xmlns:ald="ald://api/items/types/schema/2012">' ;
+		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:types xmlns:ald="ald://api/items/types/schema/2012">' ;
 		foreach ($types AS $type)
-			$content .= '<ald:type ald:name="' . $type . '"/>';
+			$content .= '<ald:type ald:name="' .  htmlspecialchars($type, ENT_QUOTES) . '"/>';
 		$content .= '</ald:types>';
 	}
 

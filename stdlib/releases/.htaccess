@@ -1,0 +1,9 @@
+Options -Multiviews
+
+RewriteEngine On
+
+RewriteRule ^list$ list.php [L]
+
+RewriteRule ^create/(major|minor|patch)$ create.php?type=$1 [L,QSA]
+
+RewriteRule ^(describe|delete|modify|publish)/(.+)$ $1.php?version=$2 [L]

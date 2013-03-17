@@ -34,9 +34,9 @@ try {
 	if ($content_type == 'application/json') {
 		$content = json_encode($tags);
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
-		$content = '<ald:tags xmlns:ald="ald://api/items/tags/schema/2012">';
+		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:tags xmlns:ald="ald://api/items/tags/schema/2012">';
 		foreach ($tags AS $tag) {
-			$content .= '<ald:tag ald:name="' . $tag . '"/>';
+			$content .= '<ald:tag ald:name="' . htmlspecialchars($tag, ENT_QUOTES) . '"/>';
 		}
 		$content .= '</ald:tags>';
 	}
