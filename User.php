@@ -25,8 +25,11 @@ class User
 		if (($privilege & self::PRIVILEGE_REVIEW) == self::PRIVILEGE_REVIEW) {
 			$arr[] = 'review';
 		}
-		if (($privilege & self::PRIVILEGE_DEFAULT_INCLUDE) == self::PRIVILEGE_DEFAULT_INCLUDE) {
+		if (($privilege & self::PRIVILEGE_STDLIB) == self::PRIVILEGE_STDLIB) {
 			$arr[] = 'stdlib';
+		}
+		if (($privilege & self::PRIVILEGE_STDLIB_ADMIN) == self::PRIVILEGE_STDLIB_ADMIN) {
+			$arr[] = 'stdlib-admin';
 		}
 		if (($privilege & self::PRIVILEGE_ADMIN) == self::PRIVILEGE_ADMIN) {
 			$arr[] = 'admin';
@@ -52,7 +55,9 @@ class User
 					break;
 				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
 					break;
-				case 'stdlib': $privilege |= self::PRIVILEGE_DEFAULT_INCLUDE;
+				case 'stdlib': $privilege |= self::PRIVILEGE_STDLIB;
+					break;
+				case 'stdlib-admin': $privilege |= self::PRIVILEGE_STDLIB_ADMIN;
 					break;
 				case 'admin': $privilege |= self::PRIVILEGE_ADMIN;
 					break;
