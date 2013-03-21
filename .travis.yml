@@ -11,4 +11,5 @@ services:
   - mysql
 
 before_script:
-  - tests/setup/db-mysql.sh
+  - ./tests/setup/db-mysql.sh
+  - ./tests/setup/profile.sh travis
