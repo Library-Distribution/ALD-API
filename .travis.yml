@@ -9,3 +9,6 @@ before_install:
 
 services:
   - mysql
+
+before_script:
+  - tests/setup/db-mysql.sh
