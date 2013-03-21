@@ -231,7 +231,7 @@ class User
 		$db_query = 'INSERT INTO ' . DB_TABLE_USERS . ' (`id`, `name`, `mail`, `pw`) VALUES (UNHEX(REPLACE(UUID(), "-", "")), "' . $name . '", "' . $mail . '", "' . $pw . '")';
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
-			throw new HttpException(500);
+			throw new HttpException(500, NULL, mysql_error());
 		}
 	}
 }
