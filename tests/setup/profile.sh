@@ -6,5 +6,12 @@ if [ ! -d "config/profiles/$1" ]; then
     exit 1
 fi
 
+echo "Using config profile \"$1\"..."
+
 # overwrite config with all profile-specific config files
-mmv -c -o -- "config/profiles/$1/*.php" "config/#1.php"
+for file in config/profiles/$1/*.php;
+do
+	base=${file##*/}
+	cp -v -f $file config/$base
+done
+echo "\n\n"
