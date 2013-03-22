@@ -2,7 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
-	require_once('../sort_get_order_clause.php');
+	require_once('../SortHelper.php');
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
 	require_once("../User.php");
@@ -36,7 +36,7 @@
 		}
 
 		if (isset($_GET['sort'])) {
-			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'joined' => '`joined`'));
+			$db_order = SortHelper::getOrderClause(SortHelper::getListFromParam($_GET['sort']), array('name' => '`name`', 'joined' => '`joined`'));
 		}
 
 		# retrieve filters

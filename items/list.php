@@ -2,7 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
-	require_once('../sort_get_order_clause.php');
+	require_once('../SortHelper.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
@@ -86,8 +86,9 @@
 		# retrieve sorting parameters
 		$sort_by_rating = false;
 		if (isset($_GET['sort'])) {
-			$db_order = sort_get_order_clause($_GET['sort'], array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
-			$sort_by_rating = preg_match('/(^|\s)!?rating/', $_GET['sort']) == 1;
+			$sort_list = SortHelper::getListFromParam($_GET['sort']);
+			$db_order = SortHelper::getOrderClause($sort_list, array('name' => '`name`', 'version' => '`version`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
+			$sort_by_rating = array_key_exists('rating', $sort_list);
 		}
 
 		# enable rating filters if necessary
