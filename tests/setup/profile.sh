@@ -12,6 +12,6 @@ echo "Using config profile \"$1\"..."
 for file in config/profiles/$1/*.php;
 do
 	base=${file##*/}
-	cp -v -f $file config/$base
+	cp -v -f $file config/$base | sed 's/^/    /'
 done
 echo "\n\n"
