@@ -30,7 +30,8 @@ class Stdlib
 	}
 
 	private static function GetItemsUnpublished($release, $base) {
-		$old_items = self::GetItems($base);
+		$old_items = ($base !== NULL) ? self::GetItems($base) : array(); # catch $base = NULL in case there's no previous release
+
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}

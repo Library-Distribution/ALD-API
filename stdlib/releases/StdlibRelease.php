@@ -44,7 +44,7 @@ class StdlibRelease
 			}
 		}
 
-		return FALSE;
+		return NULL;
 	}
 
 	public static function describe($release, $published)

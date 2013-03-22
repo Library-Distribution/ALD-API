@@ -39,6 +39,9 @@
 
 		# get latest release
 		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $publish_status);
+		if ($prev_release === NULL) {
+			$prev_release = '0.0.0';
+		}
 
 		if (isset($_POST["version"]))
 		{
