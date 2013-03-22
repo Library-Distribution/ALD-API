@@ -14,4 +14,4 @@ do
 	mysql --default-character-set=utf8 -u root travis-test < "$file"
 done
 
-php -r '$conn = mysql_connect("localhost", "root", ""); echo "    MySQL client encoding: ", mysql_client_encoding($conn), "\n\n";'
+php -r '$conn = mysql_connect("localhost", "root", ""); echo "    MySQL client encoding: ", mysql_client_encoding($conn), " (will be changed to latin1)\n\n";'
