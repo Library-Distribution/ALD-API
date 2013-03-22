@@ -22,7 +22,7 @@ class Suspension {
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
 		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE) {
+		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
 		}
 
