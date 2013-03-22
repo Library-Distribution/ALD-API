@@ -1,4 +1,7 @@
 # ALD
+[![Build Status](http://travis-ci.org/maul-esel/ALD-API.png "travis-ci.org build status")](http://travis-ci.org/maul-esel/ALD-API)
+[![Build Status "master"](http://travis-ci.org/maul-esel/ALD-API.png?branch=master "travis-ci.org build status for branch "master"")](http://travis-ci.org/maul-esel/ALD-API)
+
 ***ALD*** is short for ***A***utoHotkey ***L***ibrary ***D***istribution. It is a system for management, distribution and installation of libraries and applications written in AutoHotkey.
 This system consists of several parts. The most important part is the HTTP server API. Also, there can be a lot of different clients: websites, desktop apps and more.
 More information on the ALD system can be read up [in the wiki](https://github.com/maul-esel/ALD-API/wiki/The-ALD-model).
