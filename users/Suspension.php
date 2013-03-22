@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../User.php');
+require_once(dirname(__FILE__) . '/../SortHelper.php');
 require_once(dirname(__FILE__) . '/../sql2array.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../config/suspensions.php');
@@ -53,18 +54,20 @@ class Suspension {
 		return count(self::getSuspensionsById($id)) != 0;
 	}
 
-	public static function getSuspensions($user, $active = true) {
+	public static function getSuspensions($user, $active = true, $sort = array()) {
 		return self::getSuspensionsById(User::getID($user), $active);
 	}
 
-	public static function getSuspensionsById($id, $active = true) {
+	public static function getSuspensionsById($id, $active = true, $sort = array()) {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
+		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'));
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
 					. ($active === NULL ? '' : ($active
 						? ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'
-						: ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'));
+						: ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'))
+					. $sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);

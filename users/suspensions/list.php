@@ -2,6 +2,7 @@
 require_once('../../Assert.php');
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
+require_once('../../SortHelper.php');
 require_once('../../User.php');
 require_once('../Suspension.php');
 
@@ -36,7 +37,12 @@ try {
 		}
 	}
 
-	$suspensions = Suspension::getSuspensionsById($id, $active);
+	$sort_list = array();
+	if (isset($_GET['sort'])) {
+		$sort_list = SortHelper::getListFromParam($_GET['sort']);
+	}
+
+	$suspensions = Suspension::getSuspensionsById($id, $active, $sort_list);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
 		$suspension->created = $suspension->created->format(TIMESTAMP_FORMAT);
