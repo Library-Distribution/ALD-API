@@ -17,6 +17,7 @@
 			{
 				throw new HttpException(500);
 			}
+			mysql_set_charset('latin1', $connection);
 		}
 		return $connection;
 	}
