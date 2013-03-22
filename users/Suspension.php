@@ -15,7 +15,7 @@ class Suspension {
 
 		$user = mysql_real_escape_string($user, $db_connection);
 		if ($expires !== NULL) {
-			$expires = (int)mysql_real_escape_string($expires, $db_connection);
+			$expires = mysql_real_escape_string($expires, $db_connection);
 		}
 		$restricted = $restricted ? '1' : '0';
 		$reason = mysql_real_escape_string($reason, $db_connection);
