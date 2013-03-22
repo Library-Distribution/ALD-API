@@ -174,7 +174,7 @@ class StdlibRelease
 			throw new HttpException(400, NULL, 'Cannot publish already published release!');
 		}
 
-		$entries = Stdlib::GetItemsUnpublished($release, self::previousRelease($release, self::PUBLISHED_YES));
+		$entries = Stdlib::GetItems($release);
 		foreach ($entries AS $entry) {
 			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
 			StdlibPending::DeleteEntry($entry['id']);
