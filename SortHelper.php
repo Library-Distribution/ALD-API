@@ -1,4 +1,7 @@
 <?php
+require_once(dirname(__FILE__) . '/db.php');
+require_once(dirname(__FILE__) . '/modules/HttpException/HttpException.php');
+
 class SortHelper {
 	public static function getOrderClause($list, $allowed) {
 		$db_order = '';
@@ -29,6 +32,33 @@ class SortHelper {
 
 	static function _getSortDir($k) {
 		return substr($k, 0, 1) != '!';
+	}
+
+	public static function PrepareSemverSorting($table, $column, $db_cond = '') {
+		$db_connection = db_ensure_connection();
+		$table = mysql_real_escape_string($table, $db_connection);
+		$column = mysql_real_escape_string($column, $db_connection);
+
+		$db_query = 'DROP TEMPORARY TABLE IF EXISTS `semver_index`';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		$db_query = 'CREATE TEMPORARY TABLE `semver_index` ('
+					. '`position` int NOT NULL AUTO_INCREMENT PRIMARY KEY,'
+					. '`version` varchar(50) NOT NULL'
+				. ') SELECT DISTINCT `' . $column . '` FROM `' . $table . '` ' . $db_cond;
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
+
+		$db_query = 'CALL semver_sort()';
+		$db_result = mysql_query($db_query, $db_connection);
+		if ($db_result === FALSE) {
+			throw new HttpException(500);
+		}
 	}
 }
 ?>
