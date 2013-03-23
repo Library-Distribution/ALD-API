@@ -28,9 +28,15 @@ class StdlibPending
 
 	public static function GetEntries($release) { # $release is not required to exist!
 		$base = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
-		$release_update = UpdateType::getUpdate($base, $release); # get release update type
 
-		$old_items = Stdlib::GetItems($base); # get items in base
+		if ($base !== NULL) {
+			$release_update = UpdateType::getUpdate($base, $release); # get release update type
+			$old_items = Stdlib::GetItems($base); # get items in base
+		} else { # in case there's no previous release
+			$release_update = UpdateType::PATCH; # this way, the first release can hold any suggested change (though there should only be ADD changes)
+			$old_items = array(); # no release => no previous items
+		}
+
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
@@ -151,6 +157,10 @@ class StdlibPending
 
 	public static function cleanup() {
 		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+		if ($latest_release === NULL) {
+			return; # we can't do any cleanup right now. When the TODOs below are implemented, they can be executed regardless of this.
+		}
+
 		$live_items = array_map(array('StdlibPending', 'sanitize_items'), Stdlib::GetItems($latest_release));
 		$pending = array_map(array('StdlibPending', 'sanitize_items'), self::GetAllEntries());
 

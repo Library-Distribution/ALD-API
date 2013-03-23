@@ -25,12 +25,13 @@ class Stdlib
 
 			return sql2array($db_result);
 		} else {
-			return self::GetItemsUnpublished($release, StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES));
+			return self::GetItemsUnpublished($release, StdlibRelease::previousRelease($release, StdlibRelease::PUBLISHED_YES));
 		}
 	}
 
-	public static function GetItemsUnpublished($release, $base) {
-		$old_items = self::GetItems($base);
+	private static function GetItemsUnpublished($release, $base) {
+		$old_items = ($base !== NULL) ? self::GetItems($base) : array(); # catch $base = NULL in case there's no previous release
+
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}

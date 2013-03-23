@@ -44,7 +44,7 @@ class StdlibRelease
 			}
 		}
 
-		return FALSE;
+		return NULL;
 	}
 
 	public static function describe($release, $published)
@@ -174,7 +174,7 @@ class StdlibRelease
 			throw new HttpException(400, NULL, 'Cannot publish already published release!');
 		}
 
-		$entries = Stdlib::GetItemsUnpublished($release, self::previousRelease($release, self::PUBLISHED_YES));
+		$entries = Stdlib::GetItems($release);
 		foreach ($entries AS $entry) {
 			Stdlib::writeEntry($release, $entry['id'], $entry['comment']);
 			StdlibPending::DeleteEntry($entry['id']);
@@ -219,16 +219,18 @@ class StdlibRelease
 	}
 
 	public static function cleanup() {
-		$latest_release = self::getVersion(self::SPECIAL_VERSION_LATEST, self::PUBLISHED_YES);
-
 		# ensure everything that should be published is published
 		self::publishPending();
 
-		# ensure there are no downgrade releases
-		$releases = self::ListReleases(self::PUBLISHED_NO);
-		foreach ($releases AS $release) {
-			if (semver_compare($latest_release, $release) > -1) {
-				self::delete($release);
+		$latest_release = self::getVersion(self::SPECIAL_VERSION_LATEST, self::PUBLISHED_YES);
+
+		if ($latest_release !== NULL) {
+			# ensure there are no downgrade releases (only if there's actually a published release)
+			$releases = self::ListReleases(self::PUBLISHED_NO);
+			foreach ($releases AS $release) {
+				if (semver_compare($latest_release, $release) > -1) {
+					self::delete($release);
+				}
 			}
 		}
 	}

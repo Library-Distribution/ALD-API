@@ -41,7 +41,8 @@ try {
 	}
 
 	$deletion = false;
-	if (Stdlib::releaseHasItem(StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES), $item)) {
+	$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+	if ($latest_release !== NULL && Stdlib::releaseHasItem($latest_release, $item)) {
 		if (!isset($_POST['delete']) || !in_array($_POST['delete'], array('1', 'true', 'yes'))) {
 			throw new HttpException(409, NULL, 'This item is already in the stdlib.');
 		}

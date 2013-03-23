@@ -20,6 +20,9 @@ try {
 	}
 
 	$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+	if ($latest_release === NULL) {
+		$latest_release = '0.0.0';
+	}
 	$version = UpdateType::bumpVersion($latest_release, $release_update);
 
 	if (isset($_GET['release'])) {
