@@ -93,7 +93,7 @@
 			if (array_key_exists('version', $sort_list)) {
 				SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
 				$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
-				$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`data`.`version` = `semver_index`.`version`';
+				$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
 			}
 		}
 
