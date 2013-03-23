@@ -219,16 +219,18 @@ class StdlibRelease
 	}
 
 	public static function cleanup() {
-		$latest_release = self::getVersion(self::SPECIAL_VERSION_LATEST, self::PUBLISHED_YES);
-
 		# ensure everything that should be published is published
 		self::publishPending();
 
-		# ensure there are no downgrade releases
-		$releases = self::ListReleases(self::PUBLISHED_NO);
-		foreach ($releases AS $release) {
-			if (semver_compare($latest_release, $release) > -1) {
-				self::delete($release);
+		$latest_release = self::getVersion(self::SPECIAL_VERSION_LATEST, self::PUBLISHED_YES);
+
+		if ($latest_release !== NULL) {
+			# ensure there are no downgrade releases (only if there's actually a published release)
+			$releases = self::ListReleases(self::PUBLISHED_NO);
+			foreach ($releases AS $release) {
+				if (semver_compare($latest_release, $release) > -1) {
+					self::delete($release);
+				}
 			}
 		}
 	}
