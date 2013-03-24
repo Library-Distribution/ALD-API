@@ -47,7 +47,7 @@ class Suspension {
 	}
 
 	public static function isSuspended($user) {
-		return self::isSuspendedById(User::getID($user));
+		return self::getSuspensions($user);
 	}
 
 	public static function isSuspendedById($id) {
