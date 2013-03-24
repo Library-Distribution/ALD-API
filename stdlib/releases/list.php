@@ -2,6 +2,7 @@
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../util.php");
 	require_once("../../User.php");
+	require_once('../../SortHelper.php');
 	require_once("../../Assert.php");
 	require_once("StdlibRelease.php");
 
@@ -27,10 +28,16 @@
 			# else if (in_array($published, array(1, "+1", "true", "yes"))) # the default
 		}
 
+		# add sort support
+		$sort_list = array();
+		if (isset($_GET['sort'])) {
+			$sort_list = SortHelper::getListFromParam($_GET['sort']);
+		}
+
 		# make sure all releases that should be published are published
 		StdlibRelease::publishPending();
 
-		$releases = StdlibRelease::ListReleases($publish_status);
+		$releases = StdlibRelease::ListReleases($publish_status, $sort_list);
 
 		if ($content_type == "application/json")
 		{

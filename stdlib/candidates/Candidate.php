@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
+require_once(dirname(__FILE__) . '/../../SortHelper.php');
 require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../config/stdlib.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
@@ -172,13 +173,17 @@ class Candidate {
 		return $t['item'];
 	}
 
-	public static function listCandidates($filters = array()) {
+	public static function listCandidates($filters = array(), $sort = array()) {
 		if (!is_array($filters)) {
 			throw new Exception('Must provide a valid array as candidate filter');
+		}
+		if (!is_array($sort)) {
+			throw new Exception('Must provide a valid array for candidate sorting');
 		}
 		$db_connection = db_ensure_connection();
 		$db_cond = '';
 		$db_join = '';
+		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
 		foreach (array('item', 'user') AS $field) { # filter binary fields
 			if (isset($filters[$field])) {
@@ -206,7 +211,7 @@ class Candidate {
 			$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . DB_TABLE_ITEMS . '.`user` = UNHEX("' . mysql_real_escape_string($filters['owner'], $db_connection) . '")';
 		}
 
-		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond;
+		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
@@ -214,11 +219,12 @@ class Candidate {
 		return sql2array($db_result);
 	}
 
-	public static function listVotings($candidate) {
+	public static function listVotings($candidate, $sort = array()) {
 		$db_connection = db_ensure_connection();
 		$candidate = (int)mysql_real_escape_string($candidate, $db_connection);
+		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
 
-		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate;
+		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate . ' ' . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);

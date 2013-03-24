@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
+require_once(dirname(__FILE__) . '/../../SortHelper.php');
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
 require_once(dirname(__FILE__) . '/../../UpdateType.php');
@@ -200,14 +201,22 @@ class StdlibRelease
 		return semver_compare($a, $b);
 	}
 
-	public static function ListReleases($published)
+	public static function ListReleases($published, $sort = array())
 	{
 		# take publishing status into account
 		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
+		# support sorting
+		$db_join = ' ';
+		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'release' => '`position`'));
+		if (array_key_exists('release', $sort)) { # sorting with semver needs special setup
+			SortHelper::PrepareSemverSorting(DB_TABLE_STDLIB_RELEASES, 'release', $db_cond);
+			$db_join = ' LEFT JOIN (`semver_index`) ON (`' . DB_TABLE_STDLIB_RELEASES . '`.`release` = `semver_index`.`version`) ';
+		}
+
 		# get all releases from DB
-		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_cond;
+		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_join . $db_cond . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{

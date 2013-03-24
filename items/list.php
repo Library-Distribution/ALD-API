@@ -2,11 +2,15 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../SortHelper.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
 	require_once('ItemType.php');
 	require_once('../sql2array.php');
+
+	# this complicated query ensures items without any ratings are considered to be rated 0
+	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
 
 	try
 	{
@@ -22,7 +26,9 @@
 		$db_cond = "";
 		$db_having = '';
 		$db_join = '';
+		$db_join_on = '';
 		$db_limit = "";
+		$db_order = '';
 
 		if (isset($_GET["type"]))
 		{
@@ -78,23 +84,35 @@
 			}
 		}
 
-		# enable rating filters if necessary
-		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
-			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
+		# retrieve sorting parameters
+		$sort_by_rating = false;
+		if (isset($_GET['sort'])) {
+			$sort_list = SortHelper::getListFromParam($_GET['sort']);
+			$db_order = SortHelper::getOrderClause($sort_list, array('name' => '`name`', 'version' => '`position`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
+			$sort_by_rating = array_key_exists('rating', $sort_list);
+			if (array_key_exists('version', $sort_list)) {
+				SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
+				$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
+				$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
+			}
+		}
 
-			# this complicated query ensures items without any ratings are considered to be rated 0
-			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
+		# enable rating filters if necessary
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
+			$db_join .= ($db_join ? ', ' : 'LEFT JOIN (') . DB_TABLE_RATINGS;
+			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . 'item = id';
+
 			if (isset($_GET['rating'])) {
 				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . SQL_QUERY_RATING;
 			} else {
 				if (isset($_GET['rating-min'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . SQL_QUERY_RATING;
 				}
 				if (isset($_GET['rating-max'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . SQL_QUERY_RATING;
 				}
 			}
 		}
@@ -113,11 +131,12 @@
 			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
 		}
 
+		$db_join_on .= $db_join_on ? ')' : ''; # clause braces if necessary
+		$db_join .= $db_join ? ')' : ''; # clause braces if necessary
 		# query data
-		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version"
-					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join
-					. " $db_cond $db_having $db_limit";
-
+		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, HEX(" . DB_TABLE_ITEMS . ".id) AS id, " . DB_TABLE_ITEMS . '.version'
+					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . $db_join_on
+					. " $db_cond $db_having $db_order $db_limit";
 		$db_result = mysql_query($db_query, $db_connection);
 		if (!$db_result)
 		{
