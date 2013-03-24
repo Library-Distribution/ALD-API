@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../User.php');
 require_once(dirname(__FILE__) . '/../SortHelper.php');
+require_once(dirname(__FILE__) . '/../FilterHelper.php');
 require_once(dirname(__FILE__) . '/../sql2array.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../config/suspensions.php');
@@ -66,40 +67,32 @@ class Suspension {
 			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
 		}
 
-		$db_cond = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
+		$filter = new FilterHelper();
+
+		$filter->add(array('db-name' => 'user', 'value' => $id, 'type' => 'binary'));
+
+		$filter->add(array('name' => 'expires'));
+		$filter->add(array('name' => 'expires-before', 'db-name' => 'expires', 'operator' => '<'));
+		$filter->add(array('name' => 'expires-after', 'db-name' => 'expires', 'operator' => '>'));
+
+		$filter->add(array('name' => 'created'));
+		$filter->add(array('name' => 'created-before', 'db-name' => 'created', 'operator' => '<'));
+		$filter->add(array('name' => 'created-after', 'db-name' => 'created', 'operator' => '>'));
+
+		$filter->add(array('name' => 'infinite', 'db-name' => '`expires`', 'null' => false));
+		$filter->add(array('name' => 'restricted', 'type' => 'switch'));
+
+		$db_cond = $filter->evaluate($filters, ' AND ');
+
+		$db_cond_ = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
 		if (isset($filters['active'])) {
 			if (in_array($filters['active'], array('no', 'false', -1))) {
-				$db_cond = ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))';
+				$db_cond_ = ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))';
 			} else if (in_array($filters['active'], array('both', 0))) {
-				$db_cond = ''; # empty to override the default
+				$db_cond_ = ''; # empty to override the default
 			}
 		}
-
-		foreach (array('expires' => '`expires`', 'created' => '`created`') AS $property => $db_field) { # filter by creation and expiration date
-			foreach (array($property => '=', $property . '-after' => '>', $property . '-before' => '<') AS $field => $op) {
-				if (isset($filters[$field])) {
-					$db_cond .= ' AND ' . $db_field . ' ' . $op . ' "' . mysql_real_escape_string($filters[$field], $db_connection) . '"';
-				}
-			}
-		}
-
-		if (isset($filters['infinite'])) {
-			if (in_array($filters['infinite'], array('yes', 'true', '+1', 1))) {
-				$db_cond .= ' AND `expires` IS NULL';
-			} else if (in_array($filters['infinite'], array('no', 'false', -1))) {
-				$db_cond .= ' AND `expires` IS NOT NULL';
-			}
-			# default: both, 0
-		}
-
-		if (isset($filters['restricted'])) {
-			if (in_array($filters['restricted'], array('yes', 'true', '+1', 1))) {
-				$db_cond .= ' AND `restricted`';
-			} else if (in_array($filters['restricted'], array('no', 'false', -1))) {
-				$db_cond .= ' AND NOT `restricted`';
-			}
-			# default: both, 0
-		}
+		$db_cond .= $db_cond_;
 
 		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'), ' WHERE TRUE AND ' . $db_cond); # must prefix here as long as $db_cond does not include WHERE itself
 
