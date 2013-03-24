@@ -33,7 +33,7 @@ class StdlibPending
 			$release_update = UpdateType::getUpdate($base, $release); # get release update type
 			$old_items = Stdlib::GetItems($base); # get items in base
 		} else { # in case there's no previous release
-			$release_update = UpdateType::PATCH; # this way, the first release can hold any suggested change (though there should only be ADD changes)
+			$release_update = UpdateType::MAJOR; # this way, the first release can hold any suggested change (though there should only be ADD changes)
 			$old_items = array(); # no release => no previous items
 		}
 
