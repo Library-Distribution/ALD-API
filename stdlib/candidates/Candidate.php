@@ -219,11 +219,12 @@ class Candidate {
 		return sql2array($db_result);
 	}
 
-	public static function listVotings($candidate) {
+	public static function listVotings($candidate, $sort = array()) {
 		$db_connection = db_ensure_connection();
 		$candidate = (int)mysql_real_escape_string($candidate, $db_connection);
+		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
 
-		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate;
+		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate . ' ' . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
