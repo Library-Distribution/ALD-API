@@ -37,18 +37,14 @@
 
 		if (StdlibRelease::exists($release['release'], StdlibRelease::PUBLISHED_YES)) {
 			$prev_release = StdlibRelease::previousRelease($release['release'], StdlibRelease::PUBLISHED_YES);
-			if ($prev_release !== NULL) {
-				$changeset = Stdlib::diff($prev_release, $release['release']);
-			}
+			$changeset = Stdlib::diff($prev_release, $release['release']); # Stdlib::diff() can handle NULL as old release
 		} else {
 			$changeset = StdlibPending::GetEntries($release['release']);
 		}
 
 		$release['changelog'] = array();
-		if (isset($changeset)) {
-			foreach ($changeset AS $entry) {
-				$release['changelog'][$entry['name']] = $entry['comment'];
-			}
+		foreach ($changeset AS $entry) {
+			$release['changelog'][$entry['name']] = $entry['comment'];
 		}
 
 		if ($content_type == "application/json")

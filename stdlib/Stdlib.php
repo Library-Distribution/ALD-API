@@ -65,7 +65,7 @@ class Stdlib
 	}
 
 	public static function diff($old, $new) {
-		$old_items = self::GetItems($old);
+		$old_items = $old !== NULL ? self::GetItems($old) : array();
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
