@@ -29,10 +29,7 @@
 		}
 
 		# add sort support
-		$sort_list = array();
-		if (isset($_GET['sort'])) {
-			$sort_list = SortHelper::getListFromParam($_GET['sort']);
-		}
+		$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
 
 		# make sure all releases that should be published are published
 		StdlibRelease::publishPending();

@@ -29,10 +29,7 @@ try {
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml', 'application/x-ald-package'), 'application/json');
 
 	$filters = array_intersect_key($_GET, array_flip(array('active', 'created', 'created-after', 'created-before', 'expires', 'expires-after', 'expires-before', 'infinite', 'restricted')));
-	$sort_list = array();
-	if (isset($_GET['sort'])) {
-		$sort_list = SortHelper::getListFromParam($_GET['sort']);
-	}
+	$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
 
 	$suspensions = Suspension::getSuspensionsById($id, $filters, $sort_list);
 	# cleanup the suspension entries
