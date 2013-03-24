@@ -82,7 +82,7 @@ class Suspension {
 		$filter->add(array('name' => 'infinite', 'db-name' => '`expires`', 'null' => false));
 		$filter->add(array('name' => 'restricted', 'type' => 'switch'));
 
-		$db_cond = $filter->evaluate($filters, ' AND ');
+		$db_cond = $filter->evaluate($filters, $db_connection, ' AND ');
 
 		$db_cond_ = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
 		if (isset($filters['active'])) {

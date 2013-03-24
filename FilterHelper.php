@@ -8,7 +8,7 @@ class FilterHelper {
 		$this->filters[] = $data; #array('name' => $name, 'db-name' => $db_name, $method => 'GET', 'operator' => $op, 'default' => $default, 'force-value' => $force);
 	}
 
-	public function evaluate($source, $prefix = ' WHERE ') { # support no|false|-1 vs true|yes|1|+1 vs both|0
+	public function evaluate($source, $db_connection, $prefix = ' WHERE ') {
 		$db_cond = '';
 
 		foreach ($this->filters AS $filter) {
@@ -42,15 +42,16 @@ class FilterHelper {
 			$value_type = $null_check !== NULL ? 'switch' : (isset($filter['type']) ? $filter['type'] : 'string');
 			switch ($value_type) {
 				case 'string':
-					$value = '"' . $value . '"';
+					$value = '"' . mysql_real_escape_string($value, $db_connection) . '"';
 					break;
 				case 'int':
+					$value = (int)$value;
 					break;
 				case 'bool':
-					$value = is_bool($value) ? ($value ? 'TRUE' : 'FALSE') : $value;
+					$value = $value ? 'TRUE' : 'FALSE';
 					break;
 				case 'binary':
-					$value = 'UNHEX("' . $value . '")';
+					$value = 'UNHEX("' . mysql_real_escape_string($value, $db_connection) . '")';
 					break;
 				case 'switch':
 					if (in_array($value, array('yes', 'true', 1, '+1'))) {
