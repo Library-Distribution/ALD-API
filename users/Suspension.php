@@ -55,7 +55,7 @@ class Suspension {
 	}
 
 	public static function getSuspensions($user, $active = true, $sort = array()) {
-		return self::getSuspensionsById(User::getID($user), $active);
+		return self::getSuspensionsById(User::getID($user), $active, $sort);
 	}
 
 	public static function getSuspensionsById($id, $active = true, $sort = array()) {
