@@ -82,7 +82,7 @@ class Suspension {
 		$filter->add(array('name' => 'infinite', 'db-name' => 'expires', 'null' => true));
 		$filter->add(array('name' => 'restricted', 'type' => 'switch'));
 
-		$db_cond = $filter->evaluate($filters, $db_connection, ' AND ');
+		$db_cond = $filter->evaluate($filters, $db_connection);
 
 		$db_cond_ = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
 		if (isset($filters['active'])) {
@@ -96,9 +96,7 @@ class Suspension {
 
 		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'), ' WHERE TRUE AND ' . $db_cond); # must prefix here as long as $db_cond does not include WHERE itself
 
-		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
-					. $db_cond
-					. $sort;
+		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . $db_cond . $sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
