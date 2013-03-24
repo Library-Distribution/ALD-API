@@ -31,7 +31,7 @@ class FilterHelper {
 			if (!isset($filter['name']) && !isset($filter['db-name'])) {
 				throw new HttpException(500, NULL, 'Must specify "name" or "db-name" for filter');
 			}
-			$key = isset($filter['db-name']) ? $filter['db-name'] : '`' . $filter['name'] . '`'; # the name is also used as column name if no other is specified
+			$key = '`' . (isset($filter['db-name']) ? $filter['db-name'] : $filter['name']) . '`'; # the name is also used as column name if no other is specified
 
 			$null_check = isset($filter['null']) ? $filter['null'] : NULL;
 

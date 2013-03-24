@@ -79,7 +79,7 @@ class Suspension {
 		$filter->add(array('name' => 'created-before', 'db-name' => 'created', 'operator' => '<'));
 		$filter->add(array('name' => 'created-after', 'db-name' => 'created', 'operator' => '>'));
 
-		$filter->add(array('name' => 'infinite', 'db-name' => '`expires`', 'null' => false));
+		$filter->add(array('name' => 'infinite', 'db-name' => 'expires', 'null' => false));
 		$filter->add(array('name' => 'restricted', 'type' => 'switch'));
 
 		$db_cond = $filter->evaluate($filters, $db_connection, ' AND ');
