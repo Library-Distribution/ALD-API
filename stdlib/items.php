@@ -4,6 +4,7 @@ require_once('../util.php');
 require_once('../sql2array.php');
 require_once('../db.php');
 require_once('../Assert.php');
+require_once('../SortHelper.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
@@ -11,6 +12,8 @@ try {
 
 	$db_connection = db_ensure_connection();
 	$db_cond = '';
+	$db_sort = '';
+	$db_join = '';
 
 	if (isset($_GET['name'])) {
 		$db_cond .= 'AND name = "' . mysql_real_escape_string($_GET['name'], $db_connection) . '"';
@@ -22,7 +25,16 @@ try {
 		$db_cond .= 'AND id = UNHEX("' . mysql_real_escape_string($_GET['id'], $db_connection) . '")';
 	}
 
-	$db_query = 'SELECT name, version, HEX(`id`) AS id, GROUP_CONCAT(DISTINCT `release` SEPARATOR "\0") AS releases FROM ' . DB_TABLE_STDLIB . ', ' . DB_TABLE_ITEMS . ' WHERE item = id ' . $db_cond . ' GROUP BY name, version';
+	if (isset($_GET['sort'])) {
+		$sort_list = SortHelper::getListFromParam($_GET['sort']);
+		$db_sort = SortHelper::getOrderClause($sort_list, array('name' => '`name`', 'version' => '`position`'));
+		if (array_key_exists('version', $sort_list)) {
+			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
+			$db_join = ' LEFT JOIN `semver_index` ON (`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`) ';
+		}
+	}
+
+	$db_query = 'SELECT name, `' . DB_TABLE_ITEMS . '`.`version`, HEX(`id`) AS id, GROUP_CONCAT(DISTINCT `release` SEPARATOR "\0") AS releases FROM ' . DB_TABLE_STDLIB . ', ' . DB_TABLE_ITEMS . $db_join . ' WHERE item = id ' . $db_cond . ' GROUP BY name, `' . DB_TABLE_ITEMS . '`.`version` ' . $db_sort;
 	$db_result = mysql_query($db_query, $db_connection);
 	if ($db_result === FALSE) {
 		throw new HttpException(500, NULL, mysql_error());
