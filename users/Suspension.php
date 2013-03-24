@@ -54,19 +54,57 @@ class Suspension {
 		return count(self::getSuspensionsById($id)) != 0;
 	}
 
-	public static function getSuspensions($user, $active = true, $sort = array()) {
-		return self::getSuspensionsById(User::getID($user), $active, $sort);
+	public static function getSuspensions($user, $filters = array(), $sort = array()) {
+		return self::getSuspensionsById(User::getID($user), $filters, $sort);
 	}
 
-	public static function getSuspensionsById($id, $active = true, $sort = array()) {
+	public static function getSuspensionsById($id, $filters = array(), $sort = array()) {
 		$db_connection = db_ensure_connection();
 		$id = mysql_real_escape_string($id, $db_connection);
-		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'));
+
+		if (!is_array($filters)) {
+			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
+		}
+
+		$db_cond = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
+		if (isset($filters['active'])) {
+			if (in_array($filters['active'], array('no', 'false', -1))) {
+				$db_cond = ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))';
+			} else if (in_array($filters['active'], array('both', 0))) {
+				$db_cond = ''; # empty to override the default
+			}
+		}
+
+		foreach (array('expires' => '`expires`', 'created' => '`created`') AS $property => $db_field) { # filter by creation and expiration date
+			foreach (array($property => '=', $property . '-after' => '>', $property . '-before' => '<') AS $field => $op) {
+				if (isset($filters[$field])) {
+					$db_cond .= ' AND ' . $db_field . ' ' . $op . ' "' . mysql_real_escape_string($filters[$field], $db_connection) . '"';
+				}
+			}
+		}
+
+		if (isset($filters['infinite'])) {
+			if (in_array($filters['infinite'], array('yes', 'true', '+1', 1))) {
+				$db_cond .= ' AND `expires` IS NULL';
+			} else if (in_array($filters['infinite'], array('no', 'false', -1))) {
+				$db_cond .= ' AND `expires` IS NOT NULL';
+			}
+			# default: both, 0
+		}
+
+		if (isset($filters['restricted'])) {
+			if (in_array($filters['restricted'], array('yes', 'true', '+1', 1))) {
+				$db_cond .= ' AND `restricted`';
+			} else if (in_array($filters['restricted'], array('no', 'false', -1))) {
+				$db_cond .= ' AND NOT `restricted`';
+			}
+			# default: both, 0
+		}
+
+		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'), ' WHERE TRUE AND ' . $db_cond); # must prefix here as long as $db_cond does not include WHERE itself
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
-					. ($active === NULL ? '' : ($active
-						? ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'
-						: ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))'))
+					. $db_cond
 					. $sort;
 		$db_result = mysql_query($db_query, $db_connection);
 		if ($db_result === FALSE) {

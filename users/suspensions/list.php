@@ -28,21 +28,13 @@ try {
 	# validate accept header of request
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml', 'application/x-ald-package'), 'application/json');
 
-	$active = true;
-	if (isset($_GET['active'])) {
-		if (in_array($_GET['active'], array('no', -1, 'false'))) {
-			$active = false;
-		} else if (in_array($_GET['active'], array('both', '0'))) {
-			$active = NULL;
-		}
-	}
-
+	$filters = array_intersect_key($_GET, array_flip(array('active', 'created', 'created-after', 'created-before', 'expires', 'expires-after', 'expires-before', 'infinite', 'restricted')));
 	$sort_list = array();
 	if (isset($_GET['sort'])) {
 		$sort_list = SortHelper::getListFromParam($_GET['sort']);
 	}
 
-	$suspensions = Suspension::getSuspensionsById($id, $active, $sort_list);
+	$suspensions = Suspension::getSuspensionsById($id, $filters, $sort_list);
 	# cleanup the suspension entries
 	foreach ($suspensions AS $suspension) {
 		$suspension->created = $suspension->created->format(TIMESTAMP_FORMAT);
