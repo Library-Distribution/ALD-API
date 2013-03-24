@@ -77,7 +77,7 @@ class FilterHelper {
 				$operator = isset($filter['operator']) ? $filter['operator'] : '=';
 				$db_cond .= ' ' . $operator . ' ' . $value;
 			} else {
-				$db_cond .= ' IS ' . ((!$null_check xor $value == 'TRUE') ? 'NOT ' : '') . 'NULL';
+				$db_cond .= ' IS ' . (($null_check xor $value == 'TRUE') ? 'NOT ' : '') . 'NULL';
 			}
 		}
 
