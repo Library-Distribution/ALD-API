@@ -76,7 +76,7 @@ class Candidate {
 		$accept = array();
 		while ($row = mysql_fetch_assoc($db_result)) {
 			if ($row['final'])
-				return $row['accept']; # final decisions overwrite everything else (there must only be one of them)
+				return (bool)$row['accept']; # final decisions overwrite everything else (there must only be one of them)
 			$accept[$row['accept']] = $row['count'];
 		}
 		if (CANDIDATE_ALWAYS_REQUIRE_FINAL)
