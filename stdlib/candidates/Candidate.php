@@ -182,10 +182,9 @@ class Candidate {
 			throw new Exception('Must provide a valid array for candidate sorting');
 		}
 		$db_connection = db_ensure_connection();
-		$db_join = '';
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		$filter = new FilterHelper($db_connection);
+		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATES);
 
 		$filter->add(array('name' => 'item', 'type' => 'binary'));
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -196,12 +195,10 @@ class Candidate {
 
 		$filter->add(array('name' => 'approved', 'db-name' => 'approval', 'null' => false));
 
-		$db_cond = $filter->evaluate($filters);
+		$filter->add(array('name' => 'owner', 'db-name' => 'user', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS, 'join-ref' => 'item', 'join-key' => 'id'));
 
-		if (isset($filters['owner'])) {
-			$db_join = ' LEFT JOIN ' . DB_TABLE_ITEMS . ' ON ' . DB_TABLE_CANDIDATES . '.`item` = ' . DB_TABLE_ITEMS . '.`id`';
-			$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . DB_TABLE_ITEMS . '.`user` = UNHEX("' . mysql_real_escape_string($filters['owner'], $db_connection) . '")';
-		}
+		$db_cond = $filter->evaluate($filters);
+		$db_join = $filter->evaluateJoins();
 
 		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);

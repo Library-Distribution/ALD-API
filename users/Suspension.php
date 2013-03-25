@@ -66,7 +66,7 @@ class Suspension {
 			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
 		}
 
-		$filter = new FilterHelper($db_connection);
+		$filter = new FilterHelper($db_connection, DB_TABLE_SUSPENSIONS);
 
 		$filter->add(array('db-name' => 'user', 'value' => $id, 'type' => 'binary'));
 

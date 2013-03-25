@@ -7,8 +7,9 @@ class FilterHelper {
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($db_connection) {
+	public function __construct($db_connection, $table) {
 		$this->connection = $db_connection;
+		$this->table = $table;
 	}
 
 	public function add($data) { #$name, $db_name = NULL, $method = 'GET', $op = '=', $default = NULL, $force = NULL) {
@@ -47,6 +48,41 @@ class FilterHelper {
 		return $db_cond ? $prefix . $db_cond : '';
 	}
 
+	public function evaluateJoins() {
+		$table_list = array();
+
+		foreach ($this->filters AS $filter) { # joins are only supported on filter-level
+			if (isset($filter['db-table']) && $filter['db-table'] != $this->table) {
+				if (!isset($filter['join-ref']) || !isset($filter['join-key'])) {
+					throw new HttpException(500, NULL, 'Must specify JOIN key and reference for filters');
+				}
+
+				if (!isset($table_list[$filter['db-table']])) {
+					$table_list[$filter['db-table']][$filter['join-ref']] = $filter['join-key'];
+				} else {
+					$table_list[$filter['db-table']] = array($filter['join-ref'] => $filter['join-key']);
+				}
+			}
+		}
+
+		if (count($table_list) > 0) {
+			array_walk($table_list, array($this, 'extractJoinCondition'));
+			return ' LEFT JOIN ' . implode(' AND ', array_keys($table_list)) . ' ON (' . implode(' AND ', $table_list) . ')';
+		}
+		return '';
+	}
+
+	/*
+	 * Table join condition evaluation
+	 */
+	function extractJoinCondition(&$arr, $tbl) {
+		$join = '';
+		foreach ($arr AS $ref => $key) {
+			$join .= ($join ? ' AND ' : '') . '`' . $this->table . '`.`' . $ref . '` = `' . $tbl . '`.`' . $key . '`';
+		}
+		$arr = $join;
+	}
+
 	/*
 	 * Main conversion method
 	 */
@@ -68,12 +104,12 @@ class FilterHelper {
 				}
 
 			} else {
-				$data = array_merge(self::FromParams(array('db-name', 'name', 'type', 'default'), $filter), $condition); # collect data
+				$data = array_merge(self::FromParams(array('db-name', 'name', 'type', 'default', 'db-table', 'join-key', 'join-on'), $filter), $condition); # collect data
 
 				if (!isset($data['name']) && !isset($data['db-name'])) {
 					throw new HttpException(500, NULL, 'Must specify "name" or "db-name" for filter');
 				}
-				$key = '`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
+				$key = '`' . (isset($data['db-table']) ? $data['db-table'] : $this->table) . '`.`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
 
 				# Get the value for comparison
 				if (!$this->extractValue($data, $value)) {
