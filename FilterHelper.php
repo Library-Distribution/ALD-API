@@ -176,7 +176,7 @@ class FilterHelper {
 	/*
 	 * Operator handling code
 	 */
-	private static $operator_map = array('>' => '<=', '<=' => '>', '<' => '>=', '>=' => '<', '=' => '!=', '!=' => '=');
+	private static $operator_map = array('>' => '<=', '<=' => '>', '<' => '>=', '>=' => '<', '=' => '!=', '!=' => '=', 'REGEXP' => 'NOT REGEXP', 'NOT REGEXP' => 'REGEXP');
 
 	private static function reverseOperator($operator) {
 		return self::$operator_map[$operator];
