@@ -101,7 +101,7 @@ class Suspension {
 			# default: both, 0
 		}
 
-		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'), ' WHERE TRUE AND ' . $db_cond); # must prefix here as long as $db_cond does not include WHERE itself
+		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'));
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `user` = UNHEX("' . $id . '")'
 					. $db_cond
