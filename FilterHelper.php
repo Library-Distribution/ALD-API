@@ -34,7 +34,7 @@ class FilterHelper {
 			# if the filter is a switch and it is disabled: skip the entire thing
 			if (self::extractType($filter, $null) == 'switch') {
 				if ($this->extractValue($filter, $value)) {
-					if (!$this->coerceValue($value, 'switch')) { # returns false for disabled filters
+					if (!$this->coerceValue($value, 'switch', $filter)) { # returns false for disabled filters
 						continue;
 					}
 				}
@@ -211,10 +211,10 @@ class FilterHelper {
 
 	private function getValue($filter, &$value, &$null_check) {
 		$type = $this->extractType($filter, $null_check);
-		return $this->extractValue($filter, $value) AND $this->coerceValue($value, $type);
+		return $this->extractValue($filter, $value) AND $this->coerceValue($value, $type, $filter);
 	}
 
-	private function coerceValue(&$value, $type) {
+	private function coerceValue(&$value, $type, $filter) {
 		switch ($type) {
 			case 'string': $value = '"' . mysql_real_escape_string($value, $this->connection) . '"';
 				break;
@@ -225,6 +225,12 @@ class FilterHelper {
 			case 'binary': $value = 'UNHEX("' . mysql_real_escape_string($value, $this->connection) . '")';
 				break;
 			case 'expr': break;
+			case 'custom':
+				if (!isset($filter['coerce']) || !is_callable($filter['coerce'])) {
+					throw new HttpException(500, NULL, 'None or invalid callback for filter value coerce');
+				}
+				$value = call_user_func($filter['coerce'], $value, $this->connection);
+				break;
 			case 'switch':
 				if (in_array($value, array('yes', 'true', 1, '+1'))) {
 					$value = 'TRUE';
