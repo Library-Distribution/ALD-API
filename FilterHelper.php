@@ -112,12 +112,7 @@ class FilterHelper {
 				$key = '`' . (isset($data['db-table']) ? $data['db-table'] : $this->table) . '`.`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
 
 				# Get the value for comparison
-				if (!$this->extractValue($data, $value)) {
-					continue;
-				}
-
-				$value_type = self::extractType($data, $null_check);
-				if (!$this->coerceValue($value, $value_type)) {
+				if (!$this->getValue($data, $value, $null_check)) {
 					continue;
 				}
 
@@ -141,15 +136,10 @@ class FilterHelper {
 	}
 
 	private function should_reverse_logic($filter, &$filter_value) {
-		if ($this->extractValue($filter, $filter_value)) {
-			$filter_value_type = self::extractType($filter, $filter_null);
-			if ($this->coerceValue($filter_value, $filter_value_type)) {
-				if ($filter_value_type == 'switch' && $filter_value == 'FALSE') {
-					return true;
-				}
-			}
-		}
-		return false;
+		return $this->getValue($filter, $filter_value, $filter_null)
+			&& $this->extractType($filter, $filter_null) == 'switch'
+			&& !$filter_null
+			&& $filter_value == 'FALSE';
 	}
 
 	/*
@@ -219,6 +209,10 @@ class FilterHelper {
 		return true;
 	}
 
+	private function getValue($filter, &$value, &$null_check) {
+		$type = $this->extractType($filter, $null_check);
+		return $this->extractValue($filter, $value) AND $this->coerceValue($value, $type);
+	}
 
 	private function coerceValue(&$value, $type) {
 		switch ($type) {
