@@ -5,25 +5,23 @@ require_once('../sql2array.php');
 require_once('../db.php');
 require_once('../Assert.php');
 require_once('../SortHelper.php');
+require_once('../FilterHelper.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
 	$db_connection = db_ensure_connection();
-	$db_cond = '';
 	$db_sort = '';
 	$db_join = '';
 
-	if (isset($_GET['name'])) {
-		$db_cond .= 'AND name = "' . mysql_real_escape_string($_GET['name'], $db_connection) . '"';
-	}
-	if (isset($_GET['user'])) {
-		$db_cond .= 'AND user = UNHEX("' . mysql_real_escape_string($_GET['user'], $db_connection) . '")';
-	}
-	if (isset($_GET['id'])) {
-		$db_cond .= 'AND id = UNHEX("' . mysql_real_escape_string($_GET['id'], $db_connection) . '")';
-	}
+	$filter = new FilterHelper($db_connection, DB_TABLE_STDLIB);
+
+	$filter->add(array('name' => 'name', 'db-table' => DB_TABLE_ITEMS));
+	$filter->add(array('name' => 'user', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS));
+	$filter->add(array('name' => 'id', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS));
+
+	$db_cond = $filter->evaluate($_GET, ' AND ');
 
 	if (isset($_GET['sort'])) {
 		$sort_list = SortHelper::getListFromParam($_GET['sort']);
