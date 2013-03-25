@@ -185,7 +185,7 @@ class Candidate {
 		$db_join = '';
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		$filter = new FilterHelper();
+		$filter = new FilterHelper($db_connection);
 
 		$filter->add(array('name' => 'item', 'type' => 'binary'));
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -196,7 +196,7 @@ class Candidate {
 
 		$filter->add(array('name' => 'approved', 'db-name' => 'approval', 'null' => false));
 
-		$db_cond = $filter->evaluate($filters, $db_connection);
+		$db_cond = $filter->evaluate($filters);
 
 		if (isset($filters['owner'])) {
 			$db_join = ' LEFT JOIN ' . DB_TABLE_ITEMS . ' ON ' . DB_TABLE_CANDIDATES . '.`item` = ' . DB_TABLE_ITEMS . '.`id`';

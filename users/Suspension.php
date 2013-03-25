@@ -61,13 +61,12 @@ class Suspension {
 
 	public static function getSuspensionsById($id, $filters = array(), $sort = array()) {
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
 
 		if (!is_array($filters)) {
 			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
 		}
 
-		$filter = new FilterHelper();
+		$filter = new FilterHelper($db_connection);
 
 		$filter->add(array('db-name' => 'user', 'value' => $id, 'type' => 'binary'));
 
@@ -82,18 +81,18 @@ class Suspension {
 		$filter->add(array('name' => 'infinite', 'db-name' => 'expires', 'null' => true));
 		$filter->add(array('name' => 'restricted', 'type' => 'switch'));
 
-		$db_cond = $filter->evaluate($filters, $db_connection);
+		$filter->add(array('name' => 'active', 'type' => 'switch', 'default' => 'true',
+			'conditions' => array( # an array of conditions to be satisified
+				array('db-name' => 'active'), # the `active` field must be TRUE (see 'default' value of filter)
+				array( # a set of sub-conditions, to be combined using 'OR'
+					'logic' => 'OR',
+					array('db-name' => 'expires', 'null' => true), # [if the filter is set,] 'expires' must either be NULL ...
+					array('db-name' => 'expires', 'operator' => '>', 'value' => 'NOW()', 'type' => 'expr') # ... or it must be > NOW()
+				)
+			)
+		));
 
-		$db_cond_ = ' AND (`active` AND (`expires` IS NULL OR `expires` > NOW()))'; # if no 'active' filter is specified, assume active = true
-		if (isset($filters['active'])) {
-			if (in_array($filters['active'], array('no', 'false', -1))) {
-				$db_cond_ = ' AND (NOT `active` OR (`expires` IS NOT NULL AND `expires` <= NOW()))';
-			} else if (in_array($filters['active'], array('both', 0))) {
-				$db_cond_ = ''; # empty to override the default
-			}
-		}
-		$db_cond .= $db_cond_;
-
+		$db_cond = $filter->evaluate($filters);
 		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'), $db_cond);
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . $db_cond . $sort;
