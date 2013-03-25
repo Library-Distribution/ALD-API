@@ -219,9 +219,8 @@ class FilterHelper {
 		return true;
 	}
 
-	private function coerceValue(&$value, $type) {
-		$success = true;
 
+	private function coerceValue(&$value, $type) {
 		switch ($type) {
 			case 'string': $value = '"' . mysql_real_escape_string($value, $this->connection) . '"';
 				break;
@@ -238,7 +237,7 @@ class FilterHelper {
 				} else if (in_array($value, array('no', 'false', -1))) {
 					$value = 'FALSE';
 				} else if (in_array($value, array('both', '0'))) {
-					$success = false;
+					return false;
 				} else {
 					throw new HttpException(400, NULL, 'Invalid value "' . $value . '" for switch specified!');
 				}
@@ -246,8 +245,7 @@ class FilterHelper {
 			default:
 				throw new HttpException(500, NULL, 'Unsupported filter type "' . $type . '"');
 		}
-
-		return $success;
+		return true;
 	}
 
 	/*
