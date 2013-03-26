@@ -3,6 +3,7 @@
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once('../SortHelper.php');
+	require_once('../FilterHelper.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
@@ -23,58 +24,31 @@
 		$db_connection = db_ensure_connection();
 
 		# retrieve conditions for returned data from GET parameters
-		$db_cond = "";
 		$db_having = '';
 		$db_join = '';
 		$db_join_on = '';
 		$db_limit = "";
 		$db_order = '';
 
-		if (isset($_GET["type"]))
-		{
-			$db_cond = ($db_cond ? ' AND ' : 'WHERE '). "type = '" . ItemType::getCode($_GET["type"]) . "'";
-		}
-		if (isset($_GET["user"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "user = UNHEX('" . User::getID($_GET["user"]) . "')";
-		}
-		if (isset($_GET["name"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . DB_TABLE_ITEMS . ".name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
-		}
-		if (isset($_GET["tags"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
+		$filter = new FilterHelper($db_connection, DB_TABLE_ITEMS);
+
+		$filter->add(array('name' => 'type', 'type' => 'custom', 'coerce' => array('ItemType', 'getCode')));
+		$filter->add(array('name' => 'user', 'type' => 'binary')); # WARN: changes parameter to receive ID instead of name
+		$filter->add(array('name' => 'name'));
+		$filter->add(array('name' => 'reviewed', 'type' => 'switch')); # reviewed and unreviewed items
+
+		$filter->add(array('name' => 'downloads', 'type' => 'int')); # filter for download count
+		$filter->add(array('name' => 'downloads-min', 'db-name' => 'downloads', 'type' => 'int', 'operator' => '>='));
+		$filter->add(array('name' => 'downloads-max', 'db-name' => 'downloads', 'type' => 'int', 'operator' => '<='));
+
+		$filter->add(array('name' => 'tags', 'operator' => 'REGEXP', 'type' => 'custom', 'coerce' => 'coerce_regex'));
+		function coerce_regex($value, $db_connection) {
+			return '"(^|;)' . mysql_real_escape_string($value, $db_connection) . '($|;)"';
 		}
 
-		# reviewed and unreviewed items
-		# ================================ #
-		if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("no", "false", "-1")))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "reviewed = '0'";
-		}
-		else if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("both", "0")))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "(reviewed = '0' OR reviewed = '1')";
-		}
-		else # default (use "yes", "true", "+1" or "1")
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). " reviewed = '1'";
-		}
-		# ================================ #
+		$db_cond = $filter->evaluate($_GET);
 
-		# filter for download count
-		if (isset($_GET['downloads'])) {
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` = ' . (int)mysql_real_escape_string($_GET['downloads']);
-		} else {
-			if (isset($_GET['downloads-min'])) {
-				$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` >= ' . (int)mysql_real_escape_string($_GET['downloads-min']);
-			}
-			if (isset($_GET['downloads-max'])) {
-				$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` <= ' . (int)mysql_real_escape_string($_GET['downloads-max']);
-			}
-		}
-
+		# special filtering (post-MySQL), thus not handled by FilterHelper
 		if (isset($_GET["version"]))
 		{
 			$version = strtolower($_GET["version"]);
@@ -97,7 +71,7 @@
 			}
 		}
 
-		# enable rating filters if necessary
+		# enable rating filters if necessary (filter with HAVING instead of WHERE, not currently supported by FilterHelper)
 		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
 			$db_join .= ($db_join ? ', ' : 'LEFT JOIN (') . DB_TABLE_RATINGS;
 			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . 'item = id';

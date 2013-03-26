@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
+require_once(dirname(__FILE__) . '/../../FilterHelper.php');
 require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../config/stdlib.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
@@ -181,35 +182,23 @@ class Candidate {
 			throw new Exception('Must provide a valid array for candidate sorting');
 		}
 		$db_connection = db_ensure_connection();
-		$db_cond = '';
-		$db_join = '';
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		foreach (array('item', 'user') AS $field) { # filter binary fields
-			if (isset($filters[$field])) {
-				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`' . $field . '` = UNHEX("' . mysql_real_escape_string($filters[$field], $db_connection) . '")';
-			}
-		}
+		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATES);
 
-		foreach (array('created' => '=', 'created-after' => '>', 'created-before' => '<') AS $field => $op) { # filter creation date
-			if (isset($filters[$field])) {
-				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`date` ' . $op . ' "' . mysql_real_escape_string($filters[$field], $db_connection) . '"';
-			}
-		}
+		$filter->add(array('name' => 'item', 'type' => 'binary'));
+		$filter->add(array('name' => 'user', 'type' => 'binary'));
 
-		if (isset($filters['approved'])) {
-			if (in_array($filters['approved'], array(1, '+1', 'yes', 'true'))) {
-				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`approval` IS NOT NULL';
-			} else if (in_array($filters['approved'], array(-1, 'no', 'false'))) {
-				$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . '`approval` IS NULL';
-			}
-			# else if (in_array($filters['approved'], array(0, 'both'))) - the default
-		}
+		$filter->add(array('name' => 'created', 'db-name' => 'date'));
+		$filter->add(array('name' => 'created-before', 'db-name' => 'date', 'operator' => '<'));
+		$filter->add(array('name' => 'created-after', 'db-name' => 'date', 'operator' => '>'));
 
-		if (isset($filters['owner'])) {
-			$db_join = ' LEFT JOIN ' . DB_TABLE_ITEMS . ' ON ' . DB_TABLE_CANDIDATES . '.`item` = ' . DB_TABLE_ITEMS . '.`id`';
-			$db_cond .= ($db_cond ? ' AND ' : ' WHERE ') . DB_TABLE_ITEMS . '.`user` = UNHEX("' . mysql_real_escape_string($filters['owner'], $db_connection) . '")';
-		}
+		$filter->add(array('name' => 'approved', 'db-name' => 'approval', 'null' => false));
+
+		$filter->add(array('name' => 'owner', 'db-name' => 'user', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS, 'join-ref' => 'item', 'join-key' => 'id'));
+
+		$db_cond = $filter->evaluate($filters);
+		$db_join = $filter->evaluateJoins();
 
 		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
 		$db_result = mysql_query($db_query, $db_connection);
