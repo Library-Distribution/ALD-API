@@ -11,7 +11,7 @@
 	require_once('../sql2array.php');
 
 	# this complicated query ensures items without any ratings are considered to be rated 0
-	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
+	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ' . DB_TABLE_RATINGS . ') THEN (SELECT ROUND(AVG(rating), 1) FROM ' . DB_TABLE_RATINGS . ' WHERE ' . DB_TABLE_RATINGS . '.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
 
 	try
 	{

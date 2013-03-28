@@ -17,14 +17,14 @@ class Suspension {
 
 		$user = mysql_real_escape_string($user, $db_connection);
 		if ($expires !== NULL) {
-			$expires = (int)mysql_real_escape_string($expires, $db_connection);
+			$expires = mysql_real_escape_string($expires, $db_connection);
 		}
 		$restricted = $restricted ? '1' : '0';
 		$reason = mysql_real_escape_string($reason, $db_connection);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
 		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE) {
+		if ($db_result === FALSE || mysql_affected_rows() < 1) {
 			throw new HttpException(500);
 		}
 
