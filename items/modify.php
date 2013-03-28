@@ -21,7 +21,7 @@
 		}
 		else
 		{
-			$id = mysql_real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"]);
 		}
 
 		if (!empty($_POST["user"]))
@@ -38,11 +38,11 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set user = UNHEX('" . User::getID($_POST["user"]) . "') WHERE id = UNHEX('$id')";
-			if (!mysql_query($db_query, $db_connection))
+			if (!$db_connection->query($db_query))
 			{
 				throw new HttpException(500);
 			}
-			if (mysql_affected_rows() != 1)
+			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404);
 			}
@@ -58,12 +58,12 @@
 				throw new HttpException(400);
 			}
 
-			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set reviewed = '" . mysql_real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
-			if (!mysql_query($db_query, $db_connection))
+			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set reviewed = '" . $db_connection->real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
+			if (!$db_connection->query($db_query))
 			{
 				throw new HttpException(500);
 			}
-			if (mysql_affected_rows() != 1)
+			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404);
 			}

@@ -23,7 +23,7 @@
 		}
 		else
 		{
-			$id = mysql_real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"]);
 		}
 
 		$request_method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -31,7 +31,7 @@
 			Assert::PostParameters("rating");
 			user_basic_auth("Only registered users can rate items");
 
-			$rating = (int)mysql_real_escape_string($_POST["rating"], $db_connection);
+			$rating = (int)$db_connection->real_escape_string($_POST["rating"]);
 			if ($rating < 0 || $rating > MAX_RATING)
 			{
 				throw new HttpException(400);
@@ -40,13 +40,13 @@
 			# check if user already voted
 			$user_id = User::getID($_SERVER["PHP_AUTH_USER"]);
 			$db_query = "SELECT * FROM " . DB_TABLE_RATINGS . " WHERE user = UNHEX('$user_id') AND item = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500);
 			}
 
-			if (mysql_num_rows($db_result) > 0)
+			if ($db_result->num_rows > 0)
 			{
 				if (!CAN_UPDATE_RATING) {
 					throw new HttpException(409, NULL, 'The specified user already rated this item!');
@@ -58,7 +58,7 @@
 				$db_query = "INSERT INTO " . DB_TABLE_RATINGS . " (user, item, rating) VALUES (UNHEX('$user_id'), UNHEX('$id'), '$rating')"; # insert
 			}
 
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500);
@@ -71,7 +71,7 @@
 			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
 
 			$db_query = 'SELECT name AS user, rating FROM ' . DB_TABLE_RATINGS . ', ' . DB_TABLE_USERS . ' WHERE item = UNHEX("' . $id . '") AND `user` = `id`';
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result) {
 				throw new HttpException(500);
 			}

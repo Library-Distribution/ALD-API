@@ -36,11 +36,11 @@ class SortHelper {
 
 	public static function PrepareSemverSorting($table, $column, $db_cond = '') {
 		$db_connection = db_ensure_connection();
-		$table = mysql_real_escape_string($table, $db_connection);
-		$column = mysql_real_escape_string($column, $db_connection);
+		$table = $db_connection->real_escape_string($table);
+		$column = $db_connection->real_escape_string($column);
 
 		$db_query = 'DROP TEMPORARY TABLE IF EXISTS `semver_index`';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -49,13 +49,13 @@ class SortHelper {
 					. '`position` int NOT NULL AUTO_INCREMENT PRIMARY KEY,'
 					. '`version` varchar(50) NOT NULL'
 				. ') SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
 		$db_query = 'CALL semver_sort()';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
