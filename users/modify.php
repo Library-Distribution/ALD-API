@@ -22,7 +22,7 @@
 		}
 		else
 		{
-			$id = mysql_real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"]);
 		}
 
 		if ($id != User::getID($_SERVER["PHP_AUTH_USER"]))
@@ -37,13 +37,13 @@
 				throw new HttpException(409, NULL, "User name already taken");
 			}
 
-			$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . mysql_real_escape_string($_POST["name"], $db_connection) . "' WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . $db_connection->real_escape_string($_POST["name"]) . "' WHERE id = UNHEX('$id')";
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500, NULL, "Failed to set user name.");
 			}
-			if (mysql_affected_rows($db_connection) != 1)
+			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
 			}
@@ -55,7 +55,7 @@
 				throw new HttpException(409, NULL, "Mail address already taken");
 			}
 
-			$mail = mysql_real_escape_string($_POST["mail"], $db_connection);
+			$mail = $db_connection->real_escape_string($_POST["mail"]);
 			$suspension = Suspension::createForId($id, 'Suspended for validation of modified email address', NULL, false);
 
 			$mail_text = str_replace(array('{$USER}', '{$ID}', '{$MAIL}', '{$SUSPENSION}'), array(User::getName($id), $id, $mail, $suspension), MAIL_CHANGE_TEMPLATE);
@@ -68,12 +68,12 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail' WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500, NULL, "Failed to set user mail address.");
 			}
-			if (mysql_affected_rows($db_connection) != 1)
+			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
 			}
@@ -83,12 +83,12 @@
 			$pw = hash("sha256", $_POST["password"]);
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set pw = '$pw' WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500, NULL, "Failed to set user password.");
 			}
-			if (mysql_affected_rows($db_connection) != 1)
+			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
 			}

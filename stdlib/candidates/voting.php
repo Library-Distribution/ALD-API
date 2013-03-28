@@ -2,6 +2,7 @@
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
+require_once('../../SortHelper.php');
 require_once('../../User.php');
 require_once('Candidate.php');
 require_once('../StdlibPending.php');
@@ -47,7 +48,8 @@ try {
 		Assert::GetParameters('id');
 		$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-		$votings = Candidate::listVotings($_GET['id']);
+		$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
+		$votings = Candidate::listVotings($_GET['id'], $sort_list);
 		if ($content_type == 'application/json') {
 			$content = json_encode($votings);
 		} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {

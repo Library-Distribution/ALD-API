@@ -24,19 +24,19 @@
 		}
 		else
 		{
-			$id = mysql_real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"]);
 		}
 
 		$db_query = "SELECT name, mail, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
 		}
 
-		if (mysql_num_rows($db_result) == 1)
+		if ($db_result->num_rows == 1)
 		{
-			$user = mysql_fetch_assoc($db_result);
+			$user = $db_result->fetch_assoc();
 			$trusted_user = false;
 
 			if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {

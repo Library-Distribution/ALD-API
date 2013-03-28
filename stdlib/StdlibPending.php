@@ -17,7 +17,7 @@ class StdlibPending
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT HEX(`item`) AS id, comment, delay FROM ' . DB_TABLE_STDLIB_PENDING;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -28,9 +28,15 @@ class StdlibPending
 
 	public static function GetEntries($release) { # $release is not required to exist!
 		$base = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
-		$release_update = UpdateType::getUpdate($base, $release); # get release update type
 
-		$old_items = Stdlib::GetItems($base); # get items in base
+		if ($base !== NULL) {
+			$release_update = UpdateType::getUpdate($base, $release); # get release update type
+			$old_items = Stdlib::GetItems($base); # get items in base
+		} else { # in case there's no previous release
+			$release_update = UpdateType::MAJOR; # this way, the first release can hold any suggested change (though there should only be ADD changes)
+			$old_items = array(); # no release => no previous items
+		}
+
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
@@ -89,11 +95,11 @@ class StdlibPending
 	public static function AddEntry($id, $comment)
 	{
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
-		$comment = mysql_real_escape_string($comment, $db_connection);
+		$id = $db_connection->real_escape_string($id);
+		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_PENDING . ' (`item`, `comment`) VALUES (UNHEX("' . $id . '"), "' . $comment . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -102,10 +108,10 @@ class StdlibPending
 	public static function DeleteEntry($id)
 	{
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
+		$id = $db_connection->real_escape_string($id);
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB_PENDING . " WHERE `item` = UNHEX('$id')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
@@ -114,43 +120,47 @@ class StdlibPending
 
 	public static function IsPending($id) {
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
+		$id = $db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 
 	public static function SetComment($id, $comment) {
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
-		$comment = mysql_real_escape_string($comment, $db_connection);
+		$id = $db_connection->real_escape_string($id);
+		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+		$db_result = $db_connection->query($db_query);
+		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}
 
 	public static function SetDelay($id, $delay = NULL) {
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($id, $db_connection);
-		$delay = ($delay !== NULL) ? '"' . mysql_real_escape_string($delay, $db_connection) . '"' : 'NULL';
+		$id = $db_connection->real_escape_string($id);
+		$delay = ($delay !== NULL) ? '"' . $db_connection->real_escape_string($delay) . '"' : 'NULL';
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+		$db_result = $db_connection->query($db_query);
+		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}
 
 	public static function cleanup() {
 		$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
+		if ($latest_release === NULL) {
+			return; # we can't do any cleanup right now. When the TODOs below are implemented, they can be executed regardless of this.
+		}
+
 		$live_items = array_map(array('StdlibPending', 'sanitize_items'), Stdlib::GetItems($latest_release));
 		$pending = array_map(array('StdlibPending', 'sanitize_items'), self::GetAllEntries());
 

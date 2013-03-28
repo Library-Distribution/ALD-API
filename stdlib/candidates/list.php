@@ -2,6 +2,8 @@
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
+require_once('../../SortHelper.php');
+require_once('../../FilterHelper.php');
 require_once('Candidate.php');
 
 try {
@@ -9,7 +11,9 @@ try {
 
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-	$candidates = Candidate::listCandidates(array_intersect_key($_GET, array_flip(array('user', 'item', 'created', 'created-after', 'created-before', 'approved', 'owner'))));
+	$filters = FilterHelper::FromParams(array('user', 'item', 'created', 'created-after', 'created-before', 'approved', 'owner'));
+	$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
+	$candidates = Candidate::listCandidates($filters, $sort_list);
 
 	$filtered_candidates = array();
 	$status_map = array('accepted' => true, 'open' => NULL, 'rejected' => false);

@@ -2,11 +2,16 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../SortHelper.php');
+	require_once('../FilterHelper.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
 	require_once('ItemType.php');
 	require_once('../sql2array.php');
+
+	# this complicated query ensures items without any ratings are considered to be rated 0
+	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ' . DB_TABLE_RATINGS . ') THEN (SELECT ROUND(AVG(rating), 1) FROM ' . DB_TABLE_RATINGS . ' WHERE ' . DB_TABLE_RATINGS . '.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
 
 	try
 	{
@@ -19,56 +24,31 @@
 		$db_connection = db_ensure_connection();
 
 		# retrieve conditions for returned data from GET parameters
-		$db_cond = "";
 		$db_having = '';
 		$db_join = '';
+		$db_join_on = '';
 		$db_limit = "";
+		$db_order = '';
 
-		if (isset($_GET["type"]))
-		{
-			$db_cond = ($db_cond ? ' AND ' : 'WHERE '). "type = '" . ItemType::getCode($_GET["type"]) . "'";
-		}
-		if (isset($_GET["user"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "user = UNHEX('" . User::getID($_GET["user"]) . "')";
-		}
-		if (isset($_GET["name"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . DB_TABLE_ITEMS . ".name = '" . mysql_real_escape_string($_GET["name"], $db_connection) . "'";
-		}
-		if (isset($_GET["tags"]))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "tags REGEXP '(^|;)" . mysql_real_escape_string($_GET["tags"], $db_connection) . "($|;)'";
-		}
+		$filter = new FilterHelper($db_connection, DB_TABLE_ITEMS);
 
-		# reviewed and unreviewed items
-		# ================================ #
-		if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("no", "false", "-1")))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "reviewed = '0'";
-		}
-		else if (isset($_GET["reviewed"]) && in_array(strtolower($_GET["reviewed"]), array("both", "0")))
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). "(reviewed = '0' OR reviewed = '1')";
-		}
-		else # default (use "yes", "true", "+1" or "1")
-		{
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). " reviewed = '1'";
-		}
-		# ================================ #
+		$filter->add(array('name' => 'type', 'type' => 'custom', 'coerce' => array('ItemType', 'getCode')));
+		$filter->add(array('name' => 'user', 'type' => 'binary')); # WARN: changes parameter to receive ID instead of name
+		$filter->add(array('name' => 'name'));
+		$filter->add(array('name' => 'reviewed', 'type' => 'switch')); # reviewed and unreviewed items
 
-		# filter for download count
-		if (isset($_GET['downloads'])) {
-			$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` = ' . (int)mysql_real_escape_string($_GET['downloads']);
-		} else {
-			if (isset($_GET['downloads-min'])) {
-				$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` >= ' . (int)mysql_real_escape_string($_GET['downloads-min']);
-			}
-			if (isset($_GET['downloads-max'])) {
-				$db_cond .= ($db_cond ? ' AND ' : 'WHERE '). '`downloads` <= ' . (int)mysql_real_escape_string($_GET['downloads-max']);
-			}
+		$filter->add(array('name' => 'downloads', 'type' => 'int')); # filter for download count
+		$filter->add(array('name' => 'downloads-min', 'db-name' => 'downloads', 'type' => 'int', 'operator' => '>='));
+		$filter->add(array('name' => 'downloads-max', 'db-name' => 'downloads', 'type' => 'int', 'operator' => '<='));
+
+		$filter->add(array('name' => 'tags', 'operator' => 'REGEXP', 'type' => 'custom', 'coerce' => 'coerce_regex'));
+		function coerce_regex($value, $db_connection) {
+			return '"(^|;)' . $db_connection->real_escape_string($value) . '($|;)"';
 		}
 
+		$db_cond = $filter->evaluate($_GET);
+
+		# special filtering (post-MySQL), thus not handled by FilterHelper
 		if (isset($_GET["version"]))
 		{
 			$version = strtolower($_GET["version"]);
@@ -78,23 +58,35 @@
 			}
 		}
 
-		# enable rating filters if necessary
-		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max'])) {
-			$db_join = 'LEFT JOIN ' . DB_TABLE_RATINGS . ' ON item = id';
+		# retrieve sorting parameters
+		$sort_by_rating = false;
+		if (isset($_GET['sort'])) {
+			$sort_list = SortHelper::getListFromParam($_GET['sort']);
+			$db_order = SortHelper::getOrderClause($sort_list, array('name' => '`name`', 'version' => '`position`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
+			$sort_by_rating = array_key_exists('rating', $sort_list);
+			if (array_key_exists('version', $sort_list)) {
+				SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
+				$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
+				$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
+			}
+		}
 
-			# this complicated query ensures items without any ratings are considered to be rated 0
-			$sub_query = '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ratings) THEN (SELECT SUM(rating) FROM ratings WHERE ratings.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)';
+		# enable rating filters if necessary (filter with HAVING instead of WHERE, not currently supported by FilterHelper)
+		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
+			$db_join .= ($db_join ? ', ' : 'LEFT JOIN (') . DB_TABLE_RATINGS;
+			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . 'item = id';
+
 			if (isset($_GET['rating'])) {
 				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . $sub_query;
+				$db_having .= $db_connection->real_escape_string($_GET['rating']) . ' = ' . SQL_QUERY_RATING;
 			} else {
 				if (isset($_GET['rating-min'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . $sub_query;
+					$db_having .= $db_connection->real_escape_string($_GET['rating-min']) . ' <= ' . SQL_QUERY_RATING;
 				}
 				if (isset($_GET['rating-max'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . $sub_query;
+					$db_having .= $db_connection->real_escape_string($_GET['rating-max']) . ' >= ' . SQL_QUERY_RATING;
 				}
 			}
 		}
@@ -102,7 +94,7 @@
 		# retrieve data limits
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
-			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
+			$db_limit = "LIMIT " . $db_connection->real_escape_string($_GET["count"]);
 		}
 		if (isset($_GET["start"]) && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
@@ -110,15 +102,16 @@
 			{
 				$db_limit = "LIMIT 18446744073709551615"; # Source: http://dev.mysql.com/doc/refman/5.5/en/select.html
 			}
-			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
+			$db_limit .= " OFFSET " .  $db_connection->real_escape_string($_GET["start"]);
 		}
 
+		$db_join_on .= $db_join_on ? ')' : ''; # clause braces if necessary
+		$db_join .= $db_join ? ')' : ''; # clause braces if necessary
 		# query data
-		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, HEX(" . DB_TABLE_ITEMS . ".id) AS id, version"
-					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join
-					. " $db_cond $db_having $db_limit";
-
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, HEX(" . DB_TABLE_ITEMS . ".id) AS id, " . DB_TABLE_ITEMS . '.version'
+					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . $db_join_on
+					. " $db_cond $db_having $db_order $db_limit";
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);

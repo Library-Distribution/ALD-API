@@ -14,10 +14,10 @@ class Stdlib
 	{
 		if (StdlibRelease::exists($release, StdlibRelease::PUBLISHED_YES)) { # check if published
 			$db_connection = db_ensure_connection();
-			$release = mysql_real_escape_string($release, $db_connection);
+			$release = $db_connection->real_escape_string($release);
 
 			$db_query = 'SELECT HEX(`item`) AS id, comment FROM ' . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500);
@@ -25,12 +25,13 @@ class Stdlib
 
 			return sql2array($db_result);
 		} else {
-			return self::GetItemsUnpublished($release, StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES));
+			return self::GetItemsUnpublished($release, StdlibRelease::previousRelease($release, StdlibRelease::PUBLISHED_YES));
 		}
 	}
 
-	public static function GetItemsUnpublished($release, $base) {
-		$old_items = self::GetItems($base);
+	private static function GetItemsUnpublished($release, $base) {
+		$old_items = ($base !== NULL) ? self::GetItems($base) : array(); # catch $base = NULL in case there's no previous release
+
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
@@ -64,7 +65,7 @@ class Stdlib
 	}
 
 	public static function diff($old, $new) {
-		$old_items = self::GetItems($old);
+		$old_items = $old !== NULL ? self::GetItems($old) : array();
 		foreach ($old_items AS &$item) {
 			$item = array_merge($item, Item::get($item['id'], array('name', 'version'))); # get name + version
 		}
@@ -97,29 +98,29 @@ class Stdlib
 
 	public static function writeEntry($release, $id, $comment) {
 		$db_connection = db_ensure_connection();
-		$release = mysql_real_escape_string($release, $db_connection);
-		$id = mysql_real_escape_string($id, $db_connection);
-		$comment = mysql_real_escape_string($comment, $db_connection);
+		$release = $db_connection->real_escape_string($release);
+		$id = $db_connection->real_escape_string($id);
+		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $id . '"), "' . $comment . '")';
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+		$db_result = $db_connection->query($db_query);
+		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}
 
 	public static function releaseHasItem($release, $id) {
 		$db_connection = db_ensure_connection();
-		$release = mysql_real_escape_string($release, $db_connection);
-		$id= mysql_real_escape_string($id, $db_connection);
+		$release = $db_connection->real_escape_string($release);
+		$id = $db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `item` = UNHEX("' . $id . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 
 	public static function cleanup() {
@@ -127,14 +128,14 @@ class Stdlib
 
 		# ensure not 2x stdlib with same item and release
 		$db_query = 'SELECT `release`, `item` FROM ' . DB_TABLE_STDLIB . ' GROUP BY `release`, `item` HAVING COUNT(*) > 1';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
-			throw new HttpException(500, NULL, mysql_error());
+			throw new HttpException(500, NULL, $db_connection->error);
 		}
 
-		while ($dup = mysql_fetch_assoc($db_result)) {
+		while ($dup = $db_result->fetch_assoc()) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $dup['release'] . '" AND `item` = "' . $dup['item'] . '" LIMIT 1';
-			$db_result2 = mysql_query($db_query, $db_connection);
+			$db_result2 = $db_connection->query($db_query);
 			if ($db_result2 === FALSE) {
 				throw new HttpException(500);
 			}

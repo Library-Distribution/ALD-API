@@ -2,6 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../SortHelper.php');
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
 	require_once("../User.php");
@@ -18,11 +19,12 @@
 
 		# retrieve data limits
 		$db_limit = "";
+		$db_order = '';
 		$db_cond = '';
 
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all")
 		{
-			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
+			$db_limit = "LIMIT " . $db_connection->real_escape_string($_GET["count"]);
 		}
 		if (isset($_GET["start"]))
 		{
@@ -30,7 +32,11 @@
 			{
 				$db_limit = "LIMIT 18446744073709551615"; # Source: http://dev.mysql.com/doc/refman/5.5/en/select.html
 			}
-			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
+			$db_limit .= " OFFSET " .  $db_connection->real_escape_string($_GET["start"]);
+		}
+
+		if (isset($_GET['sort'])) {
+			$db_order = SortHelper::getOrderClause(SortHelper::getListFromParam($_GET['sort']), array('name' => '`name`', 'joined' => '`joined`'));
 		}
 
 		# retrieve filters
@@ -44,8 +50,8 @@
 		}
 
 		# query for data:
-		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_cond $db_limit";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_cond $db_order $db_limit";
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
