@@ -44,7 +44,7 @@ class UserTest extends PHPUnit_Framework_TestCase
 	public static function tearDownAfterClass() { # HACK: can be removed once testDelete() is done
 		$db_connection = db_ensure_connection();
 		$db_query = 'DELETE FROM ' . DB_TABLE_USERS . ' WHERE `mail` = "bob@example.com"';
-		mysql_query($db_query, $db_connection);
+		$db_connection->query($db_query);
 	}
 
 	public static function testPrivilegeArray() {
