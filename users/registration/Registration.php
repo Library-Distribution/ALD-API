@@ -11,15 +11,15 @@ class Registration {
 
 		$db_connection = db_ensure_connection();
 
-		$name = mysql_real_escape_string($name, $db_connection);
-		$mail = mysql_real_escape_string($mail, $db_connection);
-		$password = mysql_real_escape_string($password, $db_connection);
+		$name = $db_connection->real_escape_string($name);
+		$mail = $db_connection->real_escape_string($mail);
+		$password = $db_connection->real_escape_string($password);
 
 		$id = mt_rand();
 		$token = self::createToken();
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_REGISTRATION . ' (`id`, `token`, `name`, `mail`, `password`) VALUES ("' . $id . '", "' . $token . '", "' . $name . '", "' . $mail . '", "' . $password . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -31,7 +31,7 @@ class Registration {
 		$db_connection = db_ensure_connection();
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_REGISTRATION . ' WHERE `created` + INTERVAL ' . REGISTRATION_TIMEOUT . ' <= NOW()';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -39,40 +39,40 @@ class Registration {
 
 	public static function existsPending($name, $mail) {
 		$db_connection = db_ensure_connection();
-		$name = mysql_real_escape_string($name, $db_connection);
-		$mail = mysql_real_escape_string($mail, $db_connection);
+		$name = $db_connection->real_escape_string($name);
+		$mail = $db_connection->real_escape_string($mail);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_REGISTRATION . ' WHERE `name` = "' . $name . '" OR `mail` = "' . $mail . '"';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 
 	public static function get($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_REGISTRATION . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		return mysql_fetch_assoc($db_result);
+		return $db_result->fetch_assoc();
 	}
 
 	public static function delete($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_REGISTRATION . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}

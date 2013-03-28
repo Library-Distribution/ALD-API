@@ -26,7 +26,7 @@
 		}
 		else
 		{
-			$id = mysql_real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"], $db_connection);
 		}
 
 		$file = UPLOAD_FOLDER . $id . '.zip';
@@ -37,7 +37,7 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
 				throw new HttpException(500);
@@ -57,16 +57,16 @@
 					. " WHERE `" . DB_TABLE_ITEMS . "`.`user` = `" . DB_TABLE_USERS . "`.`id` AND `" . DB_TABLE_RATINGS . "`.`item` = `" . DB_TABLE_ITEMS . "`.`id`"		# table combination
 					. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) != 1)
+		if ($db_result->num_rows != 1)
 		{
 			throw new HttpException(404);
 		}
-		$db_entry = mysql_fetch_assoc($db_result);
+		$db_entry = $db_result->fetch_assoc();
 
 		$data = read_package($file);
 

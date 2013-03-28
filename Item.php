@@ -9,8 +9,8 @@
 		public static function getId($name, $version)
 		{
 			$db_connection = db_ensure_connection();
-			$name = mysql_real_escape_string($name, $db_connection);
-			$version = mysql_real_escape_string($version, $db_connection);
+			$name = $db_connection->real_escape_string($name);
+			$version = $db_connection->real_escape_string($version);
 
 			$db_cond = "name = '$name'";
 			if (!$special_version = in_array($version, array("latest", "first")))
@@ -19,19 +19,19 @@
 			}
 
 			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, $db_connection->error);
 			}
-			if (mysql_num_rows($db_result) < 1)
+			if ($db_result->num_rows < 1)
 			{
 				throw new HttpException(404);
 			}
 
 			if (!$special_version)
 			{
-				$db_entry = mysql_fetch_assoc($db_result);
+				$db_entry = $db_result->fetch_assoc();
 			}
 			else
 			{
@@ -46,38 +46,38 @@
 		public static function get($id, array $cols)
 		{
 			$db_connection = db_ensure_connection();
-			$id = mysql_real_escape_string($id, $db_connection);
+			$id = $db_connection->real_escape_string($id);
 
 			$db_query = 'SELECT ' . implode(', ', $c = array_map('EnwrapColName', $cols)) . ' FROM ' . DB_TABLE_ITEMS . " WHERE `id` = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, $db_connection->error);
 			}
-			return mysql_fetch_assoc($db_result);
+			return $db_result->fetch_assoc();
 		}
 
 		public static function existsId($id)
 		{
 			$db_connection = db_ensure_connection();
-			$id = mysql_real_escape_string($id, $db_connection);
+			$id = $db_connection->real_escape_string($id);
 
 			$db_query = "SELECT COUNT(*) FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, $db_connection->error);
 			}
 
-			$db_entry = mysql_fetch_assoc($db_result);
+			$db_entry = $db_result->fetch_assoc();
 			return $db_entry["COUNT(*)"] > 0;
 		}
 
 		public static function exists($name, $version = NULL)
 		{
 			$db_connection = db_ensure_connection();
-			$name = mysql_real_escape_string($name, $db_connection);
-			$version = $version == NULL ? NULL : mysql_real_escape_string($version);
+			$name = $db_connection->real_escape_string($name);
+			$version = $version == NULL ? NULL : $db_connection->real_escape_string($version);
 
 			$db_cond = "name = '$name'";
 			if ($version != NULL)
@@ -86,13 +86,13 @@
 			}
 
 			$db_query = "SELECT COUNT(*) FROM " . DB_TABLE_ITEMS . " WHERE $db_cond";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, $db_connection->error);
 			}
 
-			$db_entry = mysql_fetch_assoc($db_result);
+			$db_entry = $db_result->fetch_assoc();
 			return $db_entry["COUNT(*)"] > 0;
 		}
 
@@ -104,16 +104,16 @@
 		public static function getUserForId($id)
 		{
 			$db_connection = db_ensure_connection();
-			$id = mysql_real_escape_string($id, $db_connection);
+			$id = $db_connection->real_escape_string($id);
 
 			$db_query = "SELECT HEX(user) AS user FROM " . DB_TABLE_ITEMS . " WHERE id = UNHEX('$id')";
-			$db_result = mysql_query($db_query, $db_connection);
+			$db_result = $db_connection->query($db_query);
 			if (!$db_result)
 			{
-				throw new HttpException(500, NULL, mysql_error());
+				throw new HttpException(500, NULL, $db_connection->error);
 			}
 
-			$db_entry = mysql_fetch_assoc($db_result);
+			$db_entry = $db_result->fetch_assoc();
 			return $db_entry["user"];
 		}
 

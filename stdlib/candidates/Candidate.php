@@ -9,74 +9,74 @@ require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php
 class Candidate {
 	public static function create($item, $user, $reason, $deletion = false) {
 		$db_connection = db_ensure_connection();
-		$item = mysql_real_escape_string($item, $db_connection);
-		$user = mysql_real_escape_string($user, $db_connection);
-		$reason = mysql_real_escape_string($reason, $db_connection);
+		$item = $db_connection->real_escape_string($item);
+		$user = $db_connection->real_escape_string($user);
+		$reason = $db_connection->real_escape_string($reason);
 		$deletion = $deletion ? '0' : 'NULL';
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATES . ' (`item`, `user`, `reason`, `approval`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '", ' . $deletion . ')';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_insert_id($db_connection);
+		return $db_connection->insert_id;
 	}
 
 	public static function describe($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT *, HEX(`item`) AS item, HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		return mysql_fetch_assoc($db_result);
+		return $db_result->fetch_assoc();
 	}
 
 	public static function exists($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 
 	public static function existsItem($item) {
 		$db_connection = db_ensure_connection();
-		$item = mysql_real_escape_string($item, $db_connection);
+		$item = $db_connection->real_escape_string($item);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 
 	public static function accepted($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT COUNT(*) AS count, `final`, `accept` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $id . ' GROUP BY `final`, `accept`';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
 		$accept = array();
-		while ($row = mysql_fetch_assoc($db_result)) {
+		while ($row = $db_result->fetch_assoc()) {
 			if ($row['final'])
 				return (bool)$row['accept']; # final decisions overwrite everything else (there must only be one of them)
 			$accept[$row['accept']] = $row['count'];
@@ -94,83 +94,83 @@ class Candidate {
 
 	public static function getId($item) {
 		$db_connection = db_ensure_connection();
-		$item = mysql_real_escape_string($item, $db_connection);
+		$item = $db_connection->real_escape_string($item);
 
 		$db_query = 'SELECT `id` FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		$t = mysql_fetch_assoc($db_result);
+		$t = $db_result->fetch_assoc();
 		return $t['id'];
 	}
 
 	public static function approve($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'UPDATE ' . DB_TABLE_CANDIDATES . ' SET `approval` = NOW() WHERE `approval` IS NULL AND `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_affected_rows() < 1) {
+		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(400);
 		}
 	}
 
 	public static function isApproved($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT (`approval` IS NOT NULL) AS approved FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		$t = mysql_fetch_assoc($db_result);
+		$t = $db_result->fetch_assoc();
 		return $t['approved'];
 	}
 
 	public static function getUser($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		$t = mysql_fetch_assoc($db_result);
+		$t = $db_result->fetch_assoc();
 		return $t['user'];
 	}
 
 	public static function getItem($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
-		if (mysql_num_rows($db_result) < 1) {
+		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
 
-		$t = mysql_fetch_assoc($db_result);
+		$t = $db_result->fetch_assoc();
 		return $t['item'];
 	}
 
@@ -201,7 +201,7 @@ class Candidate {
 		$db_join = $filter->evaluateJoins();
 
 		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -210,11 +210,11 @@ class Candidate {
 
 	public static function listVotings($candidate, $sort = array()) {
 		$db_connection = db_ensure_connection();
-		$candidate = (int)mysql_real_escape_string($candidate, $db_connection);
+		$candidate = (int)$db_connection->real_escape_string($candidate);
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
 
 		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate . ' ' . $db_sort;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -230,14 +230,14 @@ class Candidate {
 	public static function vote($candidate, $user, $accept, $reason, $final = false) {
 		$db_connection = db_ensure_connection();
 
-		$candidate = mysql_real_escape_string($candidate, $db_connection);
-		$user = mysql_real_escape_string($user, $db_connection);
-		$reason = mysql_real_escape_string($reason, $db_connection);
+		$candidate = $db_connection->real_escape_string($candidate);
+		$user = $db_connection->real_escape_string($user);
+		$reason = $db_connection->real_escape_string($reason);
 		$accept = $accept ? 'TRUE' : 'FALSE';
 		$final = $final ? 'TRUE' : 'FALSE';
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE_VOTING . ' (`candidate`, `user`, `accept`, `final`, `reason`) VALUES (' . $candidate . ', UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -245,16 +245,16 @@ class Candidate {
 
 	public static function hasVoted($id, $user) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
-		$user = mysql_real_escape_string($user, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
+		$user = $db_connection->real_escape_string($user);
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `user` = UNHEX("' . $user . '") AND `candidate` = ' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		return mysql_num_rows($db_result) > 0;
+		return $db_result->num_rows > 0;
 	}
 }
 ?>

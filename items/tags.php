@@ -14,13 +14,13 @@ try {
 	$db_connection = db_ensure_connection();
 
 	$db_query = 'SELECT DISTINCT tags FROM ' . DB_TABLE_ITEMS;
-	$db_result = mysql_query($db_query, $db_connection);
+	$db_result = $db_connection->query($db_query);
 	if (!$db_result) {
 		throw new HttpException(500);
 	}
 
 	$tags = array();
-	while ($row = mysql_fetch_array($db_result)) {
+	while ($row = $db_result->fetch_assoc()) {
 		$new_tags = explode(';', $row['tags']);
 		foreach ($new_tags AS $tag) {
 			$tags[$tag] = true; # keep tags as keys for simplicity, value is meaningless
