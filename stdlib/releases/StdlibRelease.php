@@ -160,7 +160,7 @@ class StdlibRelease
 		}
 
 		$releases = array();
-		while ($release = $db_result->fetch_array()) { # sort by release
+		while ($release = $db_result->fetch_assoc()) { # sort by release
 			$releases[] = $release['release'];
 		}
 

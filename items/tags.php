@@ -20,7 +20,7 @@ try {
 	}
 
 	$tags = array();
-	while ($row = $db_result->fetch_array()) {
+	while ($row = $db_result->fetch_assoc()) {
 		$new_tags = explode(';', $row['tags']);
 		foreach ($new_tags AS $tag) {
 			$tags[$tag] = true; # keep tags as keys for simplicity, value is meaningless

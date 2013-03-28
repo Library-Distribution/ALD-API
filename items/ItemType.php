@@ -19,7 +19,7 @@ class ItemType
 		{
 			throw new HttpException(400, NULL, "Item type '$name' is not supported!");
 		}
-		$row = $db_result->fetch_array();
+		$row = $db_result->fetch_assoc();
 		return $row['code'];
 	}
 
@@ -37,7 +37,7 @@ class ItemType
 		{
 			throw new HttpException(500, NULL, "Item type '$code' is unknown!");
 		}
-		$row = $db_result->fetch_array();
+		$row = $db_result->fetch_assoc();
 		return $row['name'];
 	}
 

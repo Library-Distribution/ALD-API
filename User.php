@@ -87,8 +87,8 @@ class User
 			throw new HttpException(404, NULL, "User not found");
 		}
 
-		$data = $db_result->fetch_object();
-		return (((int)$data->privileges) & $privilege) == $privilege;
+		$data = $db_result->fetch_assoc();
+		return (((int)$data['privileges']) & $privilege) == $privilege;
 	}
 
 	public static function hasPrivilege($name, $privilege)
@@ -107,8 +107,8 @@ class User
 			throw new HttpException(404, NULL, "User not found");
 		}
 
-		$data = $db_result->fetch_object();
-		return (((int)$data->privileges) & $privilege) == $privilege;
+		$data = $db_result->fetch_assoc();
+		return (((int)$data['privileges']) & $privilege) == $privilege;
 	}
 
 	public static function existsName($name)
@@ -156,8 +156,8 @@ class User
 			throw new HttpException(403, NULL, "User not found");
 		}
 
-		$data = $db_result->fetch_object();
-		if ($data->pw != $pw)
+		$data = $db_result->fetch_assoc();
+		if ($data['pw'] != $pw)
 		{
 			throw new HttpException(403, NULL, "Invalid credentials were specified.");
 		}
@@ -179,9 +179,9 @@ class User
 			throw new HttpException(500);
 		}
 
-		while ($data = $db_result->fetch_object())
+		while ($data = $db_result->fetch_assoc())
 		{
-			return $data->name;
+			return $data['name'];
 		}
 		throw new HttpException(404, NULL, "User not found");
 	}
