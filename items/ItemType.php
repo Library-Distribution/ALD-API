@@ -8,36 +8,36 @@ class ItemType
 	public static function getCode($name)
 	{
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT code FROM ' . DB_TABLE_TYPES . ' WHERE name = \'' . mysql_real_escape_string($name, $db_connection) . '\'';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = 'SELECT code FROM ' . DB_TABLE_TYPES . ' WHERE name = \'' . $db_connection->real_escape_string($name) . '\'';
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
-			throw new HttpException(500, NULL, 'Could not read item type code: ' . mysql_error());
+			throw new HttpException(500, NULL, 'Could not read item type code: ' . $db_connection->error);
 		}
 
-		if (mysql_num_rows($db_result) < 1)
+		if ($db_result->num_rows < 1)
 		{
 			throw new HttpException(400, NULL, "Item type '$name' is not supported!");
 		}
-		$row = mysql_fetch_array($db_result);
+		$row = $db_result->fetch_array();
 		return $row['code'];
 	}
 
 	public static function getName($code)
 	{
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES . ' WHERE code = \'' . mysql_real_escape_string($code, $db_connection) . '\'';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES . ' WHERE code = \'' . $db_connection->real_escape_string($code) . '\'';
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
-			throw new HttpException(500, NULL, 'Could not read item type name: ' . mysql_error());
+			throw new HttpException(500, NULL, 'Could not read item type name: ' . $db_connection->error);
 		}
 
-		if (mysql_num_rows($db_result) < 1)
+		if ($db_result->num_rows < 1)
 		{
 			throw new HttpException(500, NULL, "Item type '$code' is unknown!");
 		}
-		$row = mysql_fetch_array($db_result);
+		$row = $db_result->fetch_array();
 		return $row['name'];
 	}
 
@@ -45,7 +45,7 @@ class ItemType
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE)
 		{
 			throw new HttpException(500, NULL, 'Could not read supported item types!');

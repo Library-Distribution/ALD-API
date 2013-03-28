@@ -15,20 +15,20 @@ class Suspension {
 	public static function createForId($user, $reason, $expires = NULL, $restricted = true) {
 		$db_connection = db_ensure_connection();
 
-		$user = mysql_real_escape_string($user, $db_connection);
+		$user = $db_connection->real_escape_string($user);
 		if ($expires !== NULL) {
-			$expires = mysql_real_escape_string($expires, $db_connection);
+			$expires = $db_connection->real_escape_string($expires);
 		}
 		$restricted = $restricted ? '1' : '0';
-		$reason = mysql_real_escape_string($reason, $db_connection);
+		$reason = $db_connection->real_escape_string($reason);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
-		$db_result = mysql_query($db_query, $db_connection);
-		if ($db_result === FALSE || mysql_affected_rows() < 1) {
+		$db_result = $db_connection->query($db_query);
+		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 
-		return mysql_insert_id($db_connection);
+		return $db_connection->insert_id;
 	}
 
 	public static function clear() {
@@ -41,7 +41,7 @@ class Suspension {
 			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `active` AND' . $cond;
 		}
 
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -96,7 +96,7 @@ class Suspension {
 		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'));
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . $db_cond . $sort;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
@@ -106,19 +106,19 @@ class Suspension {
 
 	public static function getSuspension($id) {
 		$db_connection = db_ensure_connection();
-		$id = (int)mysql_real_escape_string($id, $db_connection);
+		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `id` =' . $id;
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}
 
-		if (mysql_num_rows($db_result) != 1) {
+		if ($db_result->num_rows != 1) {
 			throw new HttpException(404);
 		}
 
-		return self::_create_inst_(mysql_fetch_assoc($db_result));
+		return self::_create_inst_($db_result->fetch_assoc());
 	}
 
 	public static function _create_inst_($arr) {
@@ -142,10 +142,10 @@ class Suspension {
 
 	public function delete() {
 		$db_connection = db_ensure_connection();
-		$id = mysql_real_escape_string($this->id, $db_connection);
+		$id = $db_connection->real_escape_string($this->id);
 
 		$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `id` = "' . $id . '"';
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if ($db_result === FALSE) {
 			throw new HttpException(500);
 		}

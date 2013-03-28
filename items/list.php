@@ -43,7 +43,7 @@
 
 		$filter->add(array('name' => 'tags', 'operator' => 'REGEXP', 'type' => 'custom', 'coerce' => 'coerce_regex'));
 		function coerce_regex($value, $db_connection) {
-			return '"(^|;)' . mysql_real_escape_string($value, $db_connection) . '($|;)"';
+			return '"(^|;)' . $db_connection->real_escape_string($value) . '($|;)"';
 		}
 
 		$db_cond = $filter->evaluate($_GET);
@@ -78,15 +78,15 @@
 
 			if (isset($_GET['rating'])) {
 				$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-				$db_having .= mysql_real_escape_string($_GET['rating'], $db_connection) . ' = ' . SQL_QUERY_RATING;
+				$db_having .= $db_connection->real_escape_string($_GET['rating']) . ' = ' . SQL_QUERY_RATING;
 			} else {
 				if (isset($_GET['rating-min'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-min'], $db_connection) . ' <= ' . SQL_QUERY_RATING;
+					$db_having .= $db_connection->real_escape_string($_GET['rating-min']) . ' <= ' . SQL_QUERY_RATING;
 				}
 				if (isset($_GET['rating-max'])) {
 					$db_having .= ($db_having) ? ' AND ' : 'HAVING ';
-					$db_having .= mysql_real_escape_string($_GET['rating-max'], $db_connection) . ' >= ' . SQL_QUERY_RATING;
+					$db_having .= $db_connection->real_escape_string($_GET['rating-max']) . ' >= ' . SQL_QUERY_RATING;
 				}
 			}
 		}
@@ -94,7 +94,7 @@
 		# retrieve data limits
 		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
-			$db_limit = "LIMIT " . mysql_real_escape_string($_GET["count"], $db_connection);
+			$db_limit = "LIMIT " . $db_connection->real_escape_string($_GET["count"]);
 		}
 		if (isset($_GET["start"]) && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
 		{
@@ -102,7 +102,7 @@
 			{
 				$db_limit = "LIMIT 18446744073709551615"; # Source: http://dev.mysql.com/doc/refman/5.5/en/select.html
 			}
-			$db_limit .= " OFFSET " .  mysql_real_escape_string($_GET["start"], $db_connection);
+			$db_limit .= " OFFSET " .  $db_connection->real_escape_string($_GET["start"]);
 		}
 
 		$db_join_on .= $db_join_on ? ')' : ''; # clause braces if necessary
@@ -111,7 +111,7 @@
 		$db_query = "SELECT DISTINCT " . DB_TABLE_ITEMS . ".name, HEX(" . DB_TABLE_ITEMS . ".id) AS id, " . DB_TABLE_ITEMS . '.version'
 					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . $db_join_on
 					. " $db_cond $db_having $db_order $db_limit";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			throw new HttpException(500);

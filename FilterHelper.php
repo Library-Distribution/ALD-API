@@ -216,13 +216,13 @@ class FilterHelper {
 
 	private function coerceValue(&$value, $type, $filter) {
 		switch ($type) {
-			case 'string': $value = '"' . mysql_real_escape_string($value, $this->connection) . '"';
+			case 'string': $value = '"' . $this->connection->real_escape_string($value) . '"';
 				break;
 			case 'int': $value = (int)$value;
 				break;
 			case 'bool': $value = $value ? 'TRUE' : 'FALSE';
 				break;
-			case 'binary': $value = 'UNHEX("' . mysql_real_escape_string($value, $this->connection) . '")';
+			case 'binary': $value = 'UNHEX("' . $this->connection->real_escape_string($value) . '")';
 				break;
 			case 'expr': break;
 			case 'custom':

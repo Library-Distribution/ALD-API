@@ -33,9 +33,9 @@ try {
 	}
 
 	$db_query = 'SELECT name, `' . DB_TABLE_ITEMS . '`.`version`, HEX(`id`) AS id, GROUP_CONCAT(DISTINCT `release` SEPARATOR "\0") AS releases FROM ' . DB_TABLE_STDLIB . ', ' . DB_TABLE_ITEMS . $db_join . ' WHERE item = id ' . $db_cond . ' GROUP BY name, `' . DB_TABLE_ITEMS . '`.`version` ' . $db_sort;
-	$db_result = mysql_query($db_query, $db_connection);
+	$db_result = $db_connection->query($db_query);
 	if ($db_result === FALSE) {
-		throw new HttpException(500, NULL, mysql_error());
+		throw new HttpException(500, NULL, $db_connection->error);
 	}
 
 	$data = sql2array($db_result, create_function('$item', '$item["releases"] = explode("\0", $item["releases"]); return $item;'));

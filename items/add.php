@@ -56,10 +56,10 @@
 		###########################################################
 
 		# escape data to prevent SQL injection
-		$escaped_name = mysql_real_escape_string($pack_name, $db_connection);
-		$escaped_version = mysql_real_escape_string($pack_version, $db_connection);
-		$escaped_description = mysql_real_escape_string($pack_description, $db_connection);
-		$escaped_tags = mysql_real_escape_string($pack_tags, $db_connection);
+		$escaped_name = $db_connection->real_escape_string($pack_name);
+		$escaped_version = $db_connection->real_escape_string($pack_version);
+		$escaped_description = $db_connection->real_escape_string($pack_description);
+		$escaped_tags = $db_connection->real_escape_string($pack_tags);
 
 		# check if item type is supported and read the code
 		$escaped_type = ItemType::getCode($pack_type); # unsupported types throw an exception
@@ -93,7 +93,7 @@
 		# add the database entry
 		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, user, description, tags)
 					VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
-		$db_result = mysql_query($db_query, $db_connection);
+		$db_result = $db_connection->query($db_query);
 		if (!$db_result)
 		{
 			unlink(UPLOAD_FOLDER . $pack_id . '.zip');

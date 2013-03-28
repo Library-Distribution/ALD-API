@@ -8,12 +8,8 @@
 
 		if (!$connection)
 		{
-			$connection = mysql_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD);
-			if (!$connection)
-			{
-				throw new HttpException(500);
-			}
-			if (!mysql_select_db(DB_NAME, $connection))
+			$connection = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+			if ($connection->connect_error || mysqli_connect_error() || $connection->error)
 			{
 				throw new HttpException(500);
 			}
