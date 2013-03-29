@@ -136,8 +136,7 @@ class Suspension {
 		$this->created = new DateTime($created);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 
-		!$this->infinite AND $diff = $this->expires->diff(new DateTime('now'));
-		$this->active = $active && ($this->infinite || $diff->invert);
+		$this->active = $active && ($this->infinite || (new DateTime('now')) > $this->expires);
 	}
 
 	public function delete() {
