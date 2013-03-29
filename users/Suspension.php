@@ -9,7 +9,7 @@ require_once(dirname(__FILE__) . '/../config/suspensions.php');
 
 class Suspension {
 	public static function create($user, $reason, $expires = NULL, $restricted = true) {
-		self::createForId(User::getID($user), $reason, $expires, $restricted);
+		return self::createForId(User::getID($user), $reason, $expires, $restricted);
 	}
 
 	public static function createForId($user, $reason, $expires = NULL, $restricted = true) {
@@ -48,7 +48,7 @@ class Suspension {
 	}
 
 	public static function isSuspended($user) {
-		return self::getSuspensions($user);
+		return self::isSuspendedById(User::getID($user));
 	}
 
 	public static function isSuspendedById($id) {
