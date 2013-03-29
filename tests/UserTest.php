@@ -3,13 +3,31 @@ require_once('PHPUnit/Autoload.php');
 require_once('PHPUnit/Framework/Assert/Functions.php'); # should not be required (?)
 
 require_once(dirname(__FILE__) . '/../User.php');
+require_once(dirname(__FILE__) . '/../db.php');
 
-class UserTest extends PHPUnit_Framework_TestCase
-{
+class UserTest extends PHPUnit_Framework_TestCase {
 	public static function testCreate() {
 		User::create('Bob', 'bob@example.com', 'secret1234');
 		assertTrue(User::existsName('Bob'), 'Failed to create user "Bob" (no user with this name found)');
 		assertTrue(User::existsMail('bob@example.com'), 'Failed to create user "Bob" (no user with this mail address found)');
+	}
+
+	/**
+	* @depends testCreate
+	* @expectedException HttpException
+	* @expectedExceptionCode 500
+	*/
+	public static function testCreateDuplicateName() {
+		User::create('Bob', 'bob2@example.com', 'some-pw');
+	}
+
+	/**
+	* @depends testCreate
+	* @expectedException HttpException
+	* @expectedExceptionCode 500
+	*/
+	public static function testCreateDuplicateMail() {
+		User::create('Paul', 'bob@example.com', 'some-pw');
 	}
 
 	/**
@@ -21,6 +39,14 @@ class UserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	* @depends testID
+	*/
+	public static function testName() {
+		$id = User::getID('Bob');
+		assertEquals(User::getName($id), 'Bob', 'Could not retrieve the user name for a given ID of "' . $id . '"');
+	}
+
+	/**
 	* @depends testCreate
 	*/
 	public static function testLogin() {
@@ -28,10 +54,10 @@ class UserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	* @depends testCreate
+	* @depends testID
 	*/
-	public static function testPrivilege() {
-		# not implemented yet
+	public static function testPrivilegeBefore() {
+		assertEquals(User::getPrivileges(User::getID('Bob')), User::PRIVILEGE_NONE, 'User "Bob" should have zero privileges in the beginning.');
 	}
 
 	/**
@@ -53,6 +79,7 @@ class UserTest extends PHPUnit_Framework_TestCase
 
 		$arr = User::privilegeToArray(User::PRIVILEGE_ADMIN|User::PRIVILEGE_STDLIB_ADMIN|User::PRIVILEGE_REGISTRATION);
 		assertInternalType('array', $arr, 'Privilege conversion did not return an array');
+		assertCount(3, $arr, 'Invalid element count in privilege array');
 		assertContains('admin', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
 		assertContains('stdlib-admin', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
 		assertContains('registration', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
