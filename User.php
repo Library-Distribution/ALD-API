@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . "/db.php");
+require_once(dirname(__FILE__) . '/Assert.php');
 require_once(dirname(__FILE__) . '/users/Suspension.php');
 require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 
@@ -77,15 +78,7 @@ class User
 
 		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . $db_connection->real_escape_string($id) . "')";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-
-		if ($db_result->num_rows != 1)
-		{
-			throw new HttpException(404, NULL, "User not found");
-		}
+		Assert::dbMinRows($db_result, 'User not found');
 
 		$data = $db_result->fetch_assoc();
 		return (((int)$data['privileges']) & $privilege) == $privilege;
@@ -97,15 +90,7 @@ class User
 
 		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE name = '" .  $db_connection->real_escape_string($name) . "'";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-
-		if ($db_result->num_rows != 1)
-		{
-			throw new HttpException(404, NULL, "User not found");
-		}
+		Assert::dbMinRows($db_result, 'User not found');
 
 		$data = $db_result->fetch_assoc();
 		return (((int)$data['privileges']) & $privilege) == $privilege;
@@ -117,10 +102,7 @@ class User
 
 		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE name = '" . $db_connection->real_escape_string($name) . "'";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
+
 		return $db_result->num_rows == 1;
 	}
 
@@ -130,10 +112,7 @@ class User
 
 		$db_query = "SELECT id FROM " . DB_TABLE_USERS . " WHERE mail = '" . $db_connection->real_escape_string($mail) . "'";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
+
 		return $db_result->num_rows == 1;
 	}
 
@@ -146,15 +125,7 @@ class User
 
 		$db_query = "SELECT pw FROM " . DB_TABLE_USERS . " WHERE name = '$escaped_user'";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
-
-		if ($db_result->num_rows != 1)
-		{
-			throw new HttpException(403, NULL, "User not found");
-		}
+		Assert::dbMinRows($db_result, 'User not found', 403);
 
 		$data = $db_result->fetch_assoc();
 		if ($data['pw'] != $pw)
@@ -174,10 +145,6 @@ class User
 
 		$db_query = "SELECT name FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . $db_connection->real_escape_string($id) . "')";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		while ($data = $db_result->fetch_assoc())
 		{
@@ -192,10 +159,6 @@ class User
 
 		$db_query = "SELECT HEX(id) AS id FROM " . DB_TABLE_USERS . " WHERE name = '" . $db_connection->real_escape_string($name) . "'";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		while ($data = $db_result->fetch_assoc())
 		{
@@ -210,10 +173,6 @@ class User
 
 		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . $db_connection->real_escape_string($id) . "')";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		while ($data = $db_result->fetch_assoc())
 		{
@@ -229,10 +188,7 @@ class User
 		$pw = hash('sha256', $pw);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_USERS . ' (`id`, `name`, `mail`, `pw`) VALUES (UNHEX(REPLACE(UUID(), "-", "")), "' . $name . '", "' . $mail . '", "' . $pw . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 }
 ?>

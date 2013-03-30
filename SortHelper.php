@@ -40,25 +40,16 @@ class SortHelper {
 		$column = $db_connection->real_escape_string($column);
 
 		$db_query = 'DROP TEMPORARY TABLE IF EXISTS `semver_index`';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 
 		$db_query = 'CREATE TEMPORARY TABLE `semver_index` ('
 					. '`position` int NOT NULL AUTO_INCREMENT PRIMARY KEY,'
 					. '`version` varchar(50) NOT NULL'
 				. ') SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 
 		$db_query = 'CALL semver_sort()';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 }
 ?>

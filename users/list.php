@@ -52,10 +52,6 @@
 		# query for data:
 		$db_query = "SELECT name, HEX(id) AS id FROM " . DB_TABLE_USERS . " $db_cond $db_order $db_limit";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		# parse data to array
 		$data = sql2array($db_result);
