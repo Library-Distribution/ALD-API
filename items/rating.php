@@ -41,10 +41,6 @@
 			$user_id = User::getID($_SERVER["PHP_AUTH_USER"]);
 			$db_query = "SELECT * FROM " . DB_TABLE_RATINGS . " WHERE user = UNHEX('$user_id') AND item = UNHEX('$id')";
 			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
 
 			if ($db_result->num_rows > 0)
 			{
@@ -58,11 +54,7 @@
 				$db_query = "INSERT INTO " . DB_TABLE_RATINGS . " (user, item, rating) VALUES (UNHEX('$user_id'), UNHEX('$id'), '$rating')"; # insert
 			}
 
-			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
+			$db_connection->query($db_query);
 
 			header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 
@@ -72,9 +64,6 @@
 
 			$db_query = 'SELECT name AS user, rating FROM ' . DB_TABLE_RATINGS . ', ' . DB_TABLE_USERS . ' WHERE item = UNHEX("' . $id . '") AND `user` = `id`';
 			$db_result = $db_connection->query($db_query);
-			if (!$db_result) {
-				throw new HttpException(500);
-			}
 			$ratings = sql2array($db_result, 'clean_entry');
 
 			if ($content_type == "application/json") {

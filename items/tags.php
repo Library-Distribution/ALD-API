@@ -15,9 +15,6 @@ try {
 
 	$db_query = 'SELECT DISTINCT tags FROM ' . DB_TABLE_ITEMS;
 	$db_result = $db_connection->query($db_query);
-	if (!$db_result) {
-		throw new HttpException(500);
-	}
 
 	$tags = array();
 	while ($row = $db_result->fetch_assoc()) {

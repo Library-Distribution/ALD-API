@@ -38,14 +38,8 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set user = UNHEX('" . User::getID($_POST["user"]) . "') WHERE id = UNHEX('$id')";
-			if (!$db_connection->query($db_query))
-			{
-				throw new HttpException(500);
-			}
-			if ($db_connection->affected_rows != 1)
-			{
-				throw new HttpException(404);
-			}
+			$db_connection->query($db_query);
+			Assert::dbMinRows($db_connection);
 		}
 		if (isset($_POST["reviewed"]))
 		{
@@ -59,14 +53,8 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set reviewed = '" . $db_connection->real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
-			if (!$db_connection->query($db_query))
-			{
-				throw new HttpException(500);
-			}
-			if ($db_connection->affected_rows != 1)
-			{
-				throw new HttpException(404);
-			}
+			$db_connection->query($db_query);
+			Assert::dbMinRows($db_connection);
 		}
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}

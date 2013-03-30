@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../util.php');
 require_once(dirname(__FILE__) . '/../../User.php');
+require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../config/registration.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
@@ -19,10 +20,7 @@ class Registration {
 		$token = self::createToken();
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_REGISTRATION . ' (`id`, `token`, `name`, `mail`, `password`) VALUES ("' . $id . '", "' . $token . '", "' . $name . '", "' . $mail . '", "' . $password . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 
 		return $id;
 	}
@@ -31,10 +29,7 @@ class Registration {
 		$db_connection = db_ensure_connection();
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_REGISTRATION . ' WHERE `created` + INTERVAL ' . REGISTRATION_TIMEOUT . ' <= NOW()';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public static function existsPending($name, $mail) {
@@ -44,9 +39,6 @@ class Registration {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_REGISTRATION . ' WHERE `name` = "' . $name . '" OR `mail` = "' . $mail . '"';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		return $db_result->num_rows > 0;
 	}
 
@@ -56,13 +48,7 @@ class Registration {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_REGISTRATION . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
-
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		return $db_result->fetch_assoc();
 	}
@@ -72,10 +58,7 @@ class Registration {
 		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_REGISTRATION . ' WHERE `id` = ' . $id;
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	private static function createToken() {
