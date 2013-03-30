@@ -109,7 +109,7 @@ class Suspension {
 	}
 
 	public static function _create_inst_($arr) {
-		return new Suspension((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['active']);
+		return new self((int)$arr['id'], $arr['user'], $arr['created'], $arr['expires'], (bool)$arr['restricted'], $arr['reason'], $arr['active']);
 	}
 
 	####################################

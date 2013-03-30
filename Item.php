@@ -80,7 +80,7 @@
 
 		public static function getUser($name, $version)
 		{
-			return Item::getUserForId(Item::getId($name, $version));
+			return self::getUserForId(self::getId($name, $version));
 		}
 
 		public static function getUserForId($id)
