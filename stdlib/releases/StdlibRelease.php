@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
+require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
 require_once(dirname(__FILE__) . '/../../UpdateType.php');
@@ -59,10 +60,8 @@ class StdlibRelease
 
 		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . $db_connection->real_escape_string($release) . "'" . $db_cond;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows != 1)
-		{
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
+
 		$t = $db_result->fetch_assoc();
 		$t['published'] = (bool)$t['published'];
 		return $t;

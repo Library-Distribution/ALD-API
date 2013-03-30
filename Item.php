@@ -3,6 +3,7 @@
 	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 	require_once(dirname(__FILE__) . "/modules/semver/semver.php");
 	require_once(dirname(__FILE__) . '/sql2array.php');
+	require_once(dirname(__FILE__) . '/Assert.php');
 
 	class Item
 	{
@@ -20,10 +21,7 @@
 
 			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
 			$db_result = $db_connection->query($db_query);
-			if ($db_result->num_rows < 1)
-			{
-				throw new HttpException(404);
-			}
+			Assert::dbMinRows($db_result);
 
 			if (!$special_version)
 			{

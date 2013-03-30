@@ -54,10 +54,7 @@
 					. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows != 1)
-		{
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 		$db_entry = $db_result->fetch_assoc();
 
 		$data = read_package($file);

@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
 require_once(dirname(__FILE__) . '/../../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../config/stdlib.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
@@ -26,9 +27,7 @@ class Candidate {
 
 		$db_query = 'SELECT *, HEX(`item`) AS item, HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		return $db_result->fetch_assoc();
 	}
@@ -83,9 +82,7 @@ class Candidate {
 
 		$db_query = 'SELECT `id` FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		$t = $db_result->fetch_assoc();
 		return $t['id'];
@@ -108,9 +105,7 @@ class Candidate {
 
 		$db_query = 'SELECT (`approval` IS NOT NULL) AS approved FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		$t = $db_result->fetch_assoc();
 		return $t['approved'];
@@ -122,9 +117,7 @@ class Candidate {
 
 		$db_query = 'SELECT HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		$t = $db_result->fetch_assoc();
 		return $t['user'];
@@ -136,9 +129,7 @@ class Candidate {
 
 		$db_query = 'SELECT HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		$t = $db_result->fetch_assoc();
 		return $t['item'];

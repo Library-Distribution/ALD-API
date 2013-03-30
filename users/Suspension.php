@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../User.php');
 require_once(dirname(__FILE__) . '/../SortHelper.php');
 require_once(dirname(__FILE__) . '/../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../Assert.php');
 require_once(dirname(__FILE__) . '/../sql2array.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../config/suspensions.php');
@@ -104,10 +105,7 @@ class Suspension {
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `id` =' . $id;
 		$db_result = $db_connection->query($db_query);
-
-		if ($db_result->num_rows != 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		return self::_create_inst_($db_result->fetch_assoc());
 	}

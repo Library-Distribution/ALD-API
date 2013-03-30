@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../util.php');
 require_once(dirname(__FILE__) . '/../../User.php');
+require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../config/registration.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
@@ -47,10 +48,7 @@ class Registration {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_REGISTRATION . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-
-		if ($db_result->num_rows < 1) {
-			throw new HttpException(404);
-		}
+		Assert::dbMinRows($db_result);
 
 		return $db_result->fetch_assoc();
 	}

@@ -29,47 +29,44 @@
 
 		$db_query = "SELECT name, mail, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 		$db_result = $db_connection->query($db_query);
+		Assert::dbMinRows($db_result);
 
-		if ($db_result->num_rows == 1)
-		{
-			$user = $db_result->fetch_assoc();
-			$trusted_user = false;
+		$user = $db_result->fetch_assoc();
+		$trusted_user = false;
 
-			if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
-				user_basic_auth(''); # if credentials are specified, they must be correct
-				$trusted_user = $_SERVER['PHP_AUTH_USER'] == $user['name'] # user requests information about himself - OK.
-							|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_USER_MANAGE) # admins and moderators can see the mail address, too
-							|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN);
-			}
-
-			$user["mail-md5"] = md5($user["mail"]);
-			$user["id"] = $id;
-			$user['privileges'] = User::privilegeToArray($user['privileges']);
-
-			if (!$trusted_user) {
-				unset($user["mail"]);
-			} else {
-				$user['suspended'] = Suspension::isSuspendedById($id);
-			}
-
-			if ($content_type == "application/json")
-			{
-				$content = json_encode($user);
-			}
-			else if ($content_type == "text/xml" || $content_type == "application/xml")
-			{
-				$content = "<?xml version='1.0' encoding='utf-8' ?><ald:user xmlns:ald=\"ald://api/users/describe/schema/2012\"";
-				foreach ($user AS $key => $value)
-					$content .= " ald:$key=\"" . htmlspecialchars(is_bool($value) ? ($value ? "true" : "false") : (is_array($value) ? implode(' ', $value) : $value), ENT_QUOTES) . "\"";
-				$content .= "/>";
-			}
-
-			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
-			header("Content-type: $content_type");
-			echo $content;
-			exit;
+		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
+			user_basic_auth(''); # if credentials are specified, they must be correct
+			$trusted_user = $_SERVER['PHP_AUTH_USER'] == $user['name'] # user requests information about himself - OK.
+						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_USER_MANAGE) # admins and moderators can see the mail address, too
+						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN);
 		}
-		throw new HttpException(404);
+
+		$user["mail-md5"] = md5($user["mail"]);
+		$user["id"] = $id;
+		$user['privileges'] = User::privilegeToArray($user['privileges']);
+
+		if (!$trusted_user) {
+			unset($user["mail"]);
+		} else {
+			$user['suspended'] = Suspension::isSuspendedById($id);
+		}
+
+		if ($content_type == "application/json")
+		{
+			$content = json_encode($user);
+		}
+		else if ($content_type == "text/xml" || $content_type == "application/xml")
+		{
+			$content = "<?xml version='1.0' encoding='utf-8' ?><ald:user xmlns:ald=\"ald://api/users/describe/schema/2012\"";
+			foreach ($user AS $key => $value)
+				$content .= " ald:$key=\"" . htmlspecialchars(is_bool($value) ? ($value ? "true" : "false") : (is_array($value) ? implode(' ', $value) : $value), ENT_QUOTES) . "\"";
+			$content .= "/>";
+		}
+
+		header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+		header("Content-type: $content_type");
+		echo $content;
+		exit;
 	}
 	catch (HttpException $e)
 	{

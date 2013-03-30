@@ -76,5 +76,11 @@
 				throw new HttpException(401, array('WWW-Authenticate' => 'Basic realm="' . $realm . '"'));
 			}
 		}
+
+		public static function dbMinRows($db_result, $msg = NULL, $code = 404, $count = 1) {
+			if ($db_result->num_rows < $count) {
+				throw new HttpException($code, NULL, $msg);
+			}
+		}
 	}
 ?>
