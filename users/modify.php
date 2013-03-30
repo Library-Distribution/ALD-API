@@ -39,10 +39,7 @@
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . $db_connection->real_escape_string($_POST["name"]) . "' WHERE id = UNHEX('$id')";
 			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user name');
-			if ($db_connection->affected_rows != 1)
-			{
-				throw new HttpException(404, NULL, "User with this ID was not found.");
-			}
+			Assert::dbMinRows($db_connection, 'User with this ID was not found.');
 		}
 		if (!empty($_POST["mail"]))
 		{
@@ -65,10 +62,7 @@
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail' WHERE id = UNHEX('$id')";
 			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user mail address');
-			if ($db_connection->affected_rows != 1)
-			{
-				throw new HttpException(404, NULL, "User with this ID was not found.");
-			}
+			Assert::dbMinRows($db_connection, 'User with this ID was not found.');
 		}
 		if (!empty($_POST["password"]))
 		{
@@ -76,10 +70,7 @@
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set pw = '$pw' WHERE id = UNHEX('$id')";
 			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user password');
-			if ($db_connection->affected_rows != 1)
-			{
-				throw new HttpException(404, NULL, "User with this ID was not found.");
-			}
+			Assert::dbMinRows($db_connection, 'User with this ID was not found.');
 		}
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}

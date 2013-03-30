@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../sql2array.php');
+require_once(dirname(__FILE__) . '/../Assert.php');
 require_once(dirname(__FILE__) . '/../util.php');
 require_once(dirname(__FILE__) . '/StdlibPending.php');
 require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
@@ -100,9 +101,7 @@ class Stdlib
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $id . '"), "' . $comment . '")';
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1) {
-			throw new HttpException(500);
-		}
+		Assert::dbMinRows($db_connection, NULL, 500);
 	}
 
 	public static function releaseHasItem($release, $id) {

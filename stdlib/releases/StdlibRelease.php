@@ -76,9 +76,7 @@ class StdlibRelease
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_RELEASES . ' (`release`, `description`, `date`) VALUES ("' . $release . '", "' . $description . '", ' . $date . ')';
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows != 1) {
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
+		Assert::dbMinRows($db_connection, NULL, 500);
 	}
 
 	public static function delete($release)
@@ -88,10 +86,7 @@ class StdlibRelease
 
 		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND !`published`";
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1)
-		{
-			throw new HttpException(400, NULL, "Release doesn't exist or is already published.");
-		}
+		Assert::dbMinRows($db_connection, 'Release "' . $release . '" does not exist or is already published.', 400);
 	}
 
 	public static function update($release, $data)
@@ -114,10 +109,7 @@ class StdlibRelease
 				. " WHERE `release` = '$release' AND !`published`";
 
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows != 1)
-		{
-			throw new HttpException(400, NULL, "Release '$release' doesn't exist or is already published.");
-		}
+		Assert::dbMinRows($db_connection, 'Release "' . $release . '" does not exist or is already published.', 400);
 	}
 
 	public static function previousRelease($release, $published) {

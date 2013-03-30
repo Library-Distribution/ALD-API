@@ -94,9 +94,7 @@ class Candidate {
 
 		$db_query = 'UPDATE ' . DB_TABLE_CANDIDATES . ' SET `approval` = NOW() WHERE `approval` IS NULL AND `id` = ' . $id;
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1) {
-			throw new HttpException(400);
-		}
+		Assert::dbMinRows($db_connection, NULL, 400);
 	}
 
 	public static function isApproved($id) {

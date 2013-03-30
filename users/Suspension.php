@@ -25,9 +25,7 @@ class Suspension {
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1) {
-			throw new HttpException(500);
-		}
+		Assert::dbMinRows($db_connection, NULL, 500);
 
 		return $db_connection->insert_id;
 	}

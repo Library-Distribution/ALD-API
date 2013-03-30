@@ -77,8 +77,8 @@
 			}
 		}
 
-		public static function dbMinRows($db_result, $msg = NULL, $code = 404, $count = 1) {
-			if ($db_result->num_rows < $count) {
+		public static function dbMinRows($db, $msg = NULL, $code = 404, $count = 1) {
+			if ((is_a($db, 'mysqli_result') ? $db->num_rows : $db->affected_rows) < $count) {
 				throw new HttpException($code, NULL, $msg);
 			}
 		}

@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
 require_once(dirname(__FILE__) . '/../modules/semver/semver.php');
 require_once(dirname(__FILE__) . '/../UpdateType.php');
+require_once(dirname(__FILE__) . '/../Assert.php');
 require_once(dirname(__FILE__) . '/../Item.php');
 require_once(dirname(__FILE__) . '/../util.php');
 require_once(dirname(__FILE__) . '/Stdlib.php');
@@ -124,9 +125,7 @@ class StdlibPending
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `item` = UNHEX("' . $id . '")';
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1) {
-			throw new HttpException(500);
-		}
+		Assert::dbMinRows($db_connection, NULL, 500);
 	}
 
 	public static function SetDelay($id, $delay = NULL) {
@@ -136,9 +135,7 @@ class StdlibPending
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `item` = UNHEX("' . $id . '")';
 		$db_connection->query($db_query);
-		if ($db_connection->affected_rows < 1) {
-			throw new HttpException(500);
-		}
+		Assert::dbMinRows($db_connection, NULL, 500);
 	}
 
 	public static function cleanup() {
