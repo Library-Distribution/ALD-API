@@ -86,14 +86,7 @@ class User
 
 	public static function hasPrivilege($name, $privilege)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE name = '" .  $db_connection->real_escape_string($name) . "'";
-		$db_result = $db_connection->query($db_query);
-		Assert::dbMinRows($db_result, 'User not found');
-
-		$data = $db_result->fetch_assoc();
-		return (((int)$data['privileges']) & $privilege) == $privilege;
+		return self::hasPrivilegeById(self::getID($name), $privilege);
 	}
 
 	public static function existsName($name)
