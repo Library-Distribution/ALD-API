@@ -37,11 +37,7 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
-			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
+			$db_connection->query($db_query);
 
 			header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
 			header("Content-Type: $content_type");
@@ -58,10 +54,6 @@
 					. " AND `" . DB_TABLE_ITEMS . "`.`id` = UNHEX('$id') AND `reviewed` != '-1'";																# extra criteria
 
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows != 1)
 		{
 			throw new HttpException(404);

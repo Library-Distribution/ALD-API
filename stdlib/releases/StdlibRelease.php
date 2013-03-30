@@ -21,10 +21,6 @@ class StdlibRelease
 
 		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . $db_connection->real_escape_string($release) . "'" . $db_cond;
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
 		return $db_result->num_rows > 0;
 	}
 
@@ -63,10 +59,6 @@ class StdlibRelease
 
 		$db_query = "SELECT * FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '" . $db_connection->real_escape_string($release) . "'" . $db_cond;
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows != 1)
 		{
 			throw new HttpException(404);
@@ -84,8 +76,8 @@ class StdlibRelease
 		$date = $date !== NULL ? '"' . $db_connection->real_escape_string($date) . '"' : 'NULL';
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_RELEASES . ' (`release`, `description`, `date`) VALUES ("' . $release . '", "' . $description . '", ' . $date . ')';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE  || $db_connection->affected_rows != 1) {
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows != 1) {
 			throw new HttpException(500, NULL, $db_connection->error);
 		}
 	}
@@ -96,12 +88,8 @@ class StdlibRelease
 		$release = $db_connection->real_escape_string($release);
 
 		$db_query = "DELETE FROM " . DB_TABLE_STDLIB_RELEASES . " WHERE `release` = '$release' AND !`published`";
-		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
-		else if ($db_connection->affected_rows < 1)
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows < 1)
 		{
 			throw new HttpException(400, NULL, "Release doesn't exist or is already published.");
 		}
@@ -126,12 +114,8 @@ class StdlibRelease
 					)
 				. " WHERE `release` = '$release' AND !`published`";
 
-		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
-		else if ($db_connection->affected_rows != 1)
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows != 1)
 		{
 			throw new HttpException(400, NULL, "Release '$release' doesn't exist or is already published.");
 		}
@@ -155,9 +139,6 @@ class StdlibRelease
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT `release` FROM ' . DB_TABLE_STDLIB_RELEASES . ' WHERE !`published` AND `date` <= NOW()';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
 
 		$releases = array();
 		while ($release = $db_result->fetch_assoc()) { # sort by release
@@ -218,10 +199,6 @@ class StdlibRelease
 		# get all releases from DB
 		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_join . $db_cond . $db_sort;
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
 
 		# fetch releases in array
 		return sql2array($db_result, create_function('$release', 'return $release[\'release\'];'));

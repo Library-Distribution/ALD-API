@@ -23,8 +23,8 @@ class Suspension {
 		$reason = $db_connection->real_escape_string($reason);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_SUSPENSIONS . ' (`user`, `expires`, `restricted`, `reason`) VALUES (UNHEX("' . $user . '"), ' . ($expires !== NULL ? '"' . $expires . '"' : 'NULL') . ', ' . $restricted . ', "' . $reason . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 
@@ -41,10 +41,7 @@ class Suspension {
 			$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `active` AND' . $cond;
 		}
 
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public static function isSuspended($user) {
@@ -97,9 +94,6 @@ class Suspension {
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . $db_cond . $sort;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return sql2array($db_result, array('Suspension', '_create_inst_'));
 	}
@@ -110,9 +104,6 @@ class Suspension {
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . ' WHERE `id` =' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		if ($db_result->num_rows != 1) {
 			throw new HttpException(404);
@@ -145,10 +136,7 @@ class Suspension {
 		$id = $db_connection->real_escape_string($this->id);
 
 		$db_query = 'UPDATE ' . DB_TABLE_SUSPENSIONS . ' SET `active` = FALSE WHERE `id` = "' . $id . '"';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public $id;

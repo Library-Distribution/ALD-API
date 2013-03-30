@@ -15,10 +15,7 @@ class Candidate {
 		$deletion = $deletion ? '0' : 'NULL';
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATES . ' (`item`, `user`, `reason`, `approval`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), "' . $reason . '", ' . $deletion . ')';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 
 		return $db_connection->insert_id;
 	}
@@ -29,9 +26,6 @@ class Candidate {
 
 		$db_query = 'SELECT *, HEX(`item`) AS item, HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
@@ -45,9 +39,6 @@ class Candidate {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return $db_result->num_rows > 0;
 	}
@@ -58,9 +49,6 @@ class Candidate {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return $db_result->num_rows > 0;
 	}
@@ -71,9 +59,6 @@ class Candidate {
 
 		$db_query = 'SELECT COUNT(*) AS count, `final`, `accept` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $id . ' GROUP BY `final`, `accept`';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		$accept = array();
 		while ($row = $db_result->fetch_assoc()) {
@@ -98,9 +83,6 @@ class Candidate {
 
 		$db_query = 'SELECT `id` FROM ' . DB_TABLE_CANDIDATES . ' WHERE `item` = UNHEX("' . $item . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
@@ -114,10 +96,7 @@ class Candidate {
 		$id = (int)$db_connection->real_escape_string($id);
 
 		$db_query = 'UPDATE ' . DB_TABLE_CANDIDATES . ' SET `approval` = NOW() WHERE `approval` IS NULL AND `id` = ' . $id;
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(400);
 		}
@@ -129,9 +108,6 @@ class Candidate {
 
 		$db_query = 'SELECT (`approval` IS NOT NULL) AS approved FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
@@ -146,9 +122,6 @@ class Candidate {
 
 		$db_query = 'SELECT HEX(`user`) AS user FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
@@ -163,9 +136,6 @@ class Candidate {
 
 		$db_query = 'SELECT HEX(`item`) AS item FROM ' . DB_TABLE_CANDIDATES . ' WHERE `id` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		if ($db_result->num_rows < 1) {
 			throw new HttpException(404);
 		}
@@ -202,9 +172,6 @@ class Candidate {
 
 		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 		return sql2array($db_result);
 	}
 
@@ -215,9 +182,6 @@ class Candidate {
 
 		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate . ' ' . $db_sort;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return sql2array($db_result, array('Candidate', '_cleanup_voting'));
 	}
@@ -237,10 +201,7 @@ class Candidate {
 		$final = $final ? 'TRUE' : 'FALSE';
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_CANDIDATE_VOTING . ' (`candidate`, `user`, `accept`, `final`, `reason`) VALUES (' . $candidate . ', UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public static function hasVoted($id, $user) {
@@ -250,9 +211,6 @@ class Candidate {
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `user` = UNHEX("' . $user . '") AND `candidate` = ' . $id;
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return $db_result->num_rows > 0;
 	}

@@ -38,11 +38,7 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . $db_connection->real_escape_string($_POST["name"]) . "' WHERE id = UNHEX('$id')";
-			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500, NULL, "Failed to set user name.");
-			}
+			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user name');
 			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
@@ -68,11 +64,7 @@
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail' WHERE id = UNHEX('$id')";
-			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500, NULL, "Failed to set user mail address.");
-			}
+			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user mail address');
 			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");
@@ -83,11 +75,7 @@
 			$pw = hash("sha256", $_POST["password"]);
 
 			$db_query = "UPDATE " . DB_TABLE_USERS . " Set pw = '$pw' WHERE id = UNHEX('$id')";
-			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500, NULL, "Failed to set user password.");
-			}
+			$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user password');
 			if ($db_connection->affected_rows != 1)
 			{
 				throw new HttpException(404, NULL, "User with this ID was not found.");

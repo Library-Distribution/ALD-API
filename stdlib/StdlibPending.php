@@ -18,10 +18,6 @@ class StdlibPending
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT HEX(`item`) AS id, comment, delay FROM ' . DB_TABLE_STDLIB_PENDING;
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		return sql2array($db_result);
 	}
@@ -99,10 +95,7 @@ class StdlibPending
 		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB_PENDING . ' (`item`, `comment`) VALUES (UNHEX("' . $id . '"), "' . $comment . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public static function DeleteEntry($id)
@@ -111,11 +104,7 @@ class StdlibPending
 		$id = $db_connection->real_escape_string($id);
 
 		$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB_PENDING . " WHERE `item` = UNHEX('$id')";
-		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
+		$db_connection->query($db_query);
 	}
 
 	public static function IsPending($id) {
@@ -124,9 +113,6 @@ class StdlibPending
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB_PENDING . ' WHERE `item` = UNHEX("' . $id . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return $db_result->num_rows > 0;
 	}
@@ -137,8 +123,8 @@ class StdlibPending
 		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `comment` = "' . $comment . '" WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}
@@ -149,8 +135,8 @@ class StdlibPending
 		$delay = ($delay !== NULL) ? '"' . $db_connection->real_escape_string($delay) . '"' : 'NULL';
 
 		$db_query = 'UPDATE ' . DB_TABLE_STDLIB_PENDING . ' SET `delay` = ' . $delay . ' WHERE `item` = UNHEX("' . $id . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}

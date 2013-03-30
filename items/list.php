@@ -112,10 +112,6 @@
 					. " FROM " . DB_TABLE_ITEMS . ' ' . $db_join . $db_join_on
 					. " $db_cond $db_having $db_order $db_limit";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		# parse data to array
 		$data = sql2array($db_result);

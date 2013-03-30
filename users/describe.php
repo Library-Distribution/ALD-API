@@ -29,10 +29,6 @@
 
 		$db_query = "SELECT name, mail, privileges, joined FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('$id')";
 		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500);
-		}
 
 		if ($db_result->num_rows == 1)
 		{

@@ -9,11 +9,7 @@ class ItemType
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT code FROM ' . DB_TABLE_TYPES . ' WHERE name = \'' . $db_connection->real_escape_string($name) . '\'';
-		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, 'Could not read item type code: ' . $db_connection->error);
-		}
+		$db_result = $db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Could not read item type code');
 
 		if ($db_result->num_rows < 1)
 		{
@@ -27,11 +23,7 @@ class ItemType
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES . ' WHERE code = \'' . $db_connection->real_escape_string($code) . '\'';
-		$db_result = $db_connection->query($db_query);
-		if (!$db_result)
-		{
-			throw new HttpException(500, NULL, 'Could not read item type name: ' . $db_connection->error);
-		}
+		$db_result = $db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Could not read item type name');
 
 		if ($db_result->num_rows < 1)
 		{
@@ -45,11 +37,7 @@ class ItemType
 	{
 		$db_connection = db_ensure_connection();
 		$db_query = 'SELECT name FROM ' . DB_TABLE_TYPES;
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE)
-		{
-			throw new HttpException(500, NULL, 'Could not read supported item types!');
-		}
+		$db_result = $db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Could not read supported item types');
 
 		return sql2array($db_result, create_function('$entry', 'return $entry[\'name\'];'));
 	}

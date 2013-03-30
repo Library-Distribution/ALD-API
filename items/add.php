@@ -94,7 +94,7 @@
 		$db_query = "INSERT INTO " . DB_TABLE_ITEMS . " (id, name, type, version, user, description, tags)
 					VALUES (UNHEX('$pack_id'), '$escaped_name', '$escaped_type', '$escaped_version', UNHEX('" . User::getID($user) . "'), '$escaped_description', '$escaped_tags')";
 		try {
-			$db_result = $db_connection->query($db_query);
+			$db_connection->query($db_query);
 		} catch (HttpException $e) {
 			unlink(UPLOAD_FOLDER . $pack_id . '.zip');
 			throw $e;

@@ -18,10 +18,6 @@ class Stdlib
 
 			$db_query = 'SELECT HEX(`item`) AS id, comment FROM ' . DB_TABLE_STDLIB . " WHERE `release` = '$release'";
 			$db_result = $db_connection->query($db_query);
-			if (!$db_result)
-			{
-				throw new HttpException(500);
-			}
 
 			return sql2array($db_result);
 		} else {
@@ -103,8 +99,8 @@ class Stdlib
 		$comment = $db_connection->real_escape_string($comment);
 
 		$db_query = 'INSERT INTO ' . DB_TABLE_STDLIB . ' (`release`, `item`, `comment`) VALUES ("' . $release . '", UNHEX("' . $id . '"), "' . $comment . '")';
-		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE || $db_connection->affected_rows < 1) {
+		$db_connection->query($db_query);
+		if ($db_connection->affected_rows < 1) {
 			throw new HttpException(500);
 		}
 	}
@@ -116,9 +112,6 @@ class Stdlib
 
 		$db_query = 'SELECT * FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $release . '" AND `item` = UNHEX("' . $id . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500);
-		}
 
 		return $db_result->num_rows > 0;
 	}
@@ -129,16 +122,10 @@ class Stdlib
 		# ensure not 2x stdlib with same item and release
 		$db_query = 'SELECT `release`, `item` FROM ' . DB_TABLE_STDLIB . ' GROUP BY `release`, `item` HAVING COUNT(*) > 1';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === FALSE) {
-			throw new HttpException(500, NULL, $db_connection->error);
-		}
 
 		while ($dup = $db_result->fetch_assoc()) {
 			$db_query = 'DELETE FROM ' . DB_TABLE_STDLIB . ' WHERE `release` = "' . $dup['release'] . '" AND `item` = "' . $dup['item'] . '" LIMIT 1';
-			$db_result2 = $db_connection->query($db_query);
-			if ($db_result2 === FALSE) {
-				throw new HttpException(500);
-			}
+			$db_connection->query($db_query);
 		}
 	}
 }
