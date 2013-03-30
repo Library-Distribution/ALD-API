@@ -46,7 +46,8 @@
 		$user['privileges'] = User::privilegeToArray($user['privileges']);
 
 		if (!$trusted_user) {
-			unset($user["mail"]);
+			$user['mail'] = NULL;
+			$user['suspended'] = NULL;
 		} else {
 			$user['suspended'] = Suspension::isSuspendedById($id);
 		}
