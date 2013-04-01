@@ -164,15 +164,30 @@ class Candidate {
 		return sql2array($db_result);
 	}
 
-	public static function listVotings($candidate, $sort = array()) {
+	public static function listVotings($candidate, $filters = array(), $sort = array()) {
+		if (!is_array($filters)) {
+			throw new Exception('Must provide a valid array as candidate voting filter');
+		}
 		if (!is_array($sort)) {
 			throw new Exception('Must provide a valid array for candidate voting sorting');
 		}
 		$db_connection = db_ensure_connection();
-		$candidate = (int)$db_connection->real_escape_string($candidate);
+
+		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATE_VOTING);
+		$filter->add(array('db-name' => 'candidate', 'value' => $candidate, 'type' => 'int'));
+
+		$filter->add(array('name' => 'user', 'type' => 'binary'));
+		$filter->add(array('name' => 'final', 'type' => 'switch'));
+		$filter->add(array('name' => 'accept', 'type' => 'switch'));
+
+		$filter->add(array('name' => 'voted', 'db-name' => 'date'));
+		$filter->add(array('name' => 'voted-before', 'db-name' => 'date', 'operator' => '<'));
+		$filter->add(array('name' => 'voted-after', 'db-name' => 'date', 'operator' => '>'));
+
+		$db_cond = $filter->evaluate($filters);
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
 
-		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . ' WHERE `candidate` = ' . $candidate . ' ' . $db_sort;
+		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . $db_cond . ' ' . $db_sort;
 		$db_result = $db_connection->query($db_query);
 
 		return sql2array($db_result, array('Candidate', '_cleanup_voting'));

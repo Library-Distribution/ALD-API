@@ -48,8 +48,10 @@ try {
 		Assert::GetParameters('id');
 		$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
+		$filters = FilterHelper::FromParams(array('user', 'final', 'accept', 'voted', 'voted-after', 'voted-before'));
 		$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
-		$votings = Candidate::listVotings($_GET['id'], $sort_list);
+
+		$votings = Candidate::listVotings($_GET['id'], $filters, $sort_list);
 		if ($content_type == 'application/json') {
 			$content = json_encode($votings);
 		} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
