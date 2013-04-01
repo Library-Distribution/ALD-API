@@ -165,6 +165,9 @@ class Candidate {
 	}
 
 	public static function listVotings($candidate, $sort = array()) {
+		if (!is_array($sort)) {
+			throw new Exception('Must provide a valid array for candidate voting sorting');
+		}
 		$db_connection = db_ensure_connection();
 		$candidate = (int)$db_connection->real_escape_string($candidate);
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
