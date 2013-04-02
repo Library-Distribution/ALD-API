@@ -11,6 +11,9 @@ try {
 
 	user_basic_auth('Restricted API');
 
+	if (!isset($_GET['mode']) || !in_array($_GET['mode'], array('authorize', 'unauthorize'))) {
+		throw new HttpException(400);
+	}
 	$id = isset($_GET['name']) ? User::getID($_GET['name']) : $_GET['id'];
 	$privilege = User::privilegeFromArray(array($_POST['privilege']));
 
@@ -18,7 +21,11 @@ try {
 		throw new HttpException(403);
 	}
 
-	User::setPrivilegeById($id, $privilege);
+	if ($_GET['mode'] == 'authorize') {
+		User::addPrivilegeById($id, $privilege);
+	} else {
+		User::removePrivilegeById($id, $privilege);
+	}
 
 	header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
 	exit;
