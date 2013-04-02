@@ -7,7 +7,7 @@ require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 class User
 {
 	const PRIVILEGE_NONE = 0;
-	const PRIVILEGE_USER_MANAGE = 2;
+	const PRIVILEGE_MODERATOR = 2;
 	const PRIVILEGE_REVIEW = 4;
 	const PRIVILEGE_STDLIB = 8;
 	const PRIVILEGE_ADMIN = 16;
@@ -20,7 +20,7 @@ class User
 		if ($privilege == self::PRIVILEGE_NONE) {
 			$arr[] = 'none';
 		}
-		if (($privilege & self::PRIVILEGE_USER_MANAGE) == self::PRIVILEGE_USER_MANAGE) {
+		if (($privilege & self::PRIVILEGE_MODERATOR) == self::PRIVILEGE_MODERATOR) {
 			$arr[] = 'user-mod';
 		}
 		if (($privilege & self::PRIVILEGE_REVIEW) == self::PRIVILEGE_REVIEW) {
@@ -52,7 +52,7 @@ class User
 						throw new HttpException(500);
 					}
 					break;
-				case 'user-mod': $privilege |= self::PRIVILEGE_USER_MANAGE;
+				case 'user-mod': $privilege |= self::PRIVILEGE_MODERATOR;
 					break;
 				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
 					break;

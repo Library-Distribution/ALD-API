@@ -37,7 +37,7 @@
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
 			user_basic_auth(''); # if credentials are specified, they must be correct
 			$trusted_user = $_SERVER['PHP_AUTH_USER'] == $user['name'] # user requests information about himself - OK.
-						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_USER_MANAGE) # admins and moderators can see the mail address, too
+						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR) # admins and moderators can see the mail address, too
 						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN);
 		}
 
