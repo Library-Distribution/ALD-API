@@ -62,6 +62,24 @@ class User
 		return $privilege;
 	}
 
+	public static function adminPrivilegeForPrivilege($privilege) {
+		$flip = array_flip(self::$privilege_map);
+		if (!array_key_exists($privilege, $flip)) { # find the name for the given privilege
+			throw new HttpException(400);
+		}
+
+		if (strpos($flip[$privilege], '-admin') !== FALSE) { # given privilege is a group admin => return the overall admin
+			return self::PRIVILEGE_ADMIN;
+		}
+
+		$key = $flip[$privilege] . '-admin'; # append '-admin' to the privilege name
+		if (!array_key_exists($key, self::$privilege_map)) {
+			throw new HttpException(500);
+		}
+
+		return self::$privilege_map[$key];
+	}
+
 	public static function hasPrivilegeById($id, $privilege)
 	{
 		$db_connection = db_ensure_connection();
