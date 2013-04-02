@@ -26,15 +26,12 @@
 
 		if (!empty($_POST["user"]))
 		{
-			if  (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_ADMIN)) # not an admin
-			{
-				$owner = Item::getUserForId($id);
-				$user = User::getID($_SERVER["PHP_AUTH_USER"]);
+			$owner = Item::getUserForId($id);
+			$user = User::getID($_SERVER["PHP_AUTH_USER"]);
 
-				if ($owner != $user) # neither admin nor the user who had uploaded the item - not allowed
-				{
-					throw new HttpException(403);
-				}
+			if ($owner != $user) # not the user who had uploaded the item - not allowed
+			{
+				throw new HttpException(403);
 			}
 
 			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set user = UNHEX('" . User::getID($_POST["user"]) . "') WHERE id = UNHEX('$id')";

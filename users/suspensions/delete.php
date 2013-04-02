@@ -22,9 +22,9 @@ try {
 	}
 
 	if ($suspension->restricted) {
-		$can_delete = (User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR) || User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN)) && User::getID($_SERVER['PHP_AUTH_USER']) != $id;
+		$can_delete = User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR) && User::getID($_SERVER['PHP_AUTH_USER']) != $id;
 	} else {
-		$can_delete = User::getID($_SERVER['PHP_AUTH_USER']) == $id || User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR) || User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN);
+		$can_delete = User::getID($_SERVER['PHP_AUTH_USER']) == $id || User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR);
 	}
 
 	if ($can_delete) {
