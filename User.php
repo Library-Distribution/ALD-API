@@ -7,12 +7,20 @@ require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 class User
 {
 	const PRIVILEGE_NONE = 0;
+
 	const PRIVILEGE_MODERATOR = 2;
-	const PRIVILEGE_REVIEW = 4;
-	const PRIVILEGE_STDLIB = 8;
-	const PRIVILEGE_ADMIN = 16;
-	const PRIVILEGE_REGISTRATION = 32;
+	const PRIVILEGE_MODERATOR_ADMIN = 4;
+
+	const PRIVILEGE_REVIEW = 8;
+	const PRIVILEGE_REVIEW_ADMIN = 16;
+
+	const PRIVILEGE_STDLIB = 32;
 	const PRIVILEGE_STDLIB_ADMIN = 64;
+
+	const PRIVILEGE_REGISTRATION = 128;
+	const PRIVILEGE_REGISTRATION_ADMIN = 256;
+
+	const PRIVILEGE_ADMIN = 512;
 
 	public static function privilegeToArray($privilege) {
 		$arr = array();
