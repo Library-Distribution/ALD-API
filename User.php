@@ -22,29 +22,23 @@ class User
 
 	const PRIVILEGE_ADMIN = 512;
 
+	private static $privilege_map = array('none' => self::PRIVILEGE_NONE, 'admin' => self::PRIVILEGE_ADMIN,
+							'user-mod' => self::PRIVILEGE_MODERATOR, 'user-mod-admin' => self::PRIVILEGE_MODERATOR_ADMIN,
+							'review' => self::PRIVILEGE_REVIEW, 'review-admin' => self::PRIVILEGE_REVIEW_ADMIN,
+							'stdlib' => self::PRIVILEGE_STDLIB, 'stdlib-admin' => self::PRIVILEGE_STDLIB_ADMIN,
+							'registration' => self::PRIVILEGE_REGISTRATION, 'registration-admin' => self::PRIVILEGE_REGISTRATION_ADMIN);
+
 	public static function privilegeToArray($privilege) {
 		$arr = array();
 
-		if ($privilege == self::PRIVILEGE_NONE) {
-			$arr[] = 'none';
-		}
-		if (($privilege & self::PRIVILEGE_MODERATOR) == self::PRIVILEGE_MODERATOR) {
-			$arr[] = 'user-mod';
-		}
-		if (($privilege & self::PRIVILEGE_REVIEW) == self::PRIVILEGE_REVIEW) {
-			$arr[] = 'review';
-		}
-		if (($privilege & self::PRIVILEGE_STDLIB) == self::PRIVILEGE_STDLIB) {
-			$arr[] = 'stdlib';
-		}
-		if (($privilege & self::PRIVILEGE_STDLIB_ADMIN) == self::PRIVILEGE_STDLIB_ADMIN) {
-			$arr[] = 'stdlib-admin';
-		}
-		if (($privilege & self::PRIVILEGE_ADMIN) == self::PRIVILEGE_ADMIN) {
-			$arr[] = 'admin';
-		}
-		if (($privilege & self::PRIVILEGE_REGISTRATION) == self::PRIVILEGE_REGISTRATION) {
-			$arr[] = 'registration';
+		foreach (self::$privilege_map AS $str => $priv) {
+			if ($priv !== self::PRIVILEGE_NONE) {
+				if (($privilege & $priv) == $priv) {
+					$arr[] = $str;
+				}
+			} else if ($privilege == $priv) {
+				$arr[] = 'none';
+			}
 		}
 
 		return $arr;
@@ -54,26 +48,14 @@ class User
 		$privilege = self::PRIVILEGE_NONE;
 
 		foreach ($arr AS $priv) {
-			switch ($priv) {
-				case 'none':
-					if (count($arr) > 1) {
-						throw new HttpException(500);
-					}
-					break;
-				case 'user-mod': $privilege |= self::PRIVILEGE_MODERATOR;
-					break;
-				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
-					break;
-				case 'stdlib': $privilege |= self::PRIVILEGE_STDLIB;
-					break;
-				case 'stdlib-admin': $privilege |= self::PRIVILEGE_STDLIB_ADMIN;
-					break;
-				case 'admin': $privilege |= self::PRIVILEGE_ADMIN;
-					break;
-				case 'registration': $privilege |= self::PRIVILEGE_REGISTRATION;
-					break;
-				default:
+			if (array_key_exists($priv, self::$privilege_map)) {
+				if ($priv != 'none') {
+					$privilege |= self::$privilege_map[$priv];
+				} else if (count($arr) > 1) {
 					throw new HttpException(500);
+				}
+			} else {
+				throw new HttpException(500);
 			}
 		}
 
