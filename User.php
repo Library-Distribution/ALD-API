@@ -97,6 +97,14 @@ class User
 		return self::hasPrivilegeById(self::getID($name), $privilege);
 	}
 
+	public static function setPrivilegeById($id, $privilege) {
+		$db_connection = db_ensure_connection();
+
+		$db_query = 'UPDATE ' . DB_TABLE_USERS . ' SET `privileges` = `privileges`|' . ((int)$privilege) . ' WHERE `id` = UNHEX("' . $db_connection->real_escape_string($id) . '")';
+		$db_connection->query($db_query);
+		Assert::dbMinRows($db_connection, 'User not found');
+	}
+
 	public static function existsName($name)
 	{
 		$db_connection = db_ensure_connection();
