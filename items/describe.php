@@ -26,7 +26,7 @@
 		}
 		else
 		{
-			$id = $db_connection->real_escape_string($_GET["id"], $db_connection);
+			$id = $db_connection->real_escape_string($_GET["id"]);
 		}
 
 		$file = UPLOAD_FOLDER . $id . '.zip';
