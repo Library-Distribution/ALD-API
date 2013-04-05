@@ -18,8 +18,8 @@ try {
 	$id = isset($_GET['id']) ? $_GET['id'] : User::getID($_GET['name']);
 
 	user_basic_auth('Restricted API');
-	# validate: moderators and admins only
-	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_USER_MANAGE) && !User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_ADMIN)) {
+	# validate: moderators only
+	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR)) {
 		throw new HttpException(403);
 	}
 	if ($id == User::getID($_SERVER['PHP_AUTH_USER'])) { # cannot view own suspensions

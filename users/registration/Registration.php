@@ -80,7 +80,7 @@ class Registration {
 		$reserved = explode("\0", RESERVED_USER_NAMES);
 		if (in_array($name, $reserved)) 	{
 			user_basic_auth('Trying to register a reserved user name');
-			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_REGISTRATION)) {
+			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_REGISTRATION_ADMIN)) {
 				throw new HttpException(403, NULL, 'Trying to register a reserved user name');
 			}
 		}
