@@ -7,36 +7,38 @@ require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 class User
 {
 	const PRIVILEGE_NONE = 0;
-	const PRIVILEGE_USER_MANAGE = 2;
-	const PRIVILEGE_REVIEW = 4;
-	const PRIVILEGE_STDLIB = 8;
-	const PRIVILEGE_ADMIN = 16;
-	const PRIVILEGE_REGISTRATION = 32;
+
+	const PRIVILEGE_MODERATOR = 2;
+	const PRIVILEGE_MODERATOR_ADMIN = 4;
+
+	const PRIVILEGE_REVIEW = 8;
+	const PRIVILEGE_REVIEW_ADMIN = 16;
+
+	const PRIVILEGE_STDLIB = 32;
 	const PRIVILEGE_STDLIB_ADMIN = 64;
+
+	const PRIVILEGE_REGISTRATION = 128;
+	const PRIVILEGE_REGISTRATION_ADMIN = 256;
+
+	const PRIVILEGE_ADMIN = 512;
+
+	private static $privilege_map = array('none' => self::PRIVILEGE_NONE, 'admin' => self::PRIVILEGE_ADMIN,
+							'user-mod' => self::PRIVILEGE_MODERATOR, 'user-mod-admin' => self::PRIVILEGE_MODERATOR_ADMIN,
+							'review' => self::PRIVILEGE_REVIEW, 'review-admin' => self::PRIVILEGE_REVIEW_ADMIN,
+							'stdlib' => self::PRIVILEGE_STDLIB, 'stdlib-admin' => self::PRIVILEGE_STDLIB_ADMIN,
+							'registration' => self::PRIVILEGE_REGISTRATION, 'registration-admin' => self::PRIVILEGE_REGISTRATION_ADMIN);
 
 	public static function privilegeToArray($privilege) {
 		$arr = array();
 
-		if ($privilege == self::PRIVILEGE_NONE) {
-			$arr[] = 'none';
-		}
-		if (($privilege & self::PRIVILEGE_USER_MANAGE) == self::PRIVILEGE_USER_MANAGE) {
-			$arr[] = 'user-mod';
-		}
-		if (($privilege & self::PRIVILEGE_REVIEW) == self::PRIVILEGE_REVIEW) {
-			$arr[] = 'review';
-		}
-		if (($privilege & self::PRIVILEGE_STDLIB) == self::PRIVILEGE_STDLIB) {
-			$arr[] = 'stdlib';
-		}
-		if (($privilege & self::PRIVILEGE_STDLIB_ADMIN) == self::PRIVILEGE_STDLIB_ADMIN) {
-			$arr[] = 'stdlib-admin';
-		}
-		if (($privilege & self::PRIVILEGE_ADMIN) == self::PRIVILEGE_ADMIN) {
-			$arr[] = 'admin';
-		}
-		if (($privilege & self::PRIVILEGE_REGISTRATION) == self::PRIVILEGE_REGISTRATION) {
-			$arr[] = 'registration';
+		foreach (self::$privilege_map AS $str => $priv) {
+			if ($priv !== self::PRIVILEGE_NONE) {
+				if (($privilege & $priv) == $priv) {
+					$arr[] = $str;
+				}
+			} else if ($privilege == $priv) {
+				$arr[] = 'none';
+			}
 		}
 
 		return $arr;
@@ -46,30 +48,36 @@ class User
 		$privilege = self::PRIVILEGE_NONE;
 
 		foreach ($arr AS $priv) {
-			switch ($priv) {
-				case 'none':
-					if (count($arr) > 1) {
-						throw new HttpException(500);
-					}
-					break;
-				case 'user-mod': $privilege |= self::PRIVILEGE_USER_MANAGE;
-					break;
-				case 'review': $privilege |= self::PRIVILEGE_REVIEW;
-					break;
-				case 'stdlib': $privilege |= self::PRIVILEGE_STDLIB;
-					break;
-				case 'stdlib-admin': $privilege |= self::PRIVILEGE_STDLIB_ADMIN;
-					break;
-				case 'admin': $privilege |= self::PRIVILEGE_ADMIN;
-					break;
-				case 'registration': $privilege |= self::PRIVILEGE_REGISTRATION;
-					break;
-				default:
+			if (array_key_exists($priv, self::$privilege_map)) {
+				if ($priv != 'none') {
+					$privilege |= self::$privilege_map[$priv];
+				} else if (count($arr) > 1) {
 					throw new HttpException(500);
+				}
+			} else {
+				throw new HttpException(500);
 			}
 		}
 
 		return $privilege;
+	}
+
+	public static function adminPrivilegeForPrivilege($privilege) {
+		$flip = array_flip(self::$privilege_map);
+		if (!array_key_exists($privilege, $flip)) { # find the name for the given privilege
+			throw new HttpException(400);
+		}
+
+		if (strpos($flip[$privilege], '-admin') !== FALSE) { # given privilege is a group admin => return the overall admin
+			return self::PRIVILEGE_ADMIN;
+		}
+
+		$key = $flip[$privilege] . '-admin'; # append '-admin' to the privilege name
+		if (!array_key_exists($key, self::$privilege_map)) {
+			throw new HttpException(500);
+		}
+
+		return self::$privilege_map[$key];
 	}
 
 	public static function hasPrivilegeById($id, $privilege)
@@ -87,6 +95,22 @@ class User
 	public static function hasPrivilege($name, $privilege)
 	{
 		return self::hasPrivilegeById(self::getID($name), $privilege);
+	}
+
+	public static function addPrivilegeById($id, $privilege) {
+		$db_connection = db_ensure_connection();
+
+		$db_query = 'UPDATE ' . DB_TABLE_USERS . ' SET `privileges` = `privileges`|' . ((int)$privilege) . ' WHERE `id` = UNHEX("' . $db_connection->real_escape_string($id) . '")';
+		$db_connection->query($db_query);
+		Assert::dbMinRows($db_connection, 'User not found');
+	}
+
+	public static function removePrivilegeById($id, $privilege) {
+		$db_connection = db_ensure_connection();
+
+		$db_query = 'UPDATE ' . DB_TABLE_USERS . ' SET `privileges` = `privileges` & ~' . ((int)$privilege) . ' WHERE `id` = UNHEX("' . $db_connection->real_escape_string($id) . '")';
+		$db_connection->query($db_query);
+		Assert::dbMinRows($db_connection, 'User not found');
 	}
 
 	public static function existsName($name)
