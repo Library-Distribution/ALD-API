@@ -68,7 +68,7 @@
 
 		} else if ($request_method == Assert::REQUEST_METHOD_GET) {
 			# validate accept header of request
-			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
+			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 
 			$db_query = 'SELECT name AS user, rating FROM ' . DB_TABLE_RATINGS . ', ' . DB_TABLE_USERS . ' WHERE item = UNHEX("' . $id . '") AND `user` = `id`';
 			$db_result = mysql_query($db_query, $db_connection);

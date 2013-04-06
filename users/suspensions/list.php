@@ -25,7 +25,7 @@ try {
 	}
 
 	# validate accept header of request
-	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml', 'application/x-ald-package'), 'application/json');
+	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
 	$active = true;
 	if (isset($_GET['active'])) {
