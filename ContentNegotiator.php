@@ -1,10 +1,9 @@
 <?php
+require_once(dirname(__FILE__) . '/config/content-negotiation.php');
 require_once(dirname(__FILE__) . '/modules/HttpException/HttpException.php');
 
 require_once(dirname(__FILE__) . '/JsonConverter.php');
 require_once(dirname(__FILE__) . '/YamlConverter.php');
-
-define('DEFAULT_MIME_TYPE', 'application/json');
 
 class ContentNegotiator {
 	private static $output_handlers = array('application/json' => 'JsonConverter', 'text/x-yaml' => 'YamlConverter');
