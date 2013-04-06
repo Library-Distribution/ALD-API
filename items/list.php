@@ -2,6 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../ContentNegotiator.php');
 	require_once('../SortHelper.php');
 	require_once('../FilterHelper.php');
 	require_once("../User.php");
@@ -18,7 +19,7 @@
 		Assert::RequestMethod(Assert::REQUEST_METHOD_GET); # only allow GET requests
 
 		# validate accept header of request
-		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
+		$content_type = ContentNegotiator::MimeType();
 
 		# connect to database server
 		$db_connection = db_ensure_connection();

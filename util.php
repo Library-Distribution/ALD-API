@@ -206,23 +206,6 @@
 		}
 	}
 
-	function get_preferred_mimetype($available, $default)
-	{
-		if (isset($_SERVER["HTTP_ACCEPT"]))
-		{
-			foreach(explode(",", $_SERVER["HTTP_ACCEPT"]) as $value)
-			{
-				$acceptLine = explode(";", $value);
-				if (in_array($acceptLine[0], $available))
-				{
-					return $acceptLine[0];
-				}
-			}
-			throw new HttpException(406, array("Content-type" => implode($available, ",")));
-		}
-		return $default;
-	}
-
 	function handleHttpException($e)
 	{
 		header("HTTP/1.1 " . $e->getCode() . " " . HttpException::getStatusMessage($e->getCode()));

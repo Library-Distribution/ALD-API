@@ -2,6 +2,7 @@
 	require_once("../modules/HttpException/HttpException.php");
 	require_once("../db.php");
 	require_once("../util.php");
+	require_once('../ContentNegotiator.php');
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
 	require_once('../Item.php');
@@ -15,7 +16,7 @@
 		Assert::GetParameters("id", array("name", "version"));
 
 		# validate accept header of request
-		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
+		$content_type = ContentNegotiator::MimeType('application/x-ald-package');
 
 		# connect to database server
 		$db_connection = db_ensure_connection();
