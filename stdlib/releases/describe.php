@@ -3,6 +3,7 @@
 	require_once("../../db.php");
 	require_once("../../sql2array.php");
 	require_once("../../util.php");
+	require_once('../../ContentNegotiator.php');
 	require_once("../../modules/semver/semver.php");
 	require_once("../../Assert.php");
 	require_once("../../User.php");
@@ -17,7 +18,7 @@
 		Assert::GetParameters("version");
 
 		# validate accept header of request
-		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
+		$content_type = ContentNegotiator::MimeType();
 
 		$publish_status = StdlibRelease::PUBLISHED_YES;
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))

@@ -1,6 +1,7 @@
 <?php
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
+require_once('../../ContentNegotiator.php');
 require_once('../../Assert.php');
 require_once('../../User.php');
 require_once('../../Item.php');
@@ -16,7 +17,7 @@ try {
 	Assert::GetParameters('id', array('name', 'version'));
 	Assert::PostParameters('reason');
 
-	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
+	$content_type = ContentNegotiator::MimeType();
 
 	if (!isset($_GET['id'])) {
 		$item = Item::getId($_GET['name'], $_GET['version']);

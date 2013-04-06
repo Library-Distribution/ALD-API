@@ -1,5 +1,6 @@
 <?php
 	require_once("../../util.php");
+	require_once('../../ContentNegotiator.php');
 	require_once("../../Assert.php");
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../UpdateType.php");
@@ -12,7 +13,7 @@
 		Assert::RequestMethod(Assert::REQUEST_METHOD_POST);
 		Assert::GetParameters("type");
 
-		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
+		$content_type = ContentNegotiator::MimeType();
 
 		$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		if (!empty($_GET["base"]))

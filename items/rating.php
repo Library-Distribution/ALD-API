@@ -3,6 +3,7 @@
 	require_once("../Item.php");
 	require_once("../Assert.php");
 	require_once("../util.php");
+	require_once('../ContentNegotiator.php');
 	require_once("../db.php");
 	require_once('../sql2array.php');
 	require_once("../config/rating.php"); # import config settings
@@ -60,7 +61,7 @@
 
 		} else if ($request_method == Assert::REQUEST_METHOD_GET) {
 			# validate accept header of request
-			$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml", "application/x-ald-package"), "application/json");
+			$content_type = ContentNegotiator::MimeType();
 
 			$db_query = 'SELECT name AS user, rating FROM ' . DB_TABLE_RATINGS . ', ' . DB_TABLE_USERS . ' WHERE item = UNHEX("' . $id . '") AND `user` = `id`';
 			$db_result = $db_connection->query($db_query);

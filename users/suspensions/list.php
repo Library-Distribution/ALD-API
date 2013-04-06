@@ -2,6 +2,7 @@
 require_once('../../Assert.php');
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
+require_once('../../ContentNegotiator.php');
 require_once('../../SortHelper.php');
 require_once('../../FilterHelper.php');
 require_once('../../User.php');
@@ -27,7 +28,7 @@ try {
 	}
 
 	# validate accept header of request
-	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml', 'application/x-ald-package'), 'application/json');
+	$content_type = ContentNegotiator::MimeType();
 
 	$filters = FilterHelper::FromParams(array('active', 'created', 'created-after', 'created-before', 'expires', 'expires-after', 'expires-before', 'infinite', 'restricted'));
 	$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');

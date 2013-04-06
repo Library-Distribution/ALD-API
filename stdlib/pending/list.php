@@ -1,6 +1,7 @@
 <?php
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
+require_once('../../ContentNegotiator.php');
 require_once('../../Assert.php');
 require_once('../../UpdateType.php');
 require_once('../StdlibPending.php');
@@ -8,7 +9,7 @@ require_once('../releases/StdlibRelease.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
-	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
+	$content_type = ContentNegotiator::MimeType();
 
 	if (isset($_GET['action'])) {
 		$action = UpdateType::getCode($_GET['action'], UpdateType::USAGE_STDLIB);

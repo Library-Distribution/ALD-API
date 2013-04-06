@@ -1,10 +1,10 @@
 <?php
-	require_once('../util.php');
+	require_once('../ContentNegotiator.php');
 	require_once('../Assert.php');
 	require_once('ItemType.php');
 
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
-	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
+	$content_type = ContentNegotiator::MimeType();
 
 	$types = ItemType::getAllNames();
 
