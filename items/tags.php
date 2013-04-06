@@ -18,15 +18,16 @@ try {
 
 	$tags = array();
 	while ($row = $db_result->fetch_assoc()) {
-		$new_tags = explode(';', $row['tags']);
-		foreach ($new_tags AS $tag) {
-			$tags[$tag] = true; # keep tags as keys for simplicity, value is meaningless
-			# DISTINCT in the SQL query does not eliminate the need for this,
-			#     as it only ensures the uniqueness of a tag-combination,
-			#    not the tags themselves. It only makes this loop run fewer times.
-		}
+		$tags = array_merge($tags, explode(';', $row['tags']));
 	}
-	$tags = array_keys($tags);
+	# make tags unique
+	$tags = array_unique($tags);
+	# DISTINCT in the SQL query does not eliminate the need for this,
+	#    as it only ensures the uniqueness of a tag-combination,
+	#    not the tags themselves. It only makes the loop run fewer times.
+
+	# ensure continous index
+	sort($tags);
 
 	if ($content_type == 'application/json') {
 		$content = json_encode($tags);
