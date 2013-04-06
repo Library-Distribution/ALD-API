@@ -6,7 +6,7 @@ require_once(dirname(__FILE__) . '/JsonConverter.php');
 require_once(dirname(__FILE__) . '/YamlConverter.php');
 
 class ContentNegotiator {
-	private static $output_handlers = array('application/json' => 'JsonConverter', 'text/x-yaml' => 'YamlConverter');
+	private static $output_handlers = array('application/json' => 'JsonConverter' /*, 'text/x-yaml' => 'YamlConverter'*/);
 
 	public static function SupportedMimeTypes() {
 		$mimes = array();
