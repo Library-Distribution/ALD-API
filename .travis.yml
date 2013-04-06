@@ -1,0 +1,19 @@
+language: php
+php:
+  - "5.5"
+  - "5.4"
+  - "5.3"
+  - "5.2"
+
+services:
+  - mysql
+
+before_script:
+  - ./tests/setup/db-mysql.sh
+  - ./tests/setup/profile.sh travis
+
+script: phpunit --colors tests
+
+branches:
+  only:
+    - testing

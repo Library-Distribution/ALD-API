@@ -10,7 +10,7 @@ require_once(dirname(__FILE__) . '/../config/suspensions.php');
 
 class Suspension {
 	public static function create($user, $reason, $expires = NULL, $restricted = true) {
-		self::createForId(User::getID($user), $reason, $expires, $restricted);
+		return self::createForId(User::getID($user), $reason, $expires, $restricted);
 	}
 
 	public static function createForId($user, $reason, $expires = NULL, $restricted = true) {
@@ -123,8 +123,7 @@ class Suspension {
 		$this->created = new DateTime($created);
 		$this->expires = ($this->infinite = $expires === NULL) ? NULL : new DateTime($expires);
 
-		!$this->infinite AND $diff = $this->expires->diff(new DateTime('now'));
-		$this->active = $active && ($this->infinite || $diff->invert);
+		$this->active = $active && ($this->infinite || (new DateTime('now')) > $this->expires);
 	}
 
 	public function delete() {
