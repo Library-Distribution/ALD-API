@@ -6,7 +6,7 @@ class YamlConverter implements OutputConverter {
 		return function_exists('yaml_emit');
 	}
 
-	public function convert(array $data, $nodes = NULL) {
+	public function convert(array $data, $namespace = NULL) {
 		return yaml_emit($data);
 	}
 }
