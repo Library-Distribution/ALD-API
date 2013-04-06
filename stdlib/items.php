@@ -1,5 +1,6 @@
 <?php
 require_once('../modules/HttpException/HttpException.php');
+require_once('../util.php');
 require_once('../ContentNegotiator.php');
 require_once('../sql2array.php');
 require_once('../db.php');
