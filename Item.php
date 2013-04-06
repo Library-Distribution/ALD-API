@@ -37,7 +37,7 @@
 			{
 				$items = sql2array($db_result);
 				usort($items, array('Item', "semver_sort")); # sort by "version" field, following semver rules
-				$db_entry = $items[$special_version == "latest" ? count($items) - 1 : 0];
+				$db_entry = $items[$version == "latest" ? count($items) - 1 : 0];
 			}
 
 			return $db_entry["id"];
