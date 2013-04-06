@@ -36,6 +36,7 @@
 		$filter->add(array('name' => 'user', 'type' => 'binary')); # WARN: changes parameter to receive ID instead of name
 		$filter->add(array('name' => 'name'));
 		$filter->add(array('name' => 'reviewed', 'type' => 'switch')); # reviewed and unreviewed items
+		$filter->add(array('name' => 'stable', 'type' => 'switch', 'db-name' => 'version', 'db-function' => 'semver_stable'));
 
 		$filter->add(array('name' => 'downloads', 'type' => 'int')); # filter for download count
 		$filter->add(array('name' => 'downloads-min', 'db-name' => 'downloads', 'type' => 'int', 'operator' => '>='));
