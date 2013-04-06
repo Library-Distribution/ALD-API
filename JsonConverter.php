@@ -6,7 +6,7 @@ class JsonConverter implements OutputConverter {
 		return function_exists('json_encode');
 	}
 
-	public function convert(array $data, $nodes = NULL) {
+	public function convert(array $data, $namespace = NULL) {
 		return json_encode($data);
 	}
 }
