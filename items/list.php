@@ -47,8 +47,6 @@
 			return '"(^|;)' . $db_connection->real_escape_string($value) . '($|;)"';
 		}
 
-		$db_cond = $filter->evaluate($_GET);
-
 		# special filtering (post-MySQL), thus not handled by FilterHelper
 		if (isset($_GET["version"]))
 		{
@@ -60,17 +58,26 @@
 		}
 
 		# retrieve sorting parameters
-		$sort_by_rating = false;
+		$sort_by_rating = $sort_by_version = false;
 		if (isset($_GET['sort'])) {
 			$sort_list = SortHelper::getListFromParam($_GET['sort']);
 			$db_order = SortHelper::getOrderClause($sort_list, array('name' => '`name`', 'version' => '`position`', 'uploaded' => '`uploaded`', 'downloads' => '`downloads`', 'rating' => SQL_QUERY_RATING));
 			$sort_by_rating = array_key_exists('rating', $sort_list);
-			if (array_key_exists('version', $sort_list)) {
-				SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
-				$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
-				$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
-			}
+			$sort_by_version = array_key_exists('version', $sort_list);
 		}
+
+		$filter_by_version = isset($_GET['version-min']) || isset($_GET['version-max']);
+		if ($sort_by_version || $filter_by_version) {
+			$db_cond = $filter->evaluate($_GET);
+			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
+			$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
+			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
+		}
+
+		# These must defined below the call to SortHelper::PrepareSemverSorting() as it can not handle table joins
+		$filter->add(array('name' => 'version-min', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '>=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
+		$filter->add(array('name' => 'version-max', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '<=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
+		$db_cond = $filter->evaluate($_GET); # re-evaluate to include the latest filters
 
 		# enable rating filters if necessary (filter with HAVING instead of WHERE, not currently supported by FilterHelper)
 		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
