@@ -177,10 +177,10 @@ class StdlibRelease
 	public static function ListReleases($published, $filters = array(), $sort = array())
 	{
 		if (!is_array($filters)) {
-			throw new Exception('Must provide a valid array as candidate filter');
+			throw new Exception('Must provide a valid array as stdlib release filter');
 		}
 		if (!is_array($sort)) {
-			throw new Exception('Must provide a valid array for candidate sorting');
+			throw new Exception('Must provide a valid array for stdlib release sorting');
 		}
 
 		# take publishing status into account
