@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
+require_once(dirname(__FILE__) . '/../../FilterHelper.php');
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
@@ -173,19 +174,36 @@ class StdlibRelease
 		return semver_compare($a, $b);
 	}
 
-	public static function ListReleases($published, $sort = array())
+	public static function ListReleases($published, $filters = array(), $sort = array())
 	{
+		if (!is_array($filters)) {
+			throw new Exception('Must provide a valid array as candidate filter');
+		}
+		if (!is_array($sort)) {
+			throw new Exception('Must provide a valid array for candidate sorting');
+		}
+
 		# take publishing status into account
 		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
+		$filter = new FilterHelper($db_connection, DB_TABLE_STDLIB_RELEASES);
+		$filter_by_version = isset($filters['version-min']) || isset($filters['version-max']);
+
 		# support sorting
 		$db_join = ' ';
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'release' => '`position`'));
-		if (array_key_exists('release', $sort)) { # sorting with semver needs special setup
+		$sort_by_version = array_key_exists('release', $sort);
+
+		if ($sort_by_version || $filter_by_version) { # sorting with / filtering by semver needs special setup
 			SortHelper::PrepareSemverSorting(DB_TABLE_STDLIB_RELEASES, 'release', $db_cond);
 			$db_join = ' LEFT JOIN (`semver_index`) ON (`' . DB_TABLE_STDLIB_RELEASES . '`.`release` = `semver_index`.`version`) ';
 		}
+
+		# add these below semver preparation as it can not handle table joins
+		$filter->add(array('name' => 'version-min', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '>=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
+		$filter->add(array('name' => 'version-max', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '<=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
+		$db_cond .= $filter->evaluate($filters, $db_cond ? ' AND ' : ' WHERE ');
 
 		# get all releases from DB
 		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_join . $db_cond . $db_sort;

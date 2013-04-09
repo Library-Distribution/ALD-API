@@ -34,7 +34,7 @@
 		# make sure all releases that should be published are published
 		StdlibRelease::publishPending();
 
-		$releases = StdlibRelease::ListReleases($publish_status, $sort_list);
+		$releases = StdlibRelease::ListReleases($publish_status, $_GET, $sort_list);
 
 		if ($content_type == "application/json")
 		{
