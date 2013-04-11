@@ -44,7 +44,7 @@ class SortHelper {
 
 		$db_query = 'CREATE TEMPORARY TABLE `semver_index` ('
 					. '`position` int NOT NULL AUTO_INCREMENT PRIMARY KEY,'
-					. '`version` varchar(50) NOT NULL'
+					. '`version` varchar(50) NOT NULL UNIQUE'
 				. ') ENGINE=MEMORY SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
 		$db_connection->query($db_query);
 
