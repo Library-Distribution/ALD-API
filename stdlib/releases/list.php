@@ -31,7 +31,7 @@
 		# add sort support
 		$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
 
-		$releases = StdlibRelease::ListReleases($publish_status, $sort_list);
+		$releases = StdlibRelease::ListReleases($publish_status, $_GET, $sort_list);
 
 		if ($content_type == "application/json")
 		{

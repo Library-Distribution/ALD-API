@@ -7,7 +7,7 @@
 
 	class Item
 	{
-		public static function getId($name, $version)
+		public static function getId($name, $version, $stable = NULL)
 		{
 			$db_connection = db_ensure_connection();
 			$name = $db_connection->real_escape_string($name);
@@ -17,6 +17,9 @@
 			if (!$special_version = in_array($version, array("latest", "first")))
 			{
 				$db_cond .= " AND version = '$version'";
+			}
+			if ($stable !== NULL) {
+				$db_cond .= ' AND ' . ($stable ? '' : '!') . 'semver_stable(`version`)';
 			}
 
 			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;

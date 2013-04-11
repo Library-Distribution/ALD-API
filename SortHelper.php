@@ -45,11 +45,20 @@ class SortHelper {
 		$db_query = 'CREATE TEMPORARY TABLE `semver_index` ('
 					. '`position` int NOT NULL AUTO_INCREMENT PRIMARY KEY,'
 					. '`version` varchar(50) NOT NULL'
-				. ') SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
+				. ') ENGINE=MEMORY SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
 		$db_connection->query($db_query);
 
 		$db_query = 'CALL semver_sort()';
 		$db_connection->query($db_query);
+	}
+
+	public static function RetrieveSemverIndex($version) {
+		$db_connection = db_ensure_connection();
+		$db_query = 'SELECT `position` FROM `semver_index` WHERE `version` = "' . $db_connection->real_escape_string($version) . '"';
+		$db_result = $db_connection->query($db_query);
+
+		$db_entry = $db_result->fetch_array();
+		return $db_entry['position'];
 	}
 }
 ?>
