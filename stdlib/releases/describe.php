@@ -19,18 +19,31 @@
 		# validate accept header of request
 		$content_type = get_preferred_mimetype(array("application/json", "text/xml", "application/xml"), "application/json");
 
-		$publish_status = StdlibRelease::PUBLISHED_YES;
-		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"]))
-		{
-			user_basic_auth("");
-			if (User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
-				$publish_status = StdlibRelease::PUBLISHED_BOTH;
+		# Acquire published scope for releases
+		#########################
+		# By default, include all releases. However, allow resetting the scope to non-published only or published only.
+		# This is important especially for special versions ("latest" or "first").
+		# No authorization is required here, but below in case the release actually described is non-published.
+		$publish_status = StdlibRelease::PUBLISHED_BOTH;
+		if (isset($_GET['published'])) {
+			if (in_array($_GET['published'], array('yes', 'true', '+1', 1))) {
+				$publish_status = StdlibRelease::PUBLISHED_YES;
+			} else if (in_array($_GET['published'], array('no', 'false', '-1'))) {
+				$publish_status = StdlibRelease::PUBLISHED_NO;
+			}
 		}
 
 		# make sure all releases that should be published are published
 		StdlibRelease::publishPending();
 
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
+		if (!$release['published']) {
+			user_basic_auth('Only members of the stdlib team can view unpublished releases');
+			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) {
+				throw new HttpException(403, NULL, 'Only members of the stdlib team can view unpublished releases');
+			}
+		}
+
 		$release['items'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 
 		# todo later: get frameworks in the release
