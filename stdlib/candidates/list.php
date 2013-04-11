@@ -3,7 +3,7 @@ require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../SortHelper.php');
-require_once('../../FilterHelper.php');
+require_once('../../util/DB/DataFilter.php');
 require_once('Candidate.php');
 
 try {
@@ -11,7 +11,7 @@ try {
 
 	$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-	$filters = FilterHelper::FromParams(array('user', 'item', 'created', 'created-after', 'created-before', 'approved', 'owner'));
+	$filters = DataFilter::FromParams(array('user', 'item', 'created', 'created-after', 'created-before', 'approved', 'owner'));
 	$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
 	$candidates = Candidate::listCandidates($filters, $sort_list);
 

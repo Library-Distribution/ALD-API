@@ -2,7 +2,7 @@
 require_once(dirname(__FILE__) . '/../db.php');
 require_once(dirname(__FILE__) . '/../User.php');
 require_once(dirname(__FILE__) . '/../SortHelper.php');
-require_once(dirname(__FILE__) . '/../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../util/DB/DataFilter.php');
 require_once(dirname(__FILE__) . '/../Assert.php');
 require_once(dirname(__FILE__) . '/../sql2array.php');
 require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
@@ -62,7 +62,7 @@ class Suspension {
 			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
 		}
 
-		$filter = new FilterHelper(DB_TABLE_SUSPENSIONS, $db_connection);
+		$filter = new DataFilter(DB_TABLE_SUSPENSIONS, $db_connection);
 
 		$filter->add(array('db-name' => 'user', 'value' => $id, 'type' => 'binary'));
 

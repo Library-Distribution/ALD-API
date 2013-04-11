@@ -1,7 +1,7 @@
 <?php
-require_once(dirname(__FILE__) . '/modules/HttpException/HttpException.php');
+require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
-class FilterHelper {
+class DataFilter {
 	private $filters = array();
 
 	/*

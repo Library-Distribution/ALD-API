@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
-require_once(dirname(__FILE__) . '/../../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../../util/DB/DataFilter.php');
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../config/stdlib.php');
@@ -143,7 +143,7 @@ class Candidate {
 		$db_connection = db_ensure_connection();
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		$filter = new FilterHelper(DB_TABLE_CANDIDATES, $db_connection);
+		$filter = new DataFilter(DB_TABLE_CANDIDATES, $db_connection);
 
 		$filter->add(array('name' => 'item', 'type' => 'binary'));
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -173,7 +173,7 @@ class Candidate {
 		}
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper(DB_TABLE_CANDIDATE_VOTING, $db_connection);
+		$filter = new DataFilter(DB_TABLE_CANDIDATE_VOTING, $db_connection);
 		$filter->add(array('db-name' => 'candidate', 'value' => $candidate, 'type' => 'int'));
 
 		$filter->add(array('name' => 'user', 'type' => 'binary'));

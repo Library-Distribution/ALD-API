@@ -5,7 +5,7 @@ require_once('../sql2array.php');
 require_once('../db.php');
 require_once('../Assert.php');
 require_once('../SortHelper.php');
-require_once('../FilterHelper.php');
+require_once('../util/DB/DataFilter.php');
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);
@@ -15,7 +15,7 @@ try {
 	$db_sort = '';
 	$db_join = '';
 
-	$filter = new FilterHelper(DB_TABLE_STDLIB, $db_connection);
+	$filter = new DataFilter(DB_TABLE_STDLIB, $db_connection);
 
 	$filter->add(array('name' => 'name', 'db-table' => DB_TABLE_ITEMS));
 	$filter->add(array('name' => 'user', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS));

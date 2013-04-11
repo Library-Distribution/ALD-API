@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
-require_once(dirname(__FILE__) . '/../../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../../util/DB/DataFilter.php');
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
@@ -187,7 +187,7 @@ class StdlibRelease
 		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper(DB_TABLE_STDLIB_RELEASES, $db_connection);
+		$filter = new DataFilter(DB_TABLE_STDLIB_RELEASES, $db_connection);
 
 		$semver_filters = array();
 		foreach(array('version-min', 'version-max') AS $field) {
