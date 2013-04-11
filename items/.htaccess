@@ -4,4 +4,4 @@ RewriteEngine On
 
 RewriteRule ^(add|list|tags|types)$ $1.php [L]
 RewriteRule ^(describe|remove|modify|rating)/([0-9a-fA-F]{32})$	$1.php?id=$2 [L]
-RewriteRule ^(describe|remove|modify|rating)/(.+)/(.+)$ $1.php?name=$2&version=$3 [L]
+RewriteRule ^(describe|remove|modify|rating)/(.+)/(.+)$ $1.php?name=$2&version=$3 [L,QSA]

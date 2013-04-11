@@ -22,7 +22,15 @@
 
 		if (!isset($_GET["id"]))
 		{
-			$id = Item::getId($_GET['name'], $_GET['version']);
+			$stable = NULL;
+			if (isset($_GET['stable'])) {
+				if (in_array($_GET['stable'], array('yes', 'true', '+1', 1))) {
+					$stable = true;
+				} else if (in_array($_GET['stable'], array('no', 'false', '-1'))) {
+					$stable = false;
+				}
+			}
+			$id = Item::getId($_GET['name'], $_GET['version'], $stable);
 		}
 		else
 		{
