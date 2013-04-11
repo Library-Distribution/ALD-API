@@ -7,7 +7,7 @@ class FilterHelper {
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($table, $db_connection) {
+	public function __construct($table, $db_connection = NULL) {
 		$this->connection = $db_connection;
 		$this->table = $table;
 	}
@@ -16,7 +16,14 @@ class FilterHelper {
 		$this->filters[] = $data;
 	}
 
-	public function evaluate($source, $prefix = ' WHERE ') {
+	public function evaluate($source, $prefix = ' WHERE ', $db_connection = NULL) {
+		if ($db_connection !== NULL) {
+			$this->connection = $db_connection;
+		}
+		if ($this->connection === NULL) {
+			throw new HttpException(500, NULL, 'Must specify DB connection for filter!');
+		}
+
 		$db_cond = '';
 		$this->source = $source;
 
