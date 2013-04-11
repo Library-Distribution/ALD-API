@@ -7,13 +7,17 @@ class FilterHelper {
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($table, $db_connection = NULL) {
+	public function __construct($table = NULL, $db_connection = NULL) {
 		$this->connection = $db_connection;
-		$this->table = $table;
+		$this->setDefaultTable($table);
 	}
 
 	public function add($data) {
 		$this->filters[] = $data;
+	}
+
+	public function setDefaultTable($table) {
+		$this->table = $table;
 	}
 
 	public function evaluate($source, $prefix = ' WHERE ', $db_connection = NULL) {
@@ -22,6 +26,9 @@ class FilterHelper {
 		}
 		if ($this->connection === NULL) {
 			throw new HttpException(500, NULL, 'Must specify DB connection for filter!');
+		}
+		if ($this->table === NULL) {
+			throw new HttpException(500, NULL, 'Must specify DB table for filter!');
 		}
 
 		$db_cond = '';
@@ -269,7 +276,7 @@ class FilterHelper {
 		return array_intersect_key($source, array_flip($filters));
 	}
 
-	public static function SimpleFilter($table, $filters) {
+	public static function SimpleFilter($filters, $table = NULL) {
 		$f = new self($table);
 
 		foreach ($filters AS $name => $value) {
