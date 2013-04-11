@@ -12,8 +12,8 @@ class FilterHelper {
 		$this->table = $table;
 	}
 
-	public function add($data) { #$name, $db_name = NULL, $method = 'GET', $op = '=', $default = NULL, $force = NULL) {
-		$this->filters[] = $data; #array('name' => $name, 'db-name' => $db_name, $method => 'GET', 'operator' => $op, 'default' => $default, 'force-value' => $force);
+	public function add($data) {
+		$this->filters[] = $data;
 	}
 
 	public function evaluate($source, $prefix = ' WHERE ') {
