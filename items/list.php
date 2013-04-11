@@ -66,10 +66,16 @@
 			$sort_by_version = array_key_exists('version', $sort_list);
 		}
 
-		$filter_by_version = isset($_GET['version-min']) || isset($_GET['version-max']);
-		if ($sort_by_version || $filter_by_version) {
+		$semver_filters = array();
+		foreach(array('version-min', 'version-max') AS $field) {
+			if (isset($_GET[$field])) {
+				$semver_filters[] = $_GET[$field];
+			}
+		}
+
+		if ($sort_by_version || count($semver_filters) > 0) {
 			$db_cond = $filter->evaluate($_GET);
-			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond);
+			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond, $semver_filters);
 			$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
 			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
 		}

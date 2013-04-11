@@ -188,15 +188,21 @@ class StdlibRelease
 		$db_connection = db_ensure_connection();
 
 		$filter = new FilterHelper($db_connection, DB_TABLE_STDLIB_RELEASES);
-		$filter_by_version = isset($filters['version-min']) || isset($filters['version-max']);
+
+		$semver_filters = array();
+		foreach(array('version-min', 'version-max') AS $field) {
+			if (isset($filters[$field])) {
+				$semver_filters[] = $filters[$field];
+			}
+		}
 
 		# support sorting
 		$db_join = ' ';
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'release' => '`position`'));
 		$sort_by_version = array_key_exists('release', $sort);
 
-		if ($sort_by_version || $filter_by_version) { # sorting with / filtering by semver needs special setup
-			SortHelper::PrepareSemverSorting(DB_TABLE_STDLIB_RELEASES, 'release', $db_cond);
+		if ($sort_by_version || count($semver_filters)) { # sorting with / filtering by semver needs special setup
+			SortHelper::PrepareSemverSorting(DB_TABLE_STDLIB_RELEASES, 'release', $db_cond, $semver_filters);
 			$db_join = ' LEFT JOIN (`semver_index`) ON (`' . DB_TABLE_STDLIB_RELEASES . '`.`release` = `semver_index`.`version`) ';
 		}
 

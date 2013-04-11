@@ -34,7 +34,7 @@ class SortHelper {
 		return substr($k, 0, 1) != '!';
 	}
 
-	public static function PrepareSemverSorting($table, $column, $db_cond = '') {
+	public static function PrepareSemverSorting($table, $column, $db_cond = '', $more_semver = NULL) {
 		$db_connection = db_ensure_connection();
 		$table = $db_connection->real_escape_string($table);
 		$column = $db_connection->real_escape_string($column);
@@ -47,6 +47,11 @@ class SortHelper {
 					. '`version` varchar(50) NOT NULL UNIQUE'
 				. ') ENGINE=MEMORY SELECT DISTINCT `' . $column . '` AS version FROM `' . $table . '` ' . $db_cond;
 		$db_connection->query($db_query);
+
+		if ($more_semver !== NULL && count($more_semver) > 0) {
+			$db_query = 'INSERT IGNORE INTO `semver_index` (`version`) VALUES ' . implode(', ', array_map(create_function('$version', 'return "(\'$version\')";'), $more_semver));
+			$db_connection->query($db_query);
+		}
 
 		$db_query = 'CALL semver_sort()';
 		$db_connection->query($db_query);
