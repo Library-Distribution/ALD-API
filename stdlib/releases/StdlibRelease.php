@@ -187,7 +187,7 @@ class StdlibRelease
 		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_STDLIB_RELEASES);
+		$filter = new FilterHelper(DB_TABLE_STDLIB_RELEASES, $db_connection);
 
 		$semver_filters = array();
 		foreach(array('version-min', 'version-max') AS $field) {

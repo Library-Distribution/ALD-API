@@ -143,7 +143,7 @@ class Candidate {
 		$db_connection = db_ensure_connection();
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATES);
+		$filter = new FilterHelper(DB_TABLE_CANDIDATES, $db_connection);
 
 		$filter->add(array('name' => 'item', 'type' => 'binary'));
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -173,7 +173,7 @@ class Candidate {
 		}
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATE_VOTING);
+		$filter = new FilterHelper(DB_TABLE_CANDIDATE_VOTING, $db_connection);
 		$filter->add(array('db-name' => 'candidate', 'value' => $candidate, 'type' => 'int'));
 
 		$filter->add(array('name' => 'user', 'type' => 'binary'));

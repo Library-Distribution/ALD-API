@@ -30,7 +30,7 @@
 		$db_limit = "";
 		$db_order = '';
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_ITEMS);
+		$filter = new FilterHelper(DB_TABLE_ITEMS, $db_connection);
 
 		$filter->add(array('name' => 'type', 'type' => 'custom', 'coerce' => array('ItemType', 'getCode')));
 		$filter->add(array('name' => 'user', 'type' => 'binary')); # WARN: changes parameter to receive ID instead of name

@@ -7,7 +7,7 @@ class FilterHelper {
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($db_connection, $table) {
+	public function __construct($table, $db_connection) {
 		$this->connection = $db_connection;
 		$this->table = $table;
 	}
