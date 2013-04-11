@@ -27,9 +27,6 @@
 				$publish_status = StdlibRelease::PUBLISHED_BOTH;
 		}
 
-		# make sure all releases that should be published are published
-		StdlibRelease::publishPending();
-
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
 		$release['items'] = array_map(create_function('$item', 'return $item[\'id\'];'), Stdlib::GetItems($release['release']));
 

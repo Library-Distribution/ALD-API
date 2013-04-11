@@ -14,9 +14,6 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN))
 			throw new HttpException(403, NULL, "You must be stdlib admin to publish a release!");
 
-		# make sure all releases that should be published are published
-		StdlibRelease::publishPending();
-
 		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
 			throw new HttpException(404, NULL, "Release does not exist!");
 

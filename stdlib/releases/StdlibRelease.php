@@ -142,7 +142,7 @@ class StdlibRelease
 		}
 	}
 
-	public static function publish($release) {
+	private static function publish($release) {
 		if (self::exists($release, self::PUBLISHED_YES)) {
 			throw new HttpException(400, NULL, 'Cannot publish already published release!');
 		}

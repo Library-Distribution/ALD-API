@@ -34,9 +34,6 @@
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
 			throw new HttpException(403);
 
-		# make sure all releases that should be published are published
-		StdlibRelease::publishPending();
-
 		# get latest release
 		$prev_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, $publish_status);
 		if ($prev_release === NULL) {
