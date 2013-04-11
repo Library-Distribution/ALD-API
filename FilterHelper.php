@@ -16,6 +16,10 @@ class FilterHelper {
 		$this->filters[] = $data;
 	}
 
+	public function define($data) {
+		return $this->add($data);
+	}
+
 	public function setDefaultTable($table) {
 		$this->table = $table;
 	}
