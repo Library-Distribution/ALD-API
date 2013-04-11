@@ -268,5 +268,22 @@ class FilterHelper {
 		}
 		return array_intersect_key($source, array_flip($filters));
 	}
+
+	public static function SimpleFilter($table, $filters) {
+		$f = new self($table);
+
+		foreach ($filters AS $name => $value) {
+			if (is_array($value)) {
+				$keys = array_keys($value);
+				$f->add(array('db-name' => $name, 'value' => $keys[0], 'type' => $value[$keys[0]]));
+			} else if (is_int($name)) {
+				$f->add(array('name' => $name));
+			} else {
+				$f->add(array('db-name' => $name, 'value' => $value));
+			}
+		}
+
+		return $f;
+	}
 }
 ?>
