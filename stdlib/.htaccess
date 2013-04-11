@@ -1,2 +1,4 @@
+Options -MultiViews -Indexes
+
 RewriteEngine On
 RewriteRule ^items$ items.php [L]
