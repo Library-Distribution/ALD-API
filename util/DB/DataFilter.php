@@ -129,7 +129,9 @@ class DataFilter {
 				}
 				$key = '`' . (isset($data['db-table']) ? $data['db-table'] : $this->table) . '`.`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
 				if (isset($data['db-function'])) {
-					$key = $data['db-function'] . '(' . $key . ')';
+					foreach ((array)$data['db-function'] AS $fn) {
+						$key = $fn . '(' . $key . ')';
+					}
 				}
 
 				# Get the value for comparison
