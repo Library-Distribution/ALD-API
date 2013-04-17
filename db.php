@@ -23,6 +23,7 @@
 			{
 				throw new HttpException(500);
 			}
+			$connection->set_charset('latin1');
 		}
 		return $connection;
 	}

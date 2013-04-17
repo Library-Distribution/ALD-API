@@ -3,7 +3,6 @@
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../Assert.php");
-	require_once("../modules/semver/semver.php");
 	require_once('../Item.php');
 
 	require_once("../config/upload.php"); # import upload settings, including upload folder!

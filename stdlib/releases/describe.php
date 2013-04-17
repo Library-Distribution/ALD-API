@@ -3,7 +3,6 @@
 	require_once("../../db.php");
 	require_once("../../sql2array.php");
 	require_once("../../util.php");
-	require_once("../../modules/semver/semver.php");
 	require_once("../../Assert.php");
 	require_once("../../User.php");
 	require_once("StdlibRelease.php");
@@ -90,9 +89,5 @@
 	catch (Exception $e)
 	{
 		handleHttpException(new HttpException(500, NULL, $e->getMessage()));
-	}
-
-	function semver_sort($a, $b) {
-		return semver_compare($a, $b);
 	}
 ?>

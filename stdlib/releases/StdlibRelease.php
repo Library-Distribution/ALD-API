@@ -35,11 +35,9 @@ class StdlibRelease
 
 		if (in_array($special_version, array(self::SPECIAL_VERSION_LATEST, self::SPECIAL_VERSION_FIRST)))
 		{
-			$releases = self::ListReleases($published);
-			if (count($releases) > 0)
-			{
-				usort($releases, array("StdlibRelease", "semver_sort")); # sort following the semver rules
-				return $releases[$special_version == self::SPECIAL_VERSION_LATEST ? count($releases) - 1 : 0]; # latest / first release
+			$releases = self::ListReleases($published, array(), array('release' => $special_version == self::SPECIAL_VERSION_FIRST)); # retrieve and sort by version
+			if (count($releases) > 0) {
+				return $releases[0]; # return the first version
 			}
 		}
 
@@ -114,8 +112,7 @@ class StdlibRelease
 	}
 
 	public static function previousRelease($release, $published) {
-		$releases = self::ListReleases(self::PUBLISHED_BOTH);
-		usort($releases, array('StdlibRelease', 'semver_sort'));
+		$releases = self::ListReleases(self::PUBLISHED_BOTH, array(), array('release' => true));
 		$index = array_search($release, $releases);
 		if ($index !== FALSE) {
 			while ($index >= 1) {
@@ -128,17 +125,15 @@ class StdlibRelease
 	}
 
 	public static function publishPending() {
+		$db_cond = ' WHERE !`published` AND `date` <= NOW()';
+		$db_join = ' LEFT JOIN `semver_index` ON (`semver_index`.`version` = `' . DB_TABLE_STDLIB_RELEASES . '`.`release`)';
+		SortHelper::PrepareSemverSorting(DB_TABLE_STDLIB_RELEASES, 'release', $db_cond);
+
 		$db_connection = db_ensure_connection();
-		$db_query = 'SELECT `release` FROM ' . DB_TABLE_STDLIB_RELEASES . ' WHERE !`published` AND `date` <= NOW()';
+		$db_query = 'SELECT `release` FROM ' . DB_TABLE_STDLIB_RELEASES . $db_join . $db_cond . ' ORDER BY `position` ASC';
 		$db_result = $db_connection->query($db_query);
 
-		$releases = array();
-		while ($release = $db_result->fetch_assoc()) { # sort by release
-			$releases[] = $release['release'];
-		}
-
-		usort($releases, array('StdlibRelease', 'semver_sort')); # sort following the semver rules
-		foreach ($releases AS $release) {
+		while ($release = $db_result->fetch_assoc()) {
 			self::publish($release);
 		}
 	}
@@ -167,11 +162,6 @@ class StdlibRelease
 			self::update($release, array('date' => date('Y-m-d H:i:s')));
 		}
 		self::update($release, array('published' => true));
-	}
-
-	static function semver_sort($a, $b)
-	{
-		return semver_compare($a, $b);
 	}
 
 	public static function ListReleases($published, $filters = array(), $sort = array())

@@ -1,9 +1,9 @@
 <?php
 	require_once(dirname(__FILE__) . "/db.php");
 	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
-	require_once(dirname(__FILE__) . "/modules/semver/semver.php");
 	require_once(dirname(__FILE__) . '/sql2array.php');
 	require_once(dirname(__FILE__) . '/Assert.php');
+	require_once(dirname(__FILE__) . '/SortHelper.php');
 
 	class Item
 	{
@@ -14,29 +14,25 @@
 			$version = $db_connection->real_escape_string($version);
 
 			$db_cond = "name = '$name'";
+			$db_join = $db_order = '';
 			if (!$special_version = in_array($version, array("latest", "first")))
 			{
 				$db_cond .= " AND version = '$version'";
+			} else {
+				$db_order = ' ORDER BY `position`' . ($version == 'latest' ? 'DESC' : 'ASC');
+				$db_join = ' LEFT JOIN `semver_index` USING (`version`)';
+				SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version');
 			}
+
 			if ($stable !== NULL) {
 				$db_cond .= ' AND ' . ($stable ? '' : '!') . 'semver_stable(`version`)';
 			}
 
-			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . ' WHERE ' . $db_cond;
+			$db_query = 'SELECT HEX(id) AS id, version FROM ' . DB_TABLE_ITEMS . $db_join . ' WHERE ' . $db_cond . $db_order;
 			$db_result = $db_connection->query($db_query);
 			Assert::dbMinRows($db_result);
 
-			if (!$special_version)
-			{
-				$db_entry = $db_result->fetch_assoc();
-			}
-			else
-			{
-				$items = sql2array($db_result);
-				usort($items, array('Item', "semver_sort")); # sort by "version" field, following semver rules
-				$db_entry = $items[$version == "latest" ? count($items) - 1 : 0];
-			}
-
+			$db_entry = $db_result->fetch_assoc(); # the only (exact version) or first ("latest" or "first" version) entry
 			return $db_entry["id"];
 		}
 
@@ -96,10 +92,6 @@
 
 			$db_entry = $db_result->fetch_assoc();
 			return $db_entry["user"];
-		}
-
-		static function semver_sort($a, $b) {
-			return semver_compare($a["version"], $b["version"]);
 		}
 	}
 
