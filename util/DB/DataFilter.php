@@ -3,6 +3,9 @@ require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php
 
 class DataFilter {
 	private $filters = array();
+	private $source = NULL;
+	private $table = NULL;
+	private $connection = NULL;
 
 	/*
 	 * Public class instance interface
