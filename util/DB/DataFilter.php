@@ -297,7 +297,7 @@ class DataFilter {
 				$keys = array_keys($value);
 				$f->add(array('db-name' => $name, 'value' => $keys[0], 'type' => $value[$keys[0]]));
 			} else if (is_int($name)) {
-				$f->add(array('name' => $name));
+				$f->add(array('name' => $value));
 			} else {
 				$f->add(array('db-name' => $name, 'value' => $value));
 			}
