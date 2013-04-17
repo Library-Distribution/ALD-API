@@ -13,7 +13,3 @@ before_script:
   - ./tests/setup/profile.sh travis
 
 script: phpunit --colors tests
-
-branches:
-  only:
-    - testing
