@@ -7,7 +7,8 @@ class DataFilter {
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($table = NULL, $db_connection = NULL) {
+	public function __construct($source, $table = NULL, $db_connection = NULL) {
+		$this->SetSource($source);
 		$this->connection = $db_connection;
 		$this->setDefaultTable($table);
 	}
@@ -20,11 +21,15 @@ class DataFilter {
 		return $this->add($data);
 	}
 
+	public function SetSource($source) {
+		$this->source = $source;
+	}
+
 	public function setDefaultTable($table) {
 		$this->table = $table;
 	}
 
-	public function evaluate($source, $prefix = ' WHERE ', $db_connection = NULL) {
+	public function evaluate($prefix = ' WHERE ', $db_connection = NULL) {
 		if ($db_connection !== NULL) {
 			$this->connection = $db_connection;
 		}
@@ -36,7 +41,6 @@ class DataFilter {
 		}
 
 		$db_cond = '';
-		$this->source = $source;
 
 		foreach ($this->filters AS $filter) {
 

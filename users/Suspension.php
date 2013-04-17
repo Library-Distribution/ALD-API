@@ -62,7 +62,7 @@ class Suspension {
 			throw new HttpException(500, NULL, 'Must pass a valid array as suspension filter!');
 		}
 
-		$filter = new DataFilter(DB_TABLE_SUSPENSIONS, $db_connection);
+		$filter = new DataFilter($filters, DB_TABLE_SUSPENSIONS, $db_connection);
 
 		$filter->add(array('db-name' => 'user', 'value' => $id, 'type' => 'binary'));
 
@@ -88,7 +88,7 @@ class Suspension {
 			)
 		));
 
-		$db_cond = $filter->evaluate($filters);
+		$db_cond = $filter->evaluate();
 		$sort = SortHelper::getOrderClause($sort, array('created' => '`created`', 'expires' => '`expires`'));
 
 		$db_query = 'SELECT *, HEX(`user`) AS user FROM ' . DB_TABLE_SUSPENSIONS . $db_cond . $sort;
