@@ -1,0 +1,9 @@
+Options -MultiViews -Indexes
+
+RewriteEngine On
+
+RewriteRule ^(accept|reject)/([0-9a-fA-F]{32})$ vote.php?mode=$1&id=$2 [L]
+RewriteRule ^(accept|reject)/(.+)/(.+)$ vote.php?mode=$1&name=$2&version=$3 [L]
+
+RewriteRule ^status/([0-9a-fA-F]{32})$ status.php?id=$1
+RewriteRule ^status/(.+)/(.+)$ status.php?name=$1&version=$2
