@@ -24,6 +24,7 @@ class Review {
 		}
 
 		$db_result = $db_connection->query($db_query);
+		Assert::dbMinRows($db_connection);
 	}
 
 	public static function HasReviewed($item, $user) {
