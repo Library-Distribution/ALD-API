@@ -39,9 +39,7 @@ try {
 	}
 
 	if (Item::IsReviewed($id)) {
-		if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_REVIEW_ADMIN)) { # only review_admin
-			throw new HttpException(403, NULL, 'Only review admins can modify the status of a reviewed item');
-		}
+		throw new HttpException(403, NULL, 'A reviewed item can not be modified');
 	}
 
 	Review::Review($id, User::getId($_SERVER['PHP_AUTH_USER']), $accept, $_POST['reason'], $final);
