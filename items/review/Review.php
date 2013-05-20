@@ -24,9 +24,6 @@ class Review {
 		}
 
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === false) {
-			throw new HttpException(500);
-		}
 	}
 
 	public static function HasReviewed($item, $user) {
@@ -36,9 +33,6 @@ class Review {
 
 		$db_query = 'SELECT COUNT(*) FROM `' . DB_TABLE_REVIEWS . '` WHERE `item` = UNHEX("' . $item . '") AND `user` = UNHEX("' . $user . '")';
 		$db_result = $db_connection->query($db_query);
-		if ($db_result === false) {
-			throw new HttpException(500);
-		}
 
 		return ((int)$db_result['COUNT(*)']) > 0;
 	}
