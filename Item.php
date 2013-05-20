@@ -46,6 +46,22 @@
 			return $db_result->fetch_assoc();
 		}
 
+		const REVIEW_GOOD = 1;
+		const REVIEW_INDETERMINATE = 0;
+		const REVIEW_BAD = -1;
+
+		public static function IsReviewed($id) {
+			$db_connection = db_ensure_connection();
+			$id = $db_connection->real_escape_string($id);
+
+			$db_query = 'SELECT `reviewed` FROM `' . DB_TABLE_ITEMS . '` WHERE `id` = UNHEX("' . $id . '")';
+			$db_result = $db_connection->query($db_query);
+			Assert::dbMinRows($db_result);
+
+			$db_entry = $db_result->fetch_assoc();
+			return (int)$db_entry['reviewed'] != self::REVIEW_INDETERMINATE;
+		}
+
 		public static function existsId($id)
 		{
 			$db_connection = db_ensure_connection();
