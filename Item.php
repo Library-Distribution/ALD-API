@@ -62,6 +62,20 @@
 			return (int)$db_entry['reviewed'] != self::REVIEW_INDETERMINATE;
 		}
 
+		public status function Review($id, $status) {
+			$db_connection = db_ensure_connection();
+			$id = $db_connection->real_escape_string($id);
+			$status = (int)$status;
+
+			if (!in_array($status, array(self::REVIEW_GOOD, self::REVIEW_INDETERMINATE, self::REVIEW_BAD))) {
+				throw new HttpException(500);
+			}
+
+			$db_query = 'UPDATE `' . DB_TABLE_ITEMS . '` SET `reviewed` = ' . $status . ' WHERE `id` = UNHEX("' . $id . '")';
+			$db_result = $db_connection->query($db_query);
+			Assert::dbMinRows($db_connection);
+		}
+
 		public static function existsId($id)
 		{
 			$db_connection = db_ensure_connection();
