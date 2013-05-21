@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<database name="travis-test"><!-- DB_NAME -->
+		<table_structure name="users"><!-- DB_TABLE_USERS -->
+			<field Field="id"         Type="binary(16)"  Null="NO"  Key="PRI" />
+			<field Field="name"       Type="varchar(25)" Null="YES" Key="UNI" />
+			<field Field="mail"       Type="varchar(35)" Null="YES" Key="UNI" />
+			<field Field="pw"         Type="varchar(64)" Null="YES" />
+			<field Field="privileges" Type="int(1)"      Null="YES" Default="0" />
+			<field Field="joined"     Type="timestamp"   Null="YES" Default="CURRENT_TIMESTAMP" />
+
+			<key Table="users" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id"   Collation="A" Cardinality="1" Null=""    Index_type="BTREE" />
+			<key Table="users" Non_unique="0" Key_name="mail"    Seq_in_index="1" Column_name="mail" Collation="A" Cardinality="1" Null="YES" Index_type="BTREE" />
+			<key Table="users" Non_unique="0" Key_name="name"    Seq_in_index="1" Column_name="name" Collation="A" Cardinality="1" Null="YES" Index_type="BTREE" />
+
+			<options Name="users" Engine="InnoDB" Version="10" Row_format="Compact" Rows="1" Avg_row_length="16384" Data_length="16384" Max_data_length="0" Index_length="32768" Data_free="5242880" Create_time="2013-04-26 10:21:52" Collation="latin1_swedish_ci" Create_options="" />
+		</table_structure>
+
+		<table_data name="users"><!-- DB_TABLE_USERS -->
+			<row>
+				<field name="id" xsi:type="xs:hexBinary">016e411164a84f51bdd03d13bd4d991e</field>
+				<field name="name">NoviceUser</field>
+				<field name="mail">me@example.com</field>
+				<field name="pw">bd818785bce81f6ce4dd305638e0c28a14c7ca192d2875962755fa7633e9737a</field><!-- sha256('justsomepw') -->
+				<field name="privileges">0</field>
+				<field name="joined">2013-05-21 12:17:00</field>
+			</row>
+		</table_data>
+	</database>
+</mysqldump>
