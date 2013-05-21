@@ -43,7 +43,7 @@ try {
 		throw new HttpException(403, NULL, 'A reviewed item can not be modified');
 	}
 
-	Review::Review($id, User::getId($_SERVER['PHP_AUTH_USER']), $accept, $_POST['reason'], $final);
+	Review::AddReview($id, User::getId($_SERVER['PHP_AUTH_USER']), $accept, $_POST['reason'], $final);
 	header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
 	exit;
 
