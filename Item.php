@@ -62,7 +62,7 @@
 			return (int)$db_entry['reviewed'] != self::REVIEW_INDETERMINATE;
 		}
 
-		public status function Review($id, $status) {
+		public static function Review($id, $status) {
 			$db_connection = db_ensure_connection();
 			$id = $db_connection->real_escape_string($id);
 			$status = (int)$status;
