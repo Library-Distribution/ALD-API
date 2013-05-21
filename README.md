@@ -1,6 +1,6 @@
 # ALD
-[![Build Status](https://travis-ci.org/maul-esel/ALD-API.png "travis-ci.org build status")](http://travis-ci.org/maul-esel/ALD-API)
-[![Build Status "master"](https://travis-ci.org/maul-esel/ALD-API.png?branch=master "travis-ci.org build status for branch "master"")](http://travis-ci.org/maul-esel/ALD-API)
+[![Build Status](https://travis-ci.org/Library-Distribution/ALD-API.png "travis-ci.org build status")](http://travis-ci.org/Library-Distribution/ALD-API)
+[![Build Status "master"](https://travis-ci.org/Library-Distribution/ALD-API.png?branch=master "travis-ci.org build status for branch "master"")](http://travis-ci.org/Library-Distribution/ALD-API)
 
 ***ALD*** is short for ***A***utoHotkey ***L***ibrary ***D***istribution. It is a system for management, distribution and installation of libraries and applications written in AutoHotkey.
 This system consists of several parts. The most important part is the HTTP server API. Also, there can be a lot of different clients: websites, desktop apps and more.
@@ -18,7 +18,7 @@ just issue a `GET` request to `http://api.libba.net/version` (with the appropria
 Also note that the documentation is slightly out of date and incomplete at the moment.
 
 ### Development
-You can watch active development in this repo. For example check the open [issues](https://github.com/maul-esel/ALD-API/issues) and [pull requests](https://github.com/maul-esel/ALD-API/issues), and comment on them if you have something to say.
+You can watch active development in this repo. For example check the open [issues](https://github.com/Library-Distribution/ALD-API/issues) and [pull requests](https://github.com/Library-Distribution/ALD-API/issues), and comment on them if you have something to say.
 If you wish further information, or want to get involved in development, be my guest. Just contact me, and if you want to contribute, fork the repo on github. I can then give you more information on planned features and tasks to complete.
 
 ## ALD Clients
