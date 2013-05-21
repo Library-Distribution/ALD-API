@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../config/review.php');
+require_once(dirname(__FILE__) . '/../../sql2array.php');
 
 require_once(dirname(__FILE__) . '/../../Item.php');
 require_once(dirname(__FILE__) . '/../../db.php');
@@ -40,6 +41,16 @@ class Review {
 		$db_row = $db_result->fetch_assoc();
 
 		return ((int)$db_row['COUNT(*)']) > 0;
+	}
+
+	public static function GetReviews($item) {
+		$db_connection = db_ensure_connection();
+		$item = $db_connection->real_escape_string($item);
+
+		$db_query = 'SELECT `id`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_REVIEWS . ' WHERE `item` = UNHEX("' . $item . '")';
+		$db_result = $db_connection->query($db_query);
+
+		return sql2array($db_result, function($item) { $item['accept'] = (bool)$item['accept']; $item['final'] = (bool)$item['final']; return $item; });
 	}
 
 	public static function ReviewStatus($item) {
