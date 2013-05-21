@@ -38,21 +38,6 @@
 			$db_connection->query($db_query);
 			Assert::dbMinRows($db_connection);
 		}
-		if (isset($_POST["reviewed"]))
-		{
-			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REVIEW))
-			{
-				throw new HttpException(403);
-			}
-			if (!in_array((int)$_POST["reviewed"], array(-1, 0, 1)))
-			{
-				throw new HttpException(400);
-			}
-
-			$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set reviewed = '" . $db_connection->real_escape_string($_POST["reviewed"]) . "' WHERE id = UNHEX('$id')";
-			$db_connection->query($db_query);
-			Assert::dbMinRows($db_connection);
-		}
 		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
 	}
 	catch (HttpException $e)
