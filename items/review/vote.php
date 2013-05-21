@@ -10,6 +10,7 @@ try {
 	Assert::GetParameters(array('id', 'mode'), array('name', 'version', 'mode'));
 	Assert::PostParameters('reason');
 
+	$mode = strtolower($_GET['mode']);
 	if ($mode == 'accept') {
 		$accept = true;
 	} else if ($mode == 'reject') {
