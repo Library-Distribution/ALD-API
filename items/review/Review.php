@@ -37,8 +37,9 @@ class Review {
 
 		$db_query = 'SELECT COUNT(*) FROM `' . DB_TABLE_REVIEWS . '` WHERE `item` = UNHEX("' . $item . '") AND `user` = UNHEX("' . $user . '")';
 		$db_result = $db_connection->query($db_query);
+		$db_row = $db_result->fetch_assoc();
 
-		return ((int)$db_result['COUNT(*)']) > 0;
+		return ((int)$db_row['COUNT(*)']) > 0;
 	}
 
 	public static function ReviewStatus($item) {
