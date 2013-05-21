@@ -9,6 +9,7 @@ services:
   - mysql
 
 before_script:
+  - pear install phpunit/DbUnit
   - ./tests/setup/db-mysql.sh
   - ./tests/setup/profile.sh travis
 
