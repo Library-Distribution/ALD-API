@@ -12,8 +12,8 @@ class Review {
 		$item = $db_connection->real_escape_string($item);
 		$user = $db_connection->real_escape_string($user);
 		$reason = $db_connection->real_escape_string($reason);
-		$accept = (bool)$accept;
-		$final = (bool)$final;
+		$accept = (int)(bool)$accept;
+		$final = (int)(bool)$final;
 
 		if (self::HasReviewed($item, $user)) {
 			if (!REVIEW_CAN_UPDATE) {
@@ -21,7 +21,7 @@ class Review {
 			}
 			$db_query = 'UPDATE `' . DB_TABLE_REVIEWS . '` SET `accept` = ' . $accept . ', `final` = ' . $final . ', `reason` = "' . $reason . '", `date` = NOW() WHERE `user` = UNHEX("' . $user . '")';
 		} else {
-			$db_query = 'INSERT INTO `' . DB_TABLE_REVIEWS . '` (`item`, `user`, `accept`, `final`, `reason`) VALUES (UNHEX("' . $item . '", UNHEX("' . $user . '", ' . $accept . ', ' . $final . ', "' . $reason . '")';
+			$db_query = 'INSERT INTO `' . DB_TABLE_REVIEWS . '` (`item`, `user`, `accept`, `final`, `reason`) VALUES (UNHEX("' . $item . '"), UNHEX("' . $user . '"), ' . $accept . ', ' . $final . ', "' . $reason . '")';
 		}
 
 		$db_result = $db_connection->query($db_query);
