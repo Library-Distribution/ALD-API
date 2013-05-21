@@ -9,8 +9,7 @@ services:
   - mysql
 
 before_script:
-  - pear channel-discover pear.phpunit.de
-  - pear install phpunit/DbUnit
+  - ./tests/setup/php-pear.sh
   - ./tests/setup/db-mysql.sh
   - ./tests/setup/profile.sh travis
 
