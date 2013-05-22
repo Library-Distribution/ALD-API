@@ -1,24 +1,49 @@
 <?php
-require_once(dirname(__FILE__) . '/modules/HttpException/HttpException.php');
+require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
 
-class FilterHelper {
+class DataFilter {
 	private $filters = array();
+	private $source = NULL;
+	private $table = NULL;
+	private $connection = NULL;
 
 	/*
 	 * Public class instance interface
 	 */
-	public function __construct($db_connection, $table) {
+	public function __construct($source, $table = NULL, $db_connection = NULL) {
+		$this->SetSource($source);
 		$this->connection = $db_connection;
+		$this->setDefaultTable($table);
+	}
+
+	public function add($data) {
+		$this->filters[] = $data;
+	}
+
+	public function define($data) {
+		return $this->add($data);
+	}
+
+	public function SetSource($source) {
+		$this->source = $source;
+	}
+
+	public function setDefaultTable($table) {
 		$this->table = $table;
 	}
 
-	public function add($data) { #$name, $db_name = NULL, $method = 'GET', $op = '=', $default = NULL, $force = NULL) {
-		$this->filters[] = $data; #array('name' => $name, 'db-name' => $db_name, $method => 'GET', 'operator' => $op, 'default' => $default, 'force-value' => $force);
-	}
+	public function evaluate($prefix = ' WHERE ', $db_connection = NULL) {
+		if ($db_connection !== NULL) {
+			$this->connection = $db_connection;
+		}
+		if ($this->connection === NULL) {
+			throw new HttpException(500, NULL, 'Must specify DB connection for filter!');
+		}
+		if ($this->table === NULL) {
+			throw new HttpException(500, NULL, 'Must specify DB table for filter!');
+		}
 
-	public function evaluate($source, $prefix = ' WHERE ') {
 		$db_cond = '';
-		$this->source = $source;
 
 		foreach ($this->filters AS $filter) {
 
@@ -111,7 +136,9 @@ class FilterHelper {
 				}
 				$key = '`' . (isset($data['db-table']) ? $data['db-table'] : $this->table) . '`.`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
 				if (isset($data['db-function'])) {
-					$key = $data['db-function'] . '(' . $key . ')';
+					foreach ((array)$data['db-function'] AS $fn) {
+						$key = $fn . '(' . $key . ')';
+					}
 				}
 
 				# Get the value for comparison
@@ -260,6 +287,23 @@ class FilterHelper {
 			throw new HttpException(500, NULL, 'Must provide valid array as filter source');
 		}
 		return array_intersect_key($source, array_flip($filters));
+	}
+
+	public static function SimpleFilter($filters, $table = NULL) {
+		$f = new self($table);
+
+		foreach ($filters AS $name => $value) {
+			if (is_array($value)) {
+				$keys = array_keys($value);
+				$f->add(array('db-name' => $name, 'value' => $keys[0], 'type' => $value[$keys[0]]));
+			} else if (is_int($name)) {
+				$f->add(array('name' => $value));
+			} else {
+				$f->add(array('db-name' => $name, 'value' => $value));
+			}
+		}
+
+		return $f;
 	}
 }
 ?>

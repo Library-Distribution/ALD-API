@@ -3,7 +3,7 @@
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once('../SortHelper.php');
-	require_once('../FilterHelper.php');
+	require_once('../util/DB/DataFilter.php');
 	require_once("../User.php");
 	require_once("../Assert.php");
 	require_once("../modules/semver/semver.php");
@@ -30,7 +30,7 @@
 		$db_limit = "";
 		$db_order = '';
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_ITEMS);
+		$filter = new DataFilter($_GET, DB_TABLE_ITEMS, $db_connection);
 
 		$filter->add(array('name' => 'type', 'type' => 'custom', 'coerce' => array('ItemType', 'getCode')));
 		$filter->add(array('name' => 'user', 'type' => 'binary')); # WARN: changes parameter to receive ID instead of name
@@ -47,7 +47,7 @@
 			return '"(^|;)' . $db_connection->real_escape_string($value) . '($|;)"';
 		}
 
-		# special filtering (post-MySQL), thus not handled by FilterHelper
+		# special filtering (post-MySQL), thus not handled by DataFilter
 		if (isset($_GET["version"]))
 		{
 			$version = strtolower($_GET["version"]);
@@ -74,7 +74,7 @@
 		}
 
 		if ($sort_by_version || count($semver_filters) > 0) {
-			$db_cond = $filter->evaluate($_GET);
+			$db_cond = $filter->evaluate();
 			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version', $db_cond, $semver_filters);
 			$db_join .=  ($db_join ? ', ' : 'LEFT JOIN (') . '`semver_index`';
 			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . '`' . DB_TABLE_ITEMS . '`.`version` = `semver_index`.`version`';
@@ -83,9 +83,9 @@
 		# These must defined below the call to SortHelper::PrepareSemverSorting() as it can not handle table joins
 		$filter->add(array('name' => 'version-min', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '>=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
 		$filter->add(array('name' => 'version-max', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '<=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
-		$db_cond = $filter->evaluate($_GET); # re-evaluate to include the latest filters
+		$db_cond = $filter->evaluate(); # re-evaluate to include the latest filters
 
-		# enable rating filters if necessary (filter with HAVING instead of WHERE, not currently supported by FilterHelper)
+		# enable rating filters if necessary (filter with HAVING instead of WHERE, not currently supported by DataFilter)
 		if ($get_rating = isset($_GET['rating']) || isset($_GET['rating-min']) || isset($_GET['rating-max']) || $sort_by_rating) {
 			$db_join .= ($db_join ? ', ' : 'LEFT JOIN (') . DB_TABLE_RATINGS;
 			$db_join_on .= ($db_join_on ? ' AND ' : ' ON (') . 'item = id';

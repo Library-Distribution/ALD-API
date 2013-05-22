@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
-require_once(dirname(__FILE__) . '/../../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../../util/DB/DataFilter.php');
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../sql2array.php');
 require_once(dirname(__FILE__) . '/../../config/stdlib.php');
@@ -143,7 +143,7 @@ class Candidate {
 		$db_connection = db_ensure_connection();
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`', 'approval' => '`approval`'));
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATES);
+		$filter = new DataFilter($filters, DB_TABLE_CANDIDATES, $db_connection);
 
 		$filter->add(array('name' => 'item', 'type' => 'binary'));
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -156,7 +156,7 @@ class Candidate {
 
 		$filter->add(array('name' => 'owner', 'db-name' => 'user', 'type' => 'binary', 'db-table' => DB_TABLE_ITEMS, 'join-ref' => 'item', 'join-key' => 'id'));
 
-		$db_cond = $filter->evaluate($filters);
+		$db_cond = $filter->evaluate();
 		$db_join = $filter->evaluateJoins();
 
 		$db_query = 'SELECT ' . DB_TABLE_CANDIDATES . '.`id`, HEX(' . DB_TABLE_CANDIDATES. '.`item`) AS item FROM ' . DB_TABLE_CANDIDATES . $db_join . $db_cond . ' ' . $db_sort;
@@ -173,7 +173,7 @@ class Candidate {
 		}
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_CANDIDATE_VOTING);
+		$filter = new DataFilter($filters, DB_TABLE_CANDIDATE_VOTING, $db_connection);
 		$filter->add(array('db-name' => 'candidate', 'value' => $candidate, 'type' => 'int'));
 
 		$filter->add(array('name' => 'user', 'type' => 'binary'));
@@ -184,7 +184,7 @@ class Candidate {
 		$filter->add(array('name' => 'voted-before', 'db-name' => 'date', 'operator' => '<'));
 		$filter->add(array('name' => 'voted-after', 'db-name' => 'date', 'operator' => '>'));
 
-		$db_cond = $filter->evaluate($filters);
+		$db_cond = $filter->evaluate();
 		$db_sort = SortHelper::getOrderClause($sort, array('date' => '`date`'));
 
 		$db_query = 'SELECT `candidate`, HEX(`user`) AS user, `accept`, `final`, `reason`, `date` FROM ' . DB_TABLE_CANDIDATE_VOTING . $db_cond . ' ' . $db_sort;

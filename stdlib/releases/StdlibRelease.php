@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../db.php");
 require_once(dirname(__FILE__) . '/../../SortHelper.php');
-require_once(dirname(__FILE__) . '/../../FilterHelper.php');
+require_once(dirname(__FILE__) . '/../../util/DB/DataFilter.php');
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . "/../Stdlib.php");
 require_once(dirname(__FILE__) . "/../StdlibPending.php");
@@ -177,7 +177,7 @@ class StdlibRelease
 		$db_cond = ($t = self::get_publish_cond($published)) == NULL ? '' : " WHERE $t";
 		$db_connection = db_ensure_connection();
 
-		$filter = new FilterHelper($db_connection, DB_TABLE_STDLIB_RELEASES);
+		$filter = new DataFilter($filters, DB_TABLE_STDLIB_RELEASES, $db_connection);
 
 		$semver_filters = array();
 		foreach(array('version-min', 'version-max') AS $field) {
@@ -199,7 +199,7 @@ class StdlibRelease
 		# add these below semver preparation as it can not handle table joins
 		$filter->add(array('name' => 'version-min', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '>=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
 		$filter->add(array('name' => 'version-max', 'db-name' => 'position', 'db-table' => 'semver_index', 'operator' => '<=', 'type' => 'custom', 'coerce' => array('SortHelper', 'RetrieveSemverIndex')));
-		$db_cond .= $filter->evaluate($filters, $db_cond ? ' AND ' : ' WHERE ');
+		$db_cond .= $filter->evaluate($db_cond ? ' AND ' : ' WHERE ');
 
 		# get all releases from DB
 		$db_query = "SELECT `release` FROM " . DB_TABLE_STDLIB_RELEASES . $db_join . $db_cond . $db_sort;

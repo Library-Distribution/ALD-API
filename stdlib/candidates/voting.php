@@ -3,6 +3,7 @@ require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../SortHelper.php');
+require_once('../../util/DB/DataFilter.php');
 require_once('../../User.php');
 require_once('Candidate.php');
 require_once('../StdlibPending.php');
@@ -48,7 +49,7 @@ try {
 		Assert::GetParameters('id');
 		$content_type = get_preferred_mimetype(array('application/json', 'text/xml', 'application/xml'), 'application/json');
 
-		$filters = FilterHelper::FromParams(array('user', 'final', 'accept', 'voted', 'voted-after', 'voted-before'));
+		$filters = DataFilter::FromParams(array('user', 'final', 'accept', 'voted', 'voted-after', 'voted-before'));
 		$sort_list = SortHelper::getListFromParam(isset($_GET['sort']) ? $_GET['sort'] : '');
 
 		$votings = Candidate::listVotings($_GET['id'], $filters, $sort_list);
