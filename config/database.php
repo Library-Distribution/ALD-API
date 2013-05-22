@@ -20,6 +20,8 @@
 
 	define('DB_TABLE_RATINGS', 'ratings'); # 
 
+	define('DB_TABLE_REVIEWS', 'reviews'); # 
+
 	define('DB_TABLE_SUSPENSIONS', 'suspensions'); # 
 
 	# the credentials for accessing the database
