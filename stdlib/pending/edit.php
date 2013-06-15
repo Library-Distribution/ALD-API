@@ -2,6 +2,8 @@
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
+require_once '../../User.php';
+require_once '../../util/Privilege.php';
 require_once('../StdlibPending.php');
 
 try {
@@ -14,7 +16,7 @@ try {
 	}
 
 	user_basic_auth('Only members of the stdlib team can edit pending items.');
-	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) {
+	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
 		throw new HttpException(403, NULL, 'Only members of the stdlib team can edit pending items.');
 	}
 

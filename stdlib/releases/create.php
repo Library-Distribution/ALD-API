@@ -5,6 +5,7 @@
 	require_once("../../UpdateType.php");
 	require_once("../../modules/semver/semver.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 	require_once("StdlibRelease.php");
 
 	try
@@ -31,7 +32,7 @@
 		}
 
 		user_basic_auth("Restricted API");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB))
 			throw new HttpException(403);
 
 		# get latest release
@@ -73,7 +74,7 @@
 		$description = isset($_POST['description']) ? $_POST['description'] : '';
 
 		if ($date !== NULL) {
-			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN)) {
+			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN)) {
 				throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
 			}
 		}

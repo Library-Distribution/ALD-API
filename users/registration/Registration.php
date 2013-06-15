@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../../db.php');
 require_once(dirname(__FILE__) . '/../../util.php');
 require_once(dirname(__FILE__) . '/../../User.php');
+require_once dirname(__FILE__) . '/../../util/Privilege.php';
 require_once(dirname(__FILE__) . '/../../Assert.php');
 require_once(dirname(__FILE__) . '/../../config/registration.php');
 require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
@@ -80,7 +81,7 @@ class Registration {
 		$reserved = explode("\0", RESERVED_USER_NAMES);
 		if (in_array($name, $reserved)) 	{
 			user_basic_auth('Trying to register a reserved user name');
-			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_REGISTRATION_ADMIN)) {
+			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::REGISTRATION_ADMIN)) {
 				throw new HttpException(403, NULL, 'Trying to register a reserved user name');
 			}
 		}

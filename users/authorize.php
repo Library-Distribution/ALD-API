@@ -2,6 +2,7 @@
 require_once('../modules/HttpException/HttpException.php');
 require_once('../util.php');
 require_once('../User.php');
+require_once '../util/Privilege.php';
 require_once('../Assert.php');
 
 try {
@@ -15,9 +16,9 @@ try {
 		throw new HttpException(400);
 	}
 	$id = isset($_GET['name']) ? User::getID($_GET['name']) : $_GET['id'];
-	$privilege = User::privilegeFromArray(array($_POST['privilege']));
+	$privilege = Privilege::fromArray(array($_POST['privilege']));
 
-	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::adminPrivilegeForPrivilege($privilege))) {
+	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::adminPrivilege($privilege))) {
 		throw new HttpException(403);
 	}
 

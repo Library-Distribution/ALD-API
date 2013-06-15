@@ -3,6 +3,7 @@ require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../User.php');
+require_once '../../util/Privilege.php';
 require_once('../../Item.php');
 require_once('../../items/ItemType.php');
 require_once('../StdlibPending.php');
@@ -53,7 +54,7 @@ try {
 		$id = Candidate::getId($item);
 		$status = Candidate::accepted($id);
 		if ($status === FALSE) { # previously rejected
-			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) { # reject unless privilege stdlib
+			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) { # reject unless privilege stdlib
 				throw new HttpException(403, NULL, 'This item has been refused earlier. Only members of the stdlib team can make it a candidate again!');
 			}
 		} else if ($status === NULL) { # open

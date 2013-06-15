@@ -3,6 +3,7 @@ require_once('../../Assert.php');
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../util.php');
 require_once('../../User.php');
+require_once '../../util/Privilege.php';
 require_once('../Suspension.php');
 
 try {
@@ -16,7 +17,7 @@ try {
 
 	user_basic_auth('Restricted API');
 	# validate: moderators only
-	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR)) {
+	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::MODERATOR)) {
 		throw new HttpException(403);
 	}
 	if ($id == User::getID($_SERVER['PHP_AUTH_USER'])) { # cannot suspend self

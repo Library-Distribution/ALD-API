@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/ALD_Database_TestCase.php');
 
 require_once(dirname(__FILE__) . '/../config/database.php');
 require_once(dirname(__FILE__) . '/../User.php');
+require_once dirname(__FILE__) . '/../util/Privilege.php';
 
 class UserTest extends ALD_Database_TestCase {
 	const NoviceUser_ID = '016E411164A84F51BDD03D13BD4D991E';
@@ -88,30 +89,7 @@ class UserTest extends ALD_Database_TestCase {
 	}
 
 	public function test_getPrivileges__before() {
-		$this->assertEquals(User::getPrivileges(self::NoviceUser_ID), User::PRIVILEGE_NONE, 'User "NoviceUser" should have zero privileges in the beginning.');
-	}
-
-	public function test_privilegeToArray() {
-		$this->assertEquals(User::privilegeToArray(User::PRIVILEGE_NONE), array('none'), 'Failed to convert privilege PRIVILEGE_NONE to array');
-		$this->assertEquals(User::privilegeToArray(User::PRIVILEGE_NONE|User::PRIVILEGE_REVIEW), array('review'), 'Failed to convert privilege PRIVILEGE_NONE|PRIVILEGE_REVIEW to array');
-
-		$arr = User::privilegeToArray(User::PRIVILEGE_ADMIN|User::PRIVILEGE_STDLIB_ADMIN|User::PRIVILEGE_REGISTRATION);
-		$this->assertInternalType('array', $arr, 'Privilege conversion did not return an array');
-		$this->assertCount(3, $arr, 'Invalid element count in privilege array');
-		$this->assertContains('admin', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
-		$this->assertContains('stdlib-admin', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
-		$this->assertContains('registration', $arr, 'Failed to convert privilege PRIVILEGE_ADMIN|PRIVILEGE_STDLIB_ADMIN|PRIVILEGE_REGISTRATION to array');
-	}
-
-	public function test_privilegeFromArray() {
-		$arr = array('stdlib', 'review');
-		$this->assertEquals(User::privilegeFromArray($arr), User::PRIVILEGE_STDLIB|User::PRIVILEGE_REVIEW, 'Failed to convert array [stdlib, review] to privilege');
-
-		$arr = array('admin');
-		$this->assertEquals(User::privilegeFromArray($arr), User::PRIVILEGE_ADMIN, 'Failed to convert array [admin] to privilege');
-
-		$arr = array();
-		$this->assertEquals(User::privilegeFromArray($arr), User::PRIVILEGE_NONE, 'Failed to convert array [] to privilege');
+		$this->assertEquals(User::getPrivileges(self::NoviceUser_ID), Privilege::NONE, 'User "NoviceUser" should have zero privileges in the beginning.');
 	}
 }
 ?>

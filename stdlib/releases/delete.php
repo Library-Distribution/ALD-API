@@ -3,6 +3,7 @@
 	require_once("../../Assert.php");
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 	require_once("StdlibRelease.php");
 
 	try
@@ -11,7 +12,7 @@
 		Assert::GetParameters("version");
 
 		user_basic_auth("Restricted API");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN))
 			throw new HttpException(403);
 
 		StdlibRelease::delete($_GET["version"]);

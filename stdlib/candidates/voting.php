@@ -4,6 +4,7 @@ require_once('../../util.php');
 require_once('../../Assert.php');
 require_once('../../SortHelper.php');
 require_once('../../User.php');
+require_once '../../util/Privilege.php';
 require_once('Candidate.php');
 require_once('../StdlibPending.php');
 
@@ -16,12 +17,12 @@ try {
 		Assert::PostParameters('reason');
 
 		user_basic_auth('Restricted API');
-		if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) {
+		if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
 			throw new HttpException(403, NULL, 'Only members of the stdlib team can accept or reject candidates.');
 		}
 
 		$final = isset($_POST['final']) && in_array($_POST['final'], array(1, '+1', 'true', 'yes'));
-		if ($final && !User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB_ADMIN)) {
+		if ($final && !User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB_ADMIN)) {
 			throw new HttpException(403, NULL, 'Only stdlib admins can make a final decision.');
 		}
 

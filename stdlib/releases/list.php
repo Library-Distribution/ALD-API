@@ -2,6 +2,7 @@
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../util.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 	require_once('../../SortHelper.php');
 	require_once("../../Assert.php");
 	require_once("StdlibRelease.php");
@@ -21,7 +22,7 @@
 
 			if (in_array($published, array(-1, "no", "false"), true) || ($both = in_array($published, array(0, "both"), true))) {
 				user_basic_auth("Unpublished releases can only be viewed by members of the stdlib team!"); # check auth
-				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
+				if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB))
 					throw new HttpException(403);
 				$publish_status = $both ? StdlibRelease::PUBLISHED_BOTH : StdlibRelease::PUBLISHED_NO;
 			}

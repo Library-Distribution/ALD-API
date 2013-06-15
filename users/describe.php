@@ -3,6 +3,7 @@
 	require_once("../db.php");
 	require_once("../util.php");
 	require_once("../User.php");
+	require_once '../util/Privilege.php';
 	require_once("../Assert.php");
 	require_once("Suspension.php");
 
@@ -37,12 +38,12 @@
 		if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
 			user_basic_auth(''); # if credentials are specified, they must be correct
 			$trusted_user = $_SERVER['PHP_AUTH_USER'] == $user['name'] # user requests information about himself - OK.
-						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_MODERATOR); # moderators can see the mail address, too
+						|| User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::MODERATOR); # moderators can see the mail address, too
 		}
 
 		$user["mail-md5"] = md5($user["mail"]);
 		$user["id"] = $id;
-		$user['privileges'] = User::privilegeToArray($user['privileges']);
+		$user['privileges'] = Privilege::toArray($user['privileges']);
 
 		if (!$trusted_user) {
 			$user['mail'] = NULL;

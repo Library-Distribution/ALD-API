@@ -6,6 +6,7 @@
 	require_once('../sql2array.php');
 	require_once("../Assert.php");
 	require_once("../User.php");
+	require_once '../util/Privilege.php';
 
 	try
 	{
@@ -41,8 +42,8 @@
 
 		# retrieve filters
 		if (isset($_GET['privileges'])) {
-			$privilege = User::privilegeFromArray(explode(' ', $_GET['privileges']));
-			if ($privilege == User::PRIVILEGE_NONE) {
+			$privilege = Privilege::fromArray(explode(' ', $_GET['privileges']));
+			if ($privilege == Privilege::NONE) {
 				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '`privileges` = ' . $privilege;
 			} else {
 				$db_cond .= ($db_cond ? ' AND ' : 'WHERE ') . '(`privileges` & ' . $privilege . ') = ' . $privilege;

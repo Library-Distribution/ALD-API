@@ -2,6 +2,7 @@
 	require_once("../../Assert.php");
 	require_once("../../util.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("../../modules/semver/semver.php");
 	require_once("StdlibRelease.php");
@@ -12,7 +13,7 @@
 		Assert::GetParameters("version");
 
 		user_basic_auth("You must be part of the stdlib team!");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB))
 			throw new HttpException(403, NULL, "You must be part of the stdlib team!");
 
 		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
@@ -45,7 +46,7 @@
 		if (isset($data["date"]))
 		{
 			# check stdlib admin
-			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN)) {
+			if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN)) {
 				throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
 			}
 

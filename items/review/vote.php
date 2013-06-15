@@ -1,6 +1,7 @@
 <?php
 require_once('../../util.php');
 require_once('../../User.php');
+require_once '../../util/Privilege.php';
 require_once('../../Item.php');
 require_once('../../modules/HttpException/HttpException.php');
 require_once('Review.php');
@@ -35,7 +36,7 @@ try {
 	}
 
 	user_basic_auth('Restricted API');
-	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_REVIEW)) {
+	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::REVIEW)) {
 		throw new HttpException(403, NULL, 'Only members of the stdlib team can review items');
 	}
 

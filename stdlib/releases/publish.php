@@ -4,6 +4,7 @@
 	require_once("../../modules/HttpException/HttpException.php");
 	require_once("StdlibRelease.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 
 	try
 	{
@@ -11,7 +12,7 @@
 		Assert::GetParameters("version");
 
 		user_basic_auth("You must be part of the stdlib team!");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_STDLIB_ADMIN))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN))
 			throw new HttpException(403, NULL, "You must be stdlib admin to publish a release!");
 
 		if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists

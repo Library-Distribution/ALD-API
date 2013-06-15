@@ -3,6 +3,7 @@ require_once('Registration.php');
 require_once('../../Assert.php');
 require_once('../../util.php');
 require_once('../../User.php');
+require_once '../../util/Privilege.php';
 require_once('../../modules/HttpException/HttpException.php');
 require_once('../../config/registration.php'); # import settings regarding registration
 
@@ -15,7 +16,7 @@ try {
 	if ( !PUBLIC_REGISTRATION )
 	{
 		user_basic_auth("Registration restricted to moderators");
-		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], User::PRIVILEGE_REGISTRATION))
+		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::REGISTRATION))
 		{
 			throw new HttpException(403, NULL, "Registration restricted to moderators");
 		}

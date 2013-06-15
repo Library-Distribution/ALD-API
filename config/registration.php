@@ -32,7 +32,7 @@
 	# a list of user names which can not be registered by the public
 	define('RESERVED_USER_NAMES', "");
 	# The only difference between this and FORBIDDEN_USER_NAMES is that the names
-	# in this list may be registered by users which have the PRIVILEGE_REGISTRATION
+	# in this list may be registered by users which have the REGISTRATION privilege
 	# but not by anyone else.
 	#
 	# Notes:
@@ -41,8 +41,8 @@
 	# defines whether registration is open to public or not
 	define('PUBLIC_REGISTRATION', true);
 	# If this is set to `true`, any internet user can register himself to the site.
-	# Otherwise, only users who are already registered and have the PRIVILEGE_REGISTRATION
-	# privilege can start a registration. In this case, such a user initiates a registration
+	# Otherwise, only users who are already registered and have the REGISTRATION privilege
+	# can start a registration. In this case, such a user initiates a registration
 	# with some name, mail and password. The user to be registered receives the mail and can
 	# then complete the registration.
 	#

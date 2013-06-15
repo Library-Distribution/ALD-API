@@ -5,6 +5,7 @@
 	require_once("../../util.php");
 	require_once("../../Assert.php");
 	require_once("../../User.php");
+	require_once '../../util/Privilege.php';
 	require_once("StdlibRelease.php");
 	require_once("../Stdlib.php");
 	require_once("../StdlibPending.php");
@@ -35,7 +36,7 @@
 		$release = StdlibRelease::describe($_GET["version"], $publish_status);
 		if (!$release['published']) {
 			user_basic_auth('Only members of the stdlib team can view unpublished releases');
-			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], User::PRIVILEGE_STDLIB)) {
+			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
 				throw new HttpException(403, NULL, 'Only members of the stdlib team can view unpublished releases');
 			}
 		}
