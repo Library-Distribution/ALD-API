@@ -8,10 +8,6 @@ require_once dirname(__FILE__) . '/../util/Privilege.php';
 class UserTest extends ALD_Database_TestCase {
 	const NoviceUser_ID = '016E411164A84F51BDD03D13BD4D991E';
 
-	public function getDataSet() {
-		return $this->createMySQLXMLDataSet(dirname(__FILE__) . '/database/UserTest.mysql.xml');
-	}
-
 	public function test_existsName() {
 		$this->assertTrue(User::existsName('NoviceUser'), 'User::existsName() failed on user "NoviceUser"');
 	}

@@ -12,4 +12,8 @@ abstract class ALD_Database_TestCase extends PHPUnit_Extensions_Database_TestCas
 		}
 		return self::$conn;
 	}
+
+	public function getDataSet() {
+		return $this->createMySQLXMLDataSet(dirname(__FILE__) . '/database/' . get_class($this) . '.mysql.xml');
+	}
 }
