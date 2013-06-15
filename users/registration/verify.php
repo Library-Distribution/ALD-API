@@ -46,12 +46,12 @@ try {
 	else
 	{
 		# do not delete session, let it expire
-		throw new HttpException(400, NULL, "Invalid token specified");
+		throw new HttpException(400, "Invalid token specified");
 	}
 
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

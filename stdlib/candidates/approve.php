@@ -13,7 +13,7 @@ try {
 
 	user_basic_auth('Restricted API');
 	if (User::getId($_SERVER['PHP_AUTH_USER']) != Item::getUserForId(Candidate::getItem($_GET['id']))) {
-		throw new HttpException(403, NULL, 'Only the item uploader himself can approve a candidate!');
+		throw new HttpException(403, 'Only the item uploader himself can approve a candidate!');
 	}
 
 	Candidate::approve($_GET['id']);
@@ -28,6 +28,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

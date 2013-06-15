@@ -34,7 +34,7 @@ try
 	{
 		if (User::existsName($_POST["name"]))
 		{
-			throw new HttpException(409, NULL, "User name already taken");
+			throw new HttpException(409, "User name already taken");
 		}
 
 		$db_query = "UPDATE " . DB_TABLE_USERS . " Set name = '" . $db_connection->real_escape_string($_POST["name"]) . "' WHERE id = UNHEX('$id')";
@@ -45,7 +45,7 @@ try
 	{
 		if (User::existsMail($_POST["mail"]))
 		{
-			throw new HttpException(409, NULL, "Mail address already taken");
+			throw new HttpException(409, "Mail address already taken");
 		}
 
 		$mail = $db_connection->real_escape_string($_POST["mail"]);
@@ -57,7 +57,7 @@ try
 			$mail_text,
 			"FROM: noreply@{$_SERVER['HTTP_HOST']}\r\nContent-type: text/html; charset=iso-8859-1"))
 		{
-			throw new HttpException(500, NULL, "Failed to send activation mail to '$mail'!");
+			throw new HttpException(500, "Failed to send activation mail to '$mail'!");
 		}
 
 		$db_query = "UPDATE " . DB_TABLE_USERS . " Set mail = '$mail' WHERE id = UNHEX('$id')";
@@ -80,6 +80,6 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

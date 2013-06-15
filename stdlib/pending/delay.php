@@ -18,11 +18,11 @@ try {
 
 	user_basic_auth('Only members of the stdlib team can delay pending items');
 	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
-		throw new HttpException(403, NULL, 'Only members of the stdlib team can delay pending items.');
+		throw new HttpException(403, 'Only members of the stdlib team can delay pending items.');
 	}
 
 	if (isset($_POST['delay']) && !semver_validate($_POST['delay'])) {
-		throw new HttpException(400, NULL, 'Must specify a valid semver version as delay!');
+		throw new HttpException(400, 'Must specify a valid semver version as delay!');
 	}
 
 	StdlibPending::SetDelay($_GET['id'], isset($_POST['delay']) ? $_POST['delay'] : NULL);
@@ -33,6 +33,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

@@ -6,7 +6,7 @@ final class proxy_mysqli extends mysqli {
 	public function query($db_query, $resultmode = MYSQLI_STORE_RESULT, $msg = '') {
 		$db_result = parent::query($db_query, $resultmode);
 		if ($db_result === FALSE) {
-			throw new HttpException(500, NULL, ($msg ? $msg . ': ' : '') . $this->error);
+			throw new HttpException(500, ($msg ? $msg . ': ' : '') . $this->error);
 		}
 		return $db_result;
 	}

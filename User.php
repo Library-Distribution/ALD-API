@@ -67,11 +67,11 @@ class User
 		$data = $db_result->fetch_assoc();
 		if ($data['pw'] != $pw)
 		{
-			throw new HttpException(403, NULL, "Invalid credentials were specified.");
+			throw new HttpException(403, "Invalid credentials were specified.");
 		}
 
 		if (Suspension::isSuspended($user)) { # check here (not above) to make sure others can't see the suspension
-			throw new HttpException(403, NULL, 'Account is currently suspended.');
+			throw new HttpException(403, 'Account is currently suspended.');
 		}
 		return true;
 	}
@@ -87,7 +87,7 @@ class User
 		{
 			return $data['name'];
 		}
-		throw new HttpException(404, NULL, "User not found");
+		throw new HttpException(404, "User not found");
 	}
 
 	public static function getID($name)
@@ -101,7 +101,7 @@ class User
 		{
 			return $data["id"];
 		}
-		throw new HttpException(404, NULL, "User not found");
+		throw new HttpException(404, "User not found");
 	}
 
 	public static function getPrivileges($id)
@@ -115,7 +115,7 @@ class User
 		{
 			return (int)$data["privileges"];
 		}
-		throw new HttpException(404, NULL, "User not found");
+		throw new HttpException(404, "User not found");
 	}
 
 	public static function create($name, $mail, $pw) {

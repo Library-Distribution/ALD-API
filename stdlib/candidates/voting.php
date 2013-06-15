@@ -18,22 +18,22 @@ try {
 
 		user_basic_auth('Restricted API');
 		if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
-			throw new HttpException(403, NULL, 'Only members of the stdlib team can accept or reject candidates.');
+			throw new HttpException(403, 'Only members of the stdlib team can accept or reject candidates.');
 		}
 
 		$final = isset($_POST['final']) && in_array($_POST['final'], array(1, '+1', 'true', 'yes'));
 		if ($final && !User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB_ADMIN)) {
-			throw new HttpException(403, NULL, 'Only stdlib admins can make a final decision.');
+			throw new HttpException(403, 'Only stdlib admins can make a final decision.');
 		}
 
 		# reject if same user already voted
 		if (Candidate::hasVoted($_GET['id'], User::getId($_SERVER['PHP_AUTH_USER']))) {
-			throw new HttpException(403, NULL, 'You cannot vote the same candidate twice.');
+			throw new HttpException(403, 'You cannot vote the same candidate twice.');
 		}
 
 		# reject if already closed
 		if (Candidate::accepted($_GET['id']) != NULL) {
-			throw new HttpException(403, NULL, 'Cannot vote a candidate that has already been accepted or rejected.');
+			throw new HttpException(403, 'Cannot vote a candidate that has already been accepted or rejected.');
 		}
 
 		Candidate::vote($_GET['id'], User::getId($_SERVER['PHP_AUTH_USER']), $_GET['mode'] == 'accept', $_POST['reason'], $final);
@@ -71,6 +71,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

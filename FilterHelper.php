@@ -24,7 +24,7 @@ class FilterHelper {
 
 			if (isset($filter['conditions'])) {
 				if ($filter['type'] != 'switch') {
-					throw new HttpException(500, NULL, 'Only filters of type "switch" can have conditions');
+					throw new HttpException(500, 'Only filters of type "switch" can have conditions');
 				}
 				$conditions = $filter['conditions'];
 			} else {
@@ -54,7 +54,7 @@ class FilterHelper {
 		foreach ($this->filters AS $filter) { # joins are only supported on filter-level
 			if (isset($filter['db-table']) && $filter['db-table'] != $this->table) {
 				if (!isset($filter['join-ref']) || !isset($filter['join-key'])) {
-					throw new HttpException(500, NULL, 'Must specify JOIN key and reference for filters');
+					throw new HttpException(500, 'Must specify JOIN key and reference for filters');
 				}
 
 				if (!isset($table_list[$filter['db-table']])) {
@@ -107,7 +107,7 @@ class FilterHelper {
 				$data = array_merge(self::FromParams(array('db-name', 'name', 'type', 'default', 'db-table', 'join-key', 'join-on'), $filter), $condition); # collect data
 
 				if (!isset($data['name']) && !isset($data['db-name'])) {
-					throw new HttpException(500, NULL, 'Must specify "name" or "db-name" for filter');
+					throw new HttpException(500, 'Must specify "name" or "db-name" for filter');
 				}
 				$key = '`' . (isset($data['db-table']) ? $data['db-table'] : $this->table) . '`.`' . (isset($data['db-name']) ? $data['db-name'] : $data['name']) . '`'; # the name is also used as column name if no other is specified
 				if (isset($data['db-function'])) {
@@ -160,7 +160,7 @@ class FilterHelper {
 
 	private static function validateLogic($logic) {
 		if (!in_array($logic, array_keys(self::$logic_map))) {
-			throw new HttpException(500, NULL, 'Unsupported filter logic "' . $logic . '"');
+			throw new HttpException(500, 'Unsupported filter logic "' . $logic . '"');
 		}
 	}
 
@@ -187,7 +187,7 @@ class FilterHelper {
 
 	private static function validateOperator($operator) {
 		if (!in_array($operator, array_keys(self::$operator_map))) {
-			throw new HttpException(500, NULL, 'Unsupported filter operator "' . $operator . '"');
+			throw new HttpException(500, 'Unsupported filter operator "' . $operator . '"');
 		}
 	}
 
@@ -206,7 +206,7 @@ class FilterHelper {
 				return false;
 			}
 		} else { # neither name nor value specified => error
-			throw new HttpException(500, NULL, 'Must specify "name" or "value" for filter');
+			throw new HttpException(500, 'Must specify "name" or "value" for filter');
 		}
 
 		return true;
@@ -230,7 +230,7 @@ class FilterHelper {
 			case 'expr': break;
 			case 'custom':
 				if (!isset($filter['coerce']) || !is_callable($filter['coerce'])) {
-					throw new HttpException(500, NULL, 'None or invalid callback for filter value coerce');
+					throw new HttpException(500, 'None or invalid callback for filter value coerce');
 				}
 				$value = call_user_func($filter['coerce'], $value, $this->connection);
 				break;
@@ -242,11 +242,11 @@ class FilterHelper {
 				} else if (in_array($value, array('both', '0'))) {
 					return false;
 				} else {
-					throw new HttpException(400, NULL, 'Invalid value "' . $value . '" for switch specified!');
+					throw new HttpException(400, 'Invalid value "' . $value . '" for switch specified!');
 				}
 				break;
 			default:
-				throw new HttpException(500, NULL, 'Unsupported filter type "' . $type . '"');
+				throw new HttpException(500, 'Unsupported filter type "' . $type . '"');
 		}
 		return true;
 	}
@@ -257,7 +257,7 @@ class FilterHelper {
 	public static function FromParams($filters, $source = NULL) {
 		$source = $source !== NULL ? $source : $_GET;
 		if (!is_array($source)) {
-			throw new HttpException(500, NULL, 'Must provide valid array as filter source');
+			throw new HttpException(500, 'Must provide valid array as filter source');
 		}
 		return array_intersect_key($source, array_flip($filters));
 	}

@@ -14,13 +14,13 @@ try
 
 	user_basic_auth("You must be part of the stdlib team!");
 	if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB))
-		throw new HttpException(403, NULL, "You must be part of the stdlib team!");
+		throw new HttpException(403, "You must be part of the stdlib team!");
 
 	if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
-		throw new HttpException(404, NULL, "Release does not exist!");
+		throw new HttpException(404, "Release does not exist!");
 
 	if (StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_YES)) # check if already published
-		throw new HttpException(403, NULL, "Must not change published release!");
+		throw new HttpException(403, "Must not change published release!");
 
 	$data = array();
 	foreach (array("version" => "release", "description" => "description", "date" => "date") AS $key => $col)
@@ -33,13 +33,13 @@ try
 	if (isset($data["release"]))
 	{
 		if (!semver_validate($data["release"])) # check if valid semver
-			throw new HttpException(400, NULL, "Incorrect release version!");
+			throw new HttpException(400, "Incorrect release version!");
 		if (!StdlibRelease::exists($data["release"], StdlibRelease::PUBLISHED_BOTH)) # check if not already existing
-			throw new HttpException(409, NULL, "Release '$data[release]' already exists!");
+			throw new HttpException(409, "Release '$data[release]' already exists!");
 
 		$latest = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 		if ($latest !== NULL && semver_compare($latest, $data['release']) != -1) # check if not below latest published release
-			throw new HttpException(400, NULL, "Can't modify release version: Newer release $latest already published!");
+			throw new HttpException(400, "Can't modify release version: Newer release $latest already published!");
 	}
 
 	# verify date
@@ -47,18 +47,18 @@ try
 	{
 		# check stdlib admin
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN)) {
-			throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
+			throw new HttpException(403, 'Only stdlib admins can set the publication date for a release.');
 		}
 
 		# check valid date
 		$date = array();
 		if (!preg_match("/^(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2})(T(?<hour>\d{2})(:(?<min>\d{2})(:(?<sec>\d{2}))))?$/", $data["date"], $date))
 		{
-			throw new HttpException(400, NULL, "Invalid date format!");
+			throw new HttpException(400, "Invalid date format!");
 		}
 		if (!checkdate($date["month"], $date["day"], $date["year"]))
 		{
-			throw new HttpException(400, NULL, "Invalid date specified!");
+			throw new HttpException(400, "Invalid date specified!");
 		}
 
 		# check not already over
@@ -66,7 +66,7 @@ try
 		$now = new DateTime();
 		if ($datetime <= $now)
 		{
-			throw new HttpException(400, NULL, "Specified date already over!");
+			throw new HttpException(400, "Specified date already over!");
 		}
 	}
 
@@ -81,6 +81,6 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

@@ -91,7 +91,7 @@ class StdlibRelease
 	public static function update($release, $data)
 	{
 		if (self::exists($release, self::PUBLISHED_YES)) {
-			throw new HttpException(400, NULL, 'Cannot update already published release!');
+			throw new HttpException(400, 'Cannot update already published release!');
 		}
 
 		$db_connection = db_ensure_connection();
@@ -140,7 +140,7 @@ class StdlibRelease
 
 	private static function publish($release) {
 		if (self::exists($release, self::PUBLISHED_YES)) {
-			throw new HttpException(400, NULL, 'Cannot publish already published release!');
+			throw new HttpException(400, 'Cannot publish already published release!');
 		}
 
 		$entries = Stdlib::GetItems($release);

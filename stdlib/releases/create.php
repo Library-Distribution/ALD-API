@@ -27,7 +27,7 @@ try
 				$publish_status = StdlibRelease::PUBLISHED_BOTH;
 				break;
 			default:
-				throw new HttpException(400, NULL, "Unsupported release base '$_GET[base]'!");
+				throw new HttpException(400, "Unsupported release base '$_GET[base]'!");
 		}
 	}
 
@@ -46,15 +46,15 @@ try
 		try {
 			$result = semver_compare($_POST["version"], $prev_release); # compare against previous release
 		} catch (Exception $e) {
-			throw new HttpException(400, NULL, "Bad release version!"); # semver could not validate
+			throw new HttpException(400, "Bad release version!"); # semver could not validate
 		}
 		if ($result != 1)
-			throw new HttpException(400, NULL, "Bad release version!"); # version <= previous release
+			throw new HttpException(400, "Bad release version!"); # version <= previous release
 
 		# check if release already exists
 		if (StdlibRelease::exists($_POST["version"], StdlibRelease::PUBLISHED_BOTH))
 		{
-			throw new HttpException(409, NULL, "Release '$_POST[version]' has already been created!");
+			throw new HttpException(409, "Release '$_POST[version]' has already been created!");
 		}
 
 		$release = $_POST["version"];
@@ -66,7 +66,7 @@ try
 		# only check for PUBLISHED_YES as otherwise, $release must be based on the latest release anyway.
 		if ($publish_status == StdlibRelease::PUBLISHED_YES && StdlibRelease::exists($release, StdlibRelease::PUBLISHED_BOTH))
 		{
-			throw new HttpException(409, NULL, "Release '$release' has already been created!");
+			throw new HttpException(409, "Release '$release' has already been created!");
 		}
 	}
 
@@ -75,7 +75,7 @@ try
 
 	if ($date !== NULL) {
 		if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN)) {
-			throw new HttpException(403, NULL, 'Only stdlib admins can set the publication date for a release.');
+			throw new HttpException(403, 'Only stdlib admins can set the publication date for a release.');
 		}
 	}
 
@@ -99,6 +99,6 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

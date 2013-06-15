@@ -33,19 +33,19 @@ try {
 	$allowed_types = explode("\0", STDLIB_ALLOWED_TYPES);
 	$t = Item::get($item, array('type'));
 	if (!in_array(ItemType::getName($t['type']), $allowed_types)) {
-		throw new HttpException(403, NULL, 'This type of item can not be part of the stdlib.');
+		throw new HttpException(403, 'This type of item can not be part of the stdlib.');
 	}
 
 	# reject if pending or in latest published release (don't check for unpublished releases - equals pending)
 	if (StdlibPending::IsPending($item)) {
-		throw new HttpException(409, NULL, 'This item is already pending for future inclusion.');
+		throw new HttpException(409, 'This item is already pending for future inclusion.');
 	}
 
 	$deletion = false;
 	$latest_release = StdlibRelease::getVersion(StdlibRelease::SPECIAL_VERSION_LATEST, StdlibRelease::PUBLISHED_YES);
 	if ($latest_release !== NULL && Stdlib::releaseHasItem($latest_release, $item)) {
 		if (!isset($_POST['delete']) || !in_array($_POST['delete'], array('1', 'true', 'yes'))) {
-			throw new HttpException(409, NULL, 'This item is already in the stdlib.');
+			throw new HttpException(409, 'This item is already in the stdlib.');
 		}
 		$deletion = true;
 	}
@@ -55,10 +55,10 @@ try {
 		$status = Candidate::accepted($id);
 		if ($status === FALSE) { # previously rejected
 			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) { # reject unless privilege stdlib
-				throw new HttpException(403, NULL, 'This item has been refused earlier. Only members of the stdlib team can make it a candidate again!');
+				throw new HttpException(403, 'This item has been refused earlier. Only members of the stdlib team can make it a candidate again!');
 			}
 		} else if ($status === NULL) { # open
-			throw new HttpException(409, NULL, 'This item is already a candidate.'); # reject
+			throw new HttpException(409, 'This item is already a candidate.'); # reject
 		}
 		# else if ($status === TRUE) <= allow, as it isn't in the stdlib or pending anymore (must have been removed)
 	}
@@ -80,6 +80,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

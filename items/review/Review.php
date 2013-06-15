@@ -18,7 +18,7 @@ class Review {
 
 		if (self::HasReviewed($item, $user)) {
 			if (!REVIEW_CAN_UPDATE) {
-				throw new HttpException(403, NULL, 'You cannot update your previous review.');
+				throw new HttpException(403, 'You cannot update your previous review.');
 			}
 			$db_query = 'UPDATE `' . DB_TABLE_REVIEWS . '` SET `accept` = ' . $accept . ', `final` = ' . $final . ', `reason` = "' . $reason . '", `date` = NOW() WHERE `user` = UNHEX("' . $user . '")';
 		} else {

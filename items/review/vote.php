@@ -37,11 +37,11 @@ try {
 
 	user_basic_auth('Restricted API');
 	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::REVIEW)) {
-		throw new HttpException(403, NULL, 'Only members of the stdlib team can review items');
+		throw new HttpException(403, 'Only members of the stdlib team can review items');
 	}
 
 	if (Item::IsReviewed($id)) {
-		throw new HttpException(403, NULL, 'A reviewed item can not be modified');
+		throw new HttpException(403, 'A reviewed item can not be modified');
 	}
 
 	Review::AddReview($id, User::getId($_SERVER['PHP_AUTH_USER']), $accept, $_POST['reason'], $final);
@@ -51,6 +51,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

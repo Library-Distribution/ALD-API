@@ -13,13 +13,13 @@ try
 
 	user_basic_auth("You must be part of the stdlib team!");
 	if (!User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB) || !User::hasPrivilege($_SERVER["PHP_AUTH_USER"], Privilege::STDLIB_ADMIN))
-		throw new HttpException(403, NULL, "You must be stdlib admin to publish a release!");
+		throw new HttpException(403, "You must be stdlib admin to publish a release!");
 
 	if (!StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_BOTH)) # check if release exists
-		throw new HttpException(404, NULL, "Release does not exist!");
+		throw new HttpException(404, "Release does not exist!");
 
 	if (StdlibRelease::exists($_GET["version"], StdlibRelease::PUBLISHED_YES)) # check if already published
-		throw new HttpException(403, NULL, "Must not change published release!");
+		throw new HttpException(403, "Must not change published release!");
 
 	StdlibRelease::publish($_GET["version"]);
 	header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
@@ -30,6 +30,6 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

@@ -70,19 +70,19 @@ class Registration {
 
 	private static function validateName($name) {
 		if (!preg_match( USER_NAME_REGEX, $name)) {
-			throw new HttpException(403, NULL, 'Invalid user name');
+			throw new HttpException(403, 'Invalid user name');
 		}
 
 		$forbidden = explode("\0", FORBIDDEN_USER_NAMES);
 		if (in_array($name, $forbidden)) {
-			throw new HttpException(403, NULL, 'Forbidden user name');
+			throw new HttpException(403, 'Forbidden user name');
 		}
 
 		$reserved = explode("\0", RESERVED_USER_NAMES);
 		if (in_array($name, $reserved)) 	{
 			user_basic_auth('Trying to register a reserved user name');
 			if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::REGISTRATION_ADMIN)) {
-				throw new HttpException(403, NULL, 'Trying to register a reserved user name');
+				throw new HttpException(403, 'Trying to register a reserved user name');
 			}
 		}
 	}

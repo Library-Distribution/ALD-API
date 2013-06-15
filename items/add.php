@@ -20,7 +20,7 @@ try
 
 	if (!ENABLE_UPLOAD)
 	{
-		throw new HttpException(403, NULL, "Uploads have been disabled");
+		throw new HttpException(403, "Uploads have been disabled");
 	}
 
 	# read request data in temp file
@@ -38,7 +38,7 @@ try
 	###########################################################
 	if ($temp_stat["size"] > MAX_UPLOAD_SIZE)
 	{
-		throw new HttpException(413, NULL, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
+		throw new HttpException(413, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
 	}
 
 	$data = read_package($temp_stat['uri'], array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
@@ -70,20 +70,20 @@ try
 		$owner = User::getName(Item::getUser($pack_name, "latest"));
 		if ($owner != $user)
 		{
-			throw new HttpException(403, NULL, "The user '$user' is not allowed to update the item '$pack_name'");
+			throw new HttpException(403, "The user '$user' is not allowed to update the item '$pack_name'");
 		}
 	}
 
 	# check if this specific version had already been uploaded or not
 	if (Item::exists($pack_name, $pack_version))
 	{
-		throw new HttpException(409, NULL, "The specified version '$pack_version' of package '$pack_name' has already been uploaded!");
+		throw new HttpException(409, "The specified version '$pack_version' of package '$pack_name' has already been uploaded!");
 	}
 
 	# check if item with this GUID had already been uploaded or not
 	if (Item::existsId($pack_id))
 	{
-		throw new HttpException(409, NULL, "An item with the specified GUID '$pack_id' has already been uploaded!");
+		throw new HttpException(409, "An item with the specified GUID '$pack_id' has already been uploaded!");
 	}
 
 	ensure_upload_dir(); # ensure the directory for uploads exists
@@ -109,6 +109,6 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

@@ -17,7 +17,7 @@ try {
 
 	user_basic_auth('Only members of the stdlib team can edit pending items.');
 	if (!User::hasPrivilege($_SERVER['PHP_AUTH_USER'], Privilege::STDLIB)) {
-		throw new HttpException(403, NULL, 'Only members of the stdlib team can edit pending items.');
+		throw new HttpException(403, 'Only members of the stdlib team can edit pending items.');
 	}
 
 	StdlibPending::SetComment($_GET['id'], $_POST['comment']);
@@ -28,6 +28,6 @@ try {
 } catch (HttpException $e) {
 	handleHttpException($e);
 } catch (Exception $e) {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>

@@ -47,7 +47,7 @@ class UpdateType
 	{
 		if (isset(self::$map[$id]))
 			return self::$map[$id];
-		throw new HttpException(500, NULL, 'Unknown update type!');
+		throw new HttpException(500, 'Unknown update type!');
 	}
 
 	public static function getUpdate($old, $new) {

@@ -9,7 +9,7 @@ class Assert
 		$methods = array_map('strtoupper', $methods);
 
 		if (!in_array($request_method, $methods)) {
-			throw new HttpException(405, array("Allow" => implode(", ", $methods)));
+			throw new HttpException(405, 'Unsupported request method: ' . $request_method, array("Allow" => implode(", ", $methods)));
 		}
 	}
 
@@ -67,19 +67,19 @@ class Assert
 
 	public static function HTTPS() {
 		if (empty($_SERVER['HTTPS']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1') {
-			throw new HttpException(403, NULL, 'Must use HTTPS for authenticated API!');
+			throw new HttpException(403, 'Must use HTTPS for authenticated API!');
 		}
 	}
 
 	public static function credentials($realm = '') {
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-			throw new HttpException(401, array('WWW-Authenticate' => 'Basic realm="' . $realm . '"'));
+			throw new HttpException(401, NULL, array('WWW-Authenticate' => 'Basic realm="' . $realm . '"'));
 		}
 	}
 
 	public static function dbMinRows($db, $msg = NULL, $code = 404, $count = 1) {
 		if ((is_a($db, 'mysqli_result') ? $db->num_rows : $db->affected_rows) < $count) {
-			throw new HttpException($code, NULL, $msg);
+			throw new HttpException($code, $msg);
 		}
 	}
 }

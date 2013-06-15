@@ -13,7 +13,7 @@ try
 	Assert::GetParameters("id", array("name", "version"));
 
 	if (!ENABLE_RATING) {
-		throw new HttpException(403, NULL, 'Item rating has been disabled!');
+		throw new HttpException(403, 'Item rating has been disabled!');
 	}
 	$db_connection = db_ensure_connection();
 
@@ -45,7 +45,7 @@ try
 		if ($db_result->num_rows > 0)
 		{
 			if (!CAN_UPDATE_RATING) {
-				throw new HttpException(409, NULL, 'The specified user already rated this item!');
+				throw new HttpException(409, 'The specified user already rated this item!');
 			}
 			$db_query = "UPDATE " . DB_TABLE_RATINGS . " Set rating = '$rating' WHERE user = UNHEX('$user_id') AND item = UNHEX('$id')"; # update
 		}
@@ -88,7 +88,7 @@ catch (HttpException $e)
 }
 catch (Exception $e)
 {
-	handleHttpException(new HttpException(500, NULL, $e->getMessage()));
+	handleHttpException(new HttpException(500, $e->getMessage()));
 }
 ?>
 <?php

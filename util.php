@@ -30,7 +30,7 @@ function read_package($package, $include_data = NULL)
 	if (@$archive->open($package) !== TRUE)
 	{
 		@$archive->close();
-		throw new HttpException(500, NULL, "Package file could not be opened!");
+		throw new HttpException(500, "Package file could not be opened!");
 	}
 
 	$doc = new DOMDocument();
@@ -38,7 +38,7 @@ function read_package($package, $include_data = NULL)
 
 	if (!@$doc->schemaValidate(dirname(__FILE__) . "/schema/package.xsd"))
 	{
-		throw new HttpException(400, NULL, "Package definition is not valid!");
+		throw new HttpException(400, "Package definition is not valid!");
 	}
 
 	$xp = new DOMXPath($doc);
@@ -50,7 +50,7 @@ function read_package($package, $include_data = NULL)
 		|| !package_check_for_files($archive, $xp->query("/*/@ald:logo-image"), $error_file))
 	{
 		$archive->close();
-		throw new HttpException(400, NULL, "Package references missing file: '" . $error_file . "'!");
+		throw new HttpException(400, "Package references missing file: '" . $error_file . "'!");
 	}
 
 	if (in_array("id", $include_data))
@@ -218,7 +218,7 @@ function get_preferred_mimetype($available, $default)
 				return $acceptLine[0];
 			}
 		}
-		throw new HttpException(406, array("Content-type" => implode($available, ",")));
+		throw new HttpException(406, NULL, array("Content-type" => implode($available, ",")));
 	}
 	return $default;
 }
