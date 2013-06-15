@@ -1,8 +1,8 @@
 <?php
-	require_once(dirname(__FILE__) . "/db.php");
-	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
-	require_once(dirname(__FILE__) . "/User.php");
-	require_once(dirname(__FILE__) . "/Assert.php");
+	require_once dirname(__FILE__) . "/db.php";
+	require_once dirname(__FILE__) . "/modules/HttpException/HttpException.php";
+	require_once dirname(__FILE__) . "/User.php";
+	require_once dirname(__FILE__) . "/Assert.php";
 
 	function user_basic_auth($realm)
 	{
@@ -199,7 +199,7 @@
 
 	function ensure_upload_dir()
 	{
-		require_once(dirname(__FILE__) . "/config/upload.php");
+		require_once dirname(__FILE__) . "/config/upload.php";
 		if (!is_dir(UPLOAD_FOLDER))
 		{
 			mkdir(UPLOAD_FOLDER);

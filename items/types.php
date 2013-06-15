@@ -1,7 +1,7 @@
 <?php
-	require_once('../util.php');
-	require_once('../Assert.php');
-	require_once('ItemType.php');
+	require_once '../util.php';
+	require_once '../Assert.php';
+	require_once 'ItemType.php';
 
 	try {
 		Assert::RequestMethod(Assert::REQUEST_METHOD_GET);

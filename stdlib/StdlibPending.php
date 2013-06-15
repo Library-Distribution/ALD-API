@@ -1,14 +1,14 @@
 <?php
-require_once(dirname(__FILE__) . '/../db.php');
-require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
-require_once(dirname(__FILE__) . '/../modules/semver/semver.php');
-require_once(dirname(__FILE__) . '/../UpdateType.php');
-require_once(dirname(__FILE__) . '/../Assert.php');
-require_once(dirname(__FILE__) . '/../Item.php');
-require_once(dirname(__FILE__) . '/../util.php');
-require_once(dirname(__FILE__) . '/Stdlib.php');
-require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
-require_once(dirname(__FILE__) . '/../config/stdlib.php');
+require_once dirname(__FILE__) . '/../db.php';
+require_once dirname(__FILE__) . '/../modules/HttpException/HttpException.php';
+require_once dirname(__FILE__) . '/../modules/semver/semver.php';
+require_once dirname(__FILE__) . '/../UpdateType.php';
+require_once dirname(__FILE__) . '/../Assert.php';
+require_once dirname(__FILE__) . '/../Item.php';
+require_once dirname(__FILE__) . '/../util.php';
+require_once dirname(__FILE__) . '/Stdlib.php';
+require_once dirname(__FILE__) . '/releases/StdlibRelease.php';
+require_once dirname(__FILE__) . '/../config/stdlib.php';
 
 StdlibPending::cleanup();
 

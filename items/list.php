@@ -1,14 +1,14 @@
 <?php
-	require_once("../modules/HttpException/HttpException.php");
-	require_once("../db.php");
-	require_once("../util.php");
-	require_once('../SortHelper.php');
-	require_once('../FilterHelper.php');
-	require_once("../User.php");
-	require_once("../Assert.php");
-	require_once("../modules/semver/semver.php");
-	require_once('ItemType.php');
-	require_once('../sql2array.php');
+	require_once "../modules/HttpException/HttpException.php";
+	require_once "../db.php";
+	require_once "../util.php";
+	require_once '../SortHelper.php';
+	require_once '../FilterHelper.php';
+	require_once "../User.php";
+	require_once "../Assert.php";
+	require_once "../modules/semver/semver.php";
+	require_once 'ItemType.php';
+	require_once '../sql2array.php';
 
 	# this complicated query ensures items without any ratings are considered to be rated 0
 	define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ' . DB_TABLE_RATINGS . ') THEN (SELECT ROUND(AVG(rating), 1) FROM ' . DB_TABLE_RATINGS . ' WHERE ' . DB_TABLE_RATINGS . '.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');

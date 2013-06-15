@@ -1,12 +1,12 @@
 <?php
-	require_once("../modules/HttpException/HttpException.php");
-	require_once("../db.php");
-	require_once("../util.php");
-	require_once("../Item.php");
-	require_once("../Assert.php");
-	require_once('ItemType.php');
+	require_once "../modules/HttpException/HttpException.php";
+	require_once "../db.php";
+	require_once "../util.php";
+	require_once "../Item.php";
+	require_once "../Assert.php";
+	require_once 'ItemType.php';
 
-	require_once("../config/upload.php"); # import settings for upload
+	require_once "../config/upload.php"; # import settings for upload
 
 	try
 	{

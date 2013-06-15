@@ -1,11 +1,11 @@
 <?php
-	require_once("../User.php");
-	require_once("../Item.php");
-	require_once("../Assert.php");
-	require_once("../util.php");
-	require_once("../db.php");
-	require_once('../sql2array.php');
-	require_once("../config/rating.php"); # import config settings
+	require_once "../User.php";
+	require_once "../Item.php";
+	require_once "../Assert.php";
+	require_once "../util.php";
+	require_once "../db.php";
+	require_once '../sql2array.php';
+	require_once "../config/rating.php"; # import config settings
 
 	try
 	{

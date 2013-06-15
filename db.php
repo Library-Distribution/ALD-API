@@ -1,6 +1,6 @@
 <?php
-	require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
-	require_once(dirname(__FILE__) . "/config/database.php"); # import database settings
+	require_once dirname(__FILE__) . "/modules/HttpException/HttpException.php";
+	require_once dirname(__FILE__) . "/config/database.php"; # import database settings
 
 	final class proxy_mysqli extends mysqli {
 		public function query($db_query, $resultmode = MYSQLI_STORE_RESULT, $msg = '') {

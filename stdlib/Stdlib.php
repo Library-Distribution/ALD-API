@@ -1,11 +1,11 @@
 <?php
-require_once(dirname(__FILE__) . '/../db.php');
-require_once(dirname(__FILE__) . '/../sql2array.php');
-require_once(dirname(__FILE__) . '/../Assert.php');
-require_once(dirname(__FILE__) . '/../util.php');
-require_once(dirname(__FILE__) . '/StdlibPending.php');
-require_once(dirname(__FILE__) . '/releases/StdlibRelease.php');
-require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
+require_once dirname(__FILE__) . '/../db.php';
+require_once dirname(__FILE__) . '/../sql2array.php';
+require_once dirname(__FILE__) . '/../Assert.php';
+require_once dirname(__FILE__) . '/../util.php';
+require_once dirname(__FILE__) . '/StdlibPending.php';
+require_once dirname(__FILE__) . '/releases/StdlibRelease.php';
+require_once dirname(__FILE__) . '/../modules/HttpException/HttpException.php';
 
 Stdlib::cleanup();
 

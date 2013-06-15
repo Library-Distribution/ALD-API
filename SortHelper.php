@@ -1,6 +1,6 @@
 <?php
-require_once(dirname(__FILE__) . '/db.php');
-require_once(dirname(__FILE__) . '/modules/HttpException/HttpException.php');
+require_once dirname(__FILE__) . '/db.php';
+require_once dirname(__FILE__) . '/modules/HttpException/HttpException.php';
 
 class SortHelper {
 	public static function getOrderClause($list, $allowed) {

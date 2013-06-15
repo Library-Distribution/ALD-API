@@ -1,8 +1,8 @@
 <?php
-require_once(dirname(__FILE__) . '/ALD_Database_TestCase.php');
+require_once dirname(__FILE__) . '/ALD_Database_TestCase.php';
 
-require_once(dirname(__FILE__) . '/../config/database.php');
-require_once(dirname(__FILE__) . '/../User.php');
+require_once dirname(__FILE__) . '/../config/database.php';
+require_once dirname(__FILE__) . '/../User.php';
 require_once dirname(__FILE__) . '/../util/Privilege.php';
 
 class UserTest extends ALD_Database_TestCase {

@@ -1,12 +1,12 @@
 <?php
-require_once('../../Assert.php');
-require_once('../../modules/HttpException/HttpException.php');
-require_once('../../util.php');
-require_once('../../SortHelper.php');
-require_once('../../FilterHelper.php');
-require_once('../../User.php');
+require_once '../../Assert.php';
+require_once '../../modules/HttpException/HttpException.php';
+require_once '../../util.php';
+require_once '../../SortHelper.php';
+require_once '../../FilterHelper.php';
+require_once '../../User.php';
 require_once '../../util/Privilege.php';
-require_once('../Suspension.php');
+require_once '../Suspension.php';
 
 define('TIMESTAMP_FORMAT', 'Y-m-d H:i:s');
 

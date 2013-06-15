@@ -1,12 +1,12 @@
 <?php
-require_once(dirname(__FILE__) . '/../db.php');
-require_once(dirname(__FILE__) . '/../User.php');
-require_once(dirname(__FILE__) . '/../SortHelper.php');
-require_once(dirname(__FILE__) . '/../FilterHelper.php');
-require_once(dirname(__FILE__) . '/../Assert.php');
-require_once(dirname(__FILE__) . '/../sql2array.php');
-require_once(dirname(__FILE__) . '/../modules/HttpException/HttpException.php');
-require_once(dirname(__FILE__) . '/../config/suspensions.php');
+require_once dirname(__FILE__) . '/../db.php';
+require_once dirname(__FILE__) . '/../User.php';
+require_once dirname(__FILE__) . '/../SortHelper.php';
+require_once dirname(__FILE__) . '/../FilterHelper.php';
+require_once dirname(__FILE__) . '/../Assert.php';
+require_once dirname(__FILE__) . '/../sql2array.php';
+require_once dirname(__FILE__) . '/../modules/HttpException/HttpException.php';
+require_once dirname(__FILE__) . '/../config/suspensions.php';
 
 class Suspension {
 	public static function create($user, $reason, $expires = NULL, $restricted = true) {

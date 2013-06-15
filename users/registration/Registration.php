@@ -1,11 +1,11 @@
 <?php
-require_once(dirname(__FILE__) . '/../../db.php');
-require_once(dirname(__FILE__) . '/../../util.php');
-require_once(dirname(__FILE__) . '/../../User.php');
+require_once dirname(__FILE__) . '/../../db.php';
+require_once dirname(__FILE__) . '/../../util.php';
+require_once dirname(__FILE__) . '/../../User.php';
 require_once dirname(__FILE__) . '/../../util/Privilege.php';
-require_once(dirname(__FILE__) . '/../../Assert.php');
-require_once(dirname(__FILE__) . '/../../config/registration.php');
-require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
+require_once dirname(__FILE__) . '/../../Assert.php';
+require_once dirname(__FILE__) . '/../../config/registration.php';
+require_once dirname(__FILE__) . '/../../modules/HttpException/HttpException.php';
 
 class Registration {
 	public static function create($name, $mail, $password) {

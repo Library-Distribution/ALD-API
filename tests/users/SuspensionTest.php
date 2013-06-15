@@ -1,10 +1,10 @@
 <?php
-require_once('PHPUnit/Autoload.php');
-require_once('PHPUnit/Framework/Assert/Functions.php'); # should not be required (?)
+require_once 'PHPUnit/Autoload.php';
+require_once 'PHPUnit/Framework/Assert/Functions.php'; # should not be required (?)
 
-require_once(dirname(__FILE__) . '/../../User.php');
-require_once(dirname(__FILE__) . '/../../db.php');
-require_once(dirname(__FILE__) . '/../../users/Suspension.php');
+require_once dirname(__FILE__) . '/../../User.php';
+require_once dirname(__FILE__) . '/../../db.php';
+require_once dirname(__FILE__) . '/../../users/Suspension.php';
 
 class SuspensionTest extends PHPUnit_Framework_TestCase {
 

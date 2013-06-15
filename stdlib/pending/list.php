@@ -1,10 +1,10 @@
 <?php
-require_once('../../modules/HttpException/HttpException.php');
-require_once('../../util.php');
-require_once('../../Assert.php');
-require_once('../../UpdateType.php');
-require_once('../StdlibPending.php');
-require_once('../releases/StdlibRelease.php');
+require_once '../../modules/HttpException/HttpException.php';
+require_once '../../util.php';
+require_once '../../Assert.php';
+require_once '../../UpdateType.php';
+require_once '../StdlibPending.php';
+require_once '../releases/StdlibRelease.php';
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);

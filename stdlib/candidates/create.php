@@ -1,16 +1,16 @@
 <?php
-require_once('../../modules/HttpException/HttpException.php');
-require_once('../../util.php');
-require_once('../../Assert.php');
-require_once('../../User.php');
+require_once '../../modules/HttpException/HttpException.php';
+require_once '../../util.php';
+require_once '../../Assert.php';
+require_once '../../User.php';
 require_once '../../util/Privilege.php';
-require_once('../../Item.php');
-require_once('../../items/ItemType.php');
-require_once('../StdlibPending.php');
-require_once('../Stdlib.php');
-require_once('../releases/StdlibRelease.php');
-require_once('Candidate.php');
-require_once('../../config/stdlib.php');
+require_once '../../Item.php';
+require_once '../../items/ItemType.php';
+require_once '../StdlibPending.php';
+require_once '../Stdlib.php';
+require_once '../releases/StdlibRelease.php';
+require_once 'Candidate.php';
+require_once '../../config/stdlib.php';
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_POST);

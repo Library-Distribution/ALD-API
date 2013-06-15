@@ -1,11 +1,11 @@
 <?php
-require_once(dirname(__FILE__) . '/../../db.php');
-require_once(dirname(__FILE__) . '/../../SortHelper.php');
-require_once(dirname(__FILE__) . '/../../FilterHelper.php');
-require_once(dirname(__FILE__) . '/../../Assert.php');
-require_once(dirname(__FILE__) . '/../../sql2array.php');
-require_once(dirname(__FILE__) . '/../../config/stdlib.php');
-require_once(dirname(__FILE__) . '/../../modules/HttpException/HttpException.php');
+require_once dirname(__FILE__) . '/../../db.php';
+require_once dirname(__FILE__) . '/../../SortHelper.php';
+require_once dirname(__FILE__) . '/../../FilterHelper.php';
+require_once dirname(__FILE__) . '/../../Assert.php';
+require_once dirname(__FILE__) . '/../../sql2array.php';
+require_once dirname(__FILE__) . '/../../config/stdlib.php';
+require_once dirname(__FILE__) . '/../../modules/HttpException/HttpException.php';
 
 class Candidate {
 	public static function create($item, $user, $reason, $deletion = false) {

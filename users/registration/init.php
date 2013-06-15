@@ -1,11 +1,11 @@
 <?php
-require_once('Registration.php');
-require_once('../../Assert.php');
-require_once('../../util.php');
-require_once('../../User.php');
+require_once 'Registration.php';
+require_once '../../Assert.php';
+require_once '../../util.php';
+require_once '../../User.php';
 require_once '../../util/Privilege.php';
-require_once('../../modules/HttpException/HttpException.php');
-require_once('../../config/registration.php'); # import settings regarding registration
+require_once '../../modules/HttpException/HttpException.php';
+require_once '../../config/registration.php'; # import settings regarding registration
 
 try {
 	Registration::clear(); # clear expired registration sessions

@@ -1,6 +1,6 @@
 <?php
-require_once(dirname(__FILE__) . '/../config/database.php');
-require_once('PHPUnit/Framework/TestCase.php');
+require_once dirname(__FILE__) . '/../config/database.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 
 abstract class ALD_Database_TestCase extends PHPUnit_Extensions_Database_TestCase {
 	static $conn = NULL;

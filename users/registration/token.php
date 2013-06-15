@@ -1,8 +1,8 @@
 <?php
-require_once('Registration.php');
-require_once('../../Assert.php');
-require_once('../../util.php');
-require_once('../../modules/HttpException/HttpException.php');
+require_once 'Registration.php';
+require_once '../../Assert.php';
+require_once '../../util.php';
+require_once '../../modules/HttpException/HttpException.php';
 
 try {
 	Assert::RequestMethod(Assert::REQUEST_METHOD_GET);

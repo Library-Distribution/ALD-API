@@ -1,11 +1,11 @@
 <?php
-	require_once("../modules/HttpException/HttpException.php");
-	require_once("../db.php");
-	require_once("../util.php");
-	require_once("../User.php");
+	require_once "../modules/HttpException/HttpException.php";
+	require_once "../db.php";
+	require_once "../util.php";
+	require_once "../User.php";
 	require_once '../util/Privilege.php';
-	require_once("../Assert.php");
-	require_once("Suspension.php");
+	require_once "../Assert.php";
+	require_once "Suspension.php";
 
 	try
 	{
