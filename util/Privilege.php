@@ -76,5 +76,8 @@ class Privilege {
 		return self::$privilege_map[$key];
 	}
 
+	public static function contains($comb, $flag) {
+		return ($comb & $flag) == $flag;
+	}
 }
 ?>

@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/db.php");
 require_once(dirname(__FILE__) . '/Assert.php');
+require_once dirname(__FILE__) . '/util/Privilege.php';
 require_once(dirname(__FILE__) . '/users/Suspension.php');
 require_once(dirname(__FILE__) . "/modules/HttpException/HttpException.php");
 
@@ -8,14 +9,7 @@ class User
 {
 	public static function hasPrivilegeById($id, $privilege)
 	{
-		$db_connection = db_ensure_connection();
-
-		$db_query = "SELECT privileges FROM " . DB_TABLE_USERS . " WHERE id = UNHEX('" . $db_connection->real_escape_string($id) . "')";
-		$db_result = $db_connection->query($db_query);
-		Assert::dbMinRows($db_result, 'User not found');
-
-		$data = $db_result->fetch_assoc();
-		return (((int)$data['privileges']) & $privilege) == $privilege;
+		return Privilege::contains(self::getPrivileges($id), $privilege);
 	}
 
 	public static function hasPrivilege($name, $privilege)
@@ -119,7 +113,7 @@ class User
 
 		while ($data = $db_result->fetch_assoc())
 		{
-			return $data["privileges"];
+			return (int)$data["privileges"];
 		}
 		throw new HttpException(404, NULL, "User not found");
 	}
