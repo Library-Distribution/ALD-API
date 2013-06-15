@@ -13,4 +13,6 @@ before_script:
   - ./tests/setup/db-mysql.sh
   - ./tests/setup/profile.sh travis
 
-script: phpunit --colors tests
+script:
+  - ./tests/syntax.sh
+  - phpunit --colors tests
