@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<database name="travis-test"><!-- DB_NAME -->
+		<table_structure name="users"><!-- DB_TABLE_USERS -->
+			<field Field="id"         Type="binary(16)"  Null="NO"  Key="PRI" />
+			<field Field="name"       Type="varchar(25)" Null="YES" Key="UNI" />
+			<field Field="mail"       Type="varchar(35)" Null="YES" Key="UNI" />
+			<field Field="pw"         Type="varchar(64)" Null="YES" />
+			<field Field="privileges" Type="int(1)"      Null="YES" Default="0" />
+			<field Field="joined"     Type="timestamp"   Null="YES" Default="CURRENT_TIMESTAMP" />
+
+			<key Table="users" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id"   Collation="A" Cardinality="1" Null=""    Index_type="BTREE" />
+			<key Table="users" Non_unique="0" Key_name="mail"    Seq_in_index="1" Column_name="mail" Collation="A" Cardinality="1" Null="YES" Index_type="BTREE" />
+			<key Table="users" Non_unique="0" Key_name="name"    Seq_in_index="1" Column_name="name" Collation="A" Cardinality="1" Null="YES" Index_type="BTREE" />
+
+			<options Name="users" Engine="InnoDB" Version="10" Row_format="Compact" Rows="1" Avg_row_length="16384" Data_length="16384" Max_data_length="0" Index_length="32768" Data_free="5242880" Create_time="2013-04-26 10:21:52" Collation="latin1_swedish_ci" Create_options="" />
+		</table_structure>
+		<table_structure name="suspensions"><!-- DB_TABLE_SUSPENSIONS -->
+			<field Field="id"         Type="int(11)"    Null="NO"  Key="PRI" Extra="auto_increment" />
+			<field Field="user"       Type="binary(16)" Null="NO" />
+			<field Field="created"    Type="timestamp"  Null="NO"  Default="CURRENT_TIMESTAMP" />
+			<field Field="expires"    Type="timestamp"  Null="YES" />
+			<field Field="restricted" Type="tinyint(1)" Null="NO"  Default="0" />
+			<field Field="active"     Type="tinyint(1)" Null="NO"  Default="1" />
+			<field Field="reason"     Type="text"       Null="NO" />
+
+			<key Table="suspensions" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id" Collation="A" Cardinality="1" Null="" Index_type="BTREE" />
+
+			<options Name="suspensions" Engine="InnoDB" Version="10" Row_format="Compact" Rows="1" Avg_row_length="16384" Data_length="16384" Max_data_length="0" Index_length="0" Data_free="5242880" Auto_increment="3" Create_time="2013-04-26 10:21:52" Collation="latin1_swedish_ci" Create_options="" />
+		</table_structure>
+
+		<table_data name="users"><!-- DB_TABLE_USERS -->
+			<row>
+				<field name="id" xsi:type="xs:hexBinary">16A143CE32B14162ABA8C08EA962B42A</field>
+				<field name="name">Frank</field>
+				<field name="mail">frank@example.com</field>
+				<field name="pw">03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4</field><!-- sha256('1234') -->
+				<field name="privileges">0</field>
+				<field name="joined">2013-06-15 16:25:00</field>
+			</row>
+			<row>
+				<field name="id" xsi:type="xs:hexBinary">281B3C505B5A4CE59DA856E39C9470F5</field>
+				<field name="name">Ben</field>
+				<field name="mail">ben@example.com</field>
+				<field name="pw">03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4</field><!-- sha256('1234') -->
+				<field name="privileges">0</field>
+				<field name="joined">2013-06-15 16:25:00</field>
+			</row>
+		</table_data>
+		<table_data name="suspensions"><!-- DB_TABLE_SUSPENSIONS -->
+			<row>
+				<field name="id">1</field>
+				<field name="user" xsi:type="xs:hexBinary">281B3C505B5A4CE59DA856E39C9470F5</field>
+				<field name="created">2013-06-15 16:47:00</field>
+				<field name="expires" xsi:nil="true" />
+				<field name="restricted">1</field>
+				<field name="active">1</field>
+				<field name="reason">Nobody likes Ben</field>
+			</row>
+			<row>
+				<field name="id">2</field>
+				<field name="user" xsi:type="xs:hexBinary">281B3C505B5A4CE59DA856E39C9470F5</field>
+				<field name="created">2013-06-15 16:49:00</field>
+				<field name="expires">2033-08-05 12:00:05</field>
+				<field name="restricted">0</field>
+				<field name="active">1</field>
+				<field name="reason">Nobody likes Ben - me neither</field>
+			</row>
+		</table_data>
+	</database>
+</mysqldump>
