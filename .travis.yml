@@ -16,3 +16,7 @@ before_script:
 script:
   - ./tests/syntax.sh
   - phpunit --colors tests
+
+matrix:
+  allow_failures:
+    - php: 5.2
