@@ -1,5 +1,5 @@
 <?php
-define('API_VERSION', '0.2.0');
+define('API_VERSION', '0.3.0');
 
 require_once "util.php";
 require_once "Assert.php";
