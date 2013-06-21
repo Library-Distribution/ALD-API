@@ -72,7 +72,7 @@ try {
 	} else if ($content_type == 'text/xml' || $content_type == 'application/xml') {
 		$content = '<?xml version="1.0" encoding="utf-8" ?><ald:candidate xmlns:ald="ald://api/stdlib/candidates/create/schema/2012">' . htmlspecialchars($candidate, ENT_QUOTES) . '</ald:candidate>';
 	}
-	header('HTTP/1.1 200 ' . HttpException::getStatusMessage(200));
+	http_response_code(200);
 	header('Content-type: ' . $content_type);
 	echo $content;
 	exit;

@@ -72,7 +72,7 @@ try
 		$content .= "</ald:user-list>";
 	}
 
-	header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+	http_response_code(200);
 	header("Content-type: $content_type");
 	echo $content;
 	exit;

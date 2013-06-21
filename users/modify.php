@@ -72,7 +72,7 @@ try
 		$db_connection->query($db_query, MYSQLI_STORE_RESULT, 'Failed to set user password');
 		Assert::dbMinRows($db_connection, 'User with this ID was not found.');
 	}
-	header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+	http_response_code(204);
 }
 catch (HttpException $e)
 {

@@ -42,7 +42,7 @@ try {
 			StdlibPending::AddEntry(Candidate::getItem($_GET['id']), '');
 		}
 
-		header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
+		http_response_code(204);
 		exit;
 
 	} else {
@@ -62,7 +62,8 @@ try {
 			}
 			$content .= '</ald:votings>';
 		}
-		header('HTTP/1.1 200 ' . HttpException::getStatusMessage(200));
+
+		http_response_code(200);
 		header('Content-type: ' . $content_type);
 		echo $content;
 		exit;

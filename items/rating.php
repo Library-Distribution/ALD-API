@@ -56,7 +56,7 @@ try
 
 		$db_connection->query($db_query);
 
-		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+		http_response_code(204);
 
 	} else if ($request_method == Assert::REQUEST_METHOD_GET) {
 		# validate accept header of request
@@ -76,7 +76,7 @@ try
 			$content .= '</ald:ratings>';
 		}
 
-		header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+		http_response_code(200);
 		header("Content-type: $content_type");
 		echo $content;
 		exit;

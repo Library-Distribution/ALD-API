@@ -22,7 +22,7 @@ try {
 
 	StdlibPending::SetComment($_GET['id'], $_POST['comment']);
 
-	header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
+	http_response_code(204);
 	exit;
 
 } catch (HttpException $e) {

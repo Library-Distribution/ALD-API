@@ -50,7 +50,7 @@ try {
 		throw new HttpException(500, "Activation mail to $_POST[mail] could not be sent.");
 	}
 
-	header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+	http_response_code(204);
 	exit;
 
 } catch (HttpException $e) {

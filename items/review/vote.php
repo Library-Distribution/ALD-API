@@ -45,7 +45,7 @@ try {
 	}
 
 	Review::AddReview($id, User::getId($_SERVER['PHP_AUTH_USER']), $accept, $_POST['reason'], $final);
-	header('HTTP/1.1 204 ' . HttpException::getStatusMessage(204));
+	http_response_code(204);
 	exit;
 
 } catch (HttpException $e) {

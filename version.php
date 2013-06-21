@@ -16,7 +16,7 @@ else
 	$content = "<?xml version='1.0' encoding='utf-8' ?><ald:version xmlns:ald='ald://api/version/schema/2012'>" . htmlspecialchars(API_VERSION, ENT_QUOTES) . "</ald:version>";
 }
 
-header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+http_response_code(200);
 header("Content-type: $content_type");
 echo $content;
 exit;

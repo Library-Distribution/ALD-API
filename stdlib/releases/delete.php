@@ -16,7 +16,7 @@ try
 		throw new HttpException(403);
 
 	StdlibRelease::delete($_GET["version"]);
-	header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+	http_response_code(204);
 }
 catch (HttpException $e)
 {

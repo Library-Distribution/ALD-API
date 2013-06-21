@@ -73,7 +73,7 @@ try
 	if (count($data) > 0)
 		StdlibRelease::update($_GET["version"], $data);
 
-	header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+	http_response_code(204);
 }
 catch (HttpException $e)
 {

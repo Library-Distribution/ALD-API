@@ -40,7 +40,7 @@ try {
 		curl_close($conn);
 		###############################################################################
 
-		header("HTTP/1.1 204 " . HttpException::getStatusMessage(204));
+		http_response_code(204);
 		exit;
 	}
 	else

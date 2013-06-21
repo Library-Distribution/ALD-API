@@ -223,9 +223,15 @@ function get_preferred_mimetype($available, $default)
 	return $default;
 }
 
+if (!function_exists('http_response_code')) {
+	function http_response_code($code) {
+		header(' ', true, $code);
+	}
+}
+
 function handleHttpException($e)
 {
-	header("HTTP/1.1 " . $e->getCode() . " " . HttpException::getStatusMessage($e->getCode()));
+	http_response_code($e->getCode());
 	if (is_array($e->getHeaders()))
 	{
 		foreach ($e->getHeaders() AS $header => $value)

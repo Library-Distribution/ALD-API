@@ -46,7 +46,7 @@ try
 		$db_query = "UPDATE " . DB_TABLE_ITEMS . " Set downloads = downloads + 1 WHERE id = UNHEX('$id')";
 		$db_connection->query($db_query);
 
-		header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+		http_response_code(200);
 		header("Content-Type: $content_type");
 		header("Content-Length: " . filesize($file));
 		header("Content-Disposition: attachment; filename=$id.alp");
@@ -151,7 +151,7 @@ try
 		$content .= "</ald:item>";
 	}
 
-	header("HTTP/1.1 200 " . HttpException::getStatusMessage(200));
+	http_response_code(200);
 	header("Content-type: $content_type");
 	echo $content;
 	exit;
