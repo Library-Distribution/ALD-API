@@ -4,3 +4,6 @@
 [submodule "modules/HttpException"]
 	path = modules/HttpException
 	url = https://gist.github.com/4709655.git
+[submodule "modules/ALD.php"]
+	path = modules/ALD.php
+	url = https://github.com/Library-Distribution/ALD.php.git

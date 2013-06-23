@@ -1,5 +1,6 @@
 <?php
 require_once "../modules/HttpException/HttpException.php";
+require_once '../modules/ALD.php/ALDPackage.php';
 require_once "../db.php";
 require_once "../util.php";
 require_once "../Item.php";
@@ -41,25 +42,21 @@ try
 		throw new HttpException(413, "File must not be > " . MAX_UPLOAD_SIZE . " bytes.");
 	}
 
-	$data = read_package($temp_stat['uri'], array("id", "name", "version", "type", "description", "tags")); # todo: read and parse file
-	$pack_id = $data["id"]; $pack_name = $data["name"]; $pack_version = $data["version"]; $pack_type = $data["type"];
-	$pack_description = $data["description"];
+	ALDPackageDefinition::SetSchemaLocation(dirname(__FILE__) . '/../schema/package.xsd');
+	$package = new ALDPackage($temp_stat['uri']);
 
-	$pack_tags = array();
-	foreach ($data["tags"] AS $tag)
-	{
-		$pack_tags[] = $tag["name"];
-	}
-	$pack_tags = implode(";", $pack_tags);
-
-	# todo: validate version string / convert to number
-	###########################################################
+	$pack_id          = $package->definition->GetID();
+	$pack_name        = $package->definition->GetName();
+	$pack_version     = $package->definition->GetVersion();
+	$pack_type        = $package->definition->GetType();
+	$pack_description = $package->definition->GetDescription();
+	$pack_tags        = implode(';', $package->definition->GetTags());
 
 	# escape data to prevent SQL injection
-	$escaped_name = $db_connection->real_escape_string($pack_name);
-	$escaped_version = $db_connection->real_escape_string($pack_version);
+	$escaped_name        = $db_connection->real_escape_string($pack_name);
+	$escaped_version     = $db_connection->real_escape_string($pack_version);
 	$escaped_description = $db_connection->real_escape_string($pack_description);
-	$escaped_tags = $db_connection->real_escape_string($pack_tags);
+	$escaped_tags        = $db_connection->real_escape_string($pack_tags);
 
 	# check if item type is supported and read the code
 	$escaped_type = ItemType::getCode($pack_type); # unsupported types throw an exception

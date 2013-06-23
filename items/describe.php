@@ -1,5 +1,6 @@
 <?php
 require_once "../modules/HttpException/HttpException.php";
+require_once '../modules/ALD.php/ALDPackage.php';
 require_once "../db.php";
 require_once "../util.php";
 require_once "../Assert.php";
@@ -64,20 +65,33 @@ try
 	Assert::dbMinRows($db_result);
 	$db_entry = $db_result->fetch_assoc();
 
-	$data = read_package($file);
+	ALDPackageDefinition::SetSchemaLocation(dirname(__FILE__) . '/../schema/package.xsd');
+	$package = new ALDPackage($file);
 
-	$output = $data;
-	$output["uploaded"] = $db_entry["uploaded"];
-	$output["rating"] = (float)$db_entry["rating"] ;
-	$output["downloads"] = (int)$db_entry["downloads"];
-	$output['user'] = array('name' => $db_entry['userName'], 'id' => $db_entry['userID']);
-	$output["reviewed"] = $db_entry["reviewed"] == 1;
-	$tag_list  = array();
-	foreach ($data["tags"] AS $tag)
-	{
-		$tag_list[] = $tag["name"];
-	}
-	$output["tags"] = $tag_list;
+	$output = array(
+		'id'           => $package->definition->GetID(),
+		'name'         => $package->definition->GetName(),
+		'version'      => $package->definition->GetVersion(),
+		'type'         => $package->definition->GetType(),
+		'homepage'     => $package->definition->GetHomepage(),
+		'description'  => $package->definition->GetDescription(),
+		'authors'      => $package->definition->GetAuthors(),
+		'dependencies' => $package->definition->GetDependencies(),
+		'requirements' => $package->definition->GetRequirements(),
+		'files'        => array(
+			'src'  => $package->definition->GetSourceFiles(),
+			'doc'  => $package->definition->GetDocFiles(),
+			'logo' => $package->definition->GetLogo()
+		),
+		'tags'         => $package->definition->GetTags(),
+		'links'        => $package->definition->GetLinks(),
+
+		'uploaded'     => $db_entry['uploaded'],
+		'rating'       => (float)$db_entry['rating'],
+		'downloads'    => (int)$db_entry['downloads'],
+		'user'         => array('name' => $db_entry['userName'], 'id' => $db_entry['userID']),
+		'reviewed'     => $db_entry['reviewed'] == 1
+	);
 
 	if ($content_type == "application/json")
 	{
