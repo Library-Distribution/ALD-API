@@ -141,31 +141,26 @@
 		</xsd:complexType>
 	</xsd:element>
 
-	<xsd:attributeGroup name="target-attributes">
-		<xsd:attribute use="optional" type="ald:architecture" name="language-architecture"/>
-		<xsd:attribute use="optional" type="ald:encoding" name="language-encoding"/>
-		<xsd:attribute use="optional" type="xsd:string" name="language-version"/><!-- specify a single version here, or multiple in a sub-element -->
-
-		<xsd:attribute use="optional" type="ald:architecture" name="system-architecture"/>
-		<xsd:attribute use="optional" type="xsd:string" name="system-version"/>
-		<xsd:attribute use="optional" type="xsd:string" name="system-type"/>
-	</xsd:attributeGroup>
-
-	<xsd:element name="language-version">
-		<xsd:complexType>
-			<xsd:group ref="ald:version-switch" minOccurs="1" maxOccurs="1"/>
-		</xsd:complexType>
-	</xsd:element>
-
 	<xsd:element name="target"> <!-- specifies that the item can run on the given system -->
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="ald:language-version" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="language-version" minOccurs="0" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:group ref="ald:version-switch" minOccurs="1" maxOccurs="1"/>
+					</xsd:complexType>
+				</xsd:element>
 				<xsd:element ref="ald:target" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 
 			<xsd:attribute use="optional" type="xsd:string" name="message"/>
-			<xsd:attributeGroup ref="ald:target-attributes"/>
+			<xsd:attribute use="optional" type="xsd:NCName" name="id"/>
+
+			<xsd:attribute use="optional" type="ald:architecture" name="language-architecture"/>
+			<xsd:attribute use="optional" type="ald:encoding" name="language-encoding"/>
+			<xsd:attribute use="optional" type="ald:architecture" name="system-architecture"/>
+			<xsd:attribute use="optional" type="xsd:string" name="system-version"/>
+			<xsd:attribute use="optional" type="xsd:string" name="system-type"/>
+
 			<xsd:anyAttribute/>
 		</xsd:complexType>
 	</xsd:element>
@@ -173,15 +168,18 @@
 	<xsd:element name="file-set"> <!-- specifies different files for different platforms -->
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="ald:language-version" minOccurs="0" maxOccurs="1"/>
 				<xsd:choice minOccurs="1" maxOccurs="unbounded">
 					<xsd:element ref="ald:file"/>
 					<xsd:element ref="ald:file-set"/>
 				</xsd:choice>
+				<xsd:element name="target" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute use="required" type="xsd:NCName" name="ref"/>
+					</xsd:complexType>
+				</xsd:element>
 			</xsd:sequence>
 
 			<xsd:attribute use="required" type="xsd:string" name="src"/>
-			<xsd:attributeGroup ref="ald:target-attributes"/>
 			<xsd:anyAttribute/>
 		</xsd:complexType>
 	</xsd:element>
@@ -267,6 +265,11 @@
 							<xsd:element ref="ald:target" minOccurs="1" maxOccurs="unbounded"/>
 						</xsd:sequence>
 					</xsd:complexType>
+
+					<xsd:unique name="targetID">
+						<xsd:selector xpath=".//ald:target"/>
+						<xsd:field xpath="@ald:id"/>
+					</xsd:unique>
 				</xsd:element>
 				<xsd:element name="files" minOccurs="1" maxOccurs="1"> <!-- holds the lists of files to include -->
 					<xsd:complexType>
@@ -305,5 +308,10 @@
 			<xsd:attribute use="optional" type="ald:internetURL" name="homepage"/>
 			<xsd:anyAttribute/>
 		</xsd:complexType>
+
+		<xsd:keyref name="target-ref" refer="ald:targetID">
+			<xsd:selector xpath=".//ald:file-set/ald:target"/>
+			<xsd:field xpath="@ald:ref"/>
+		</xsd:keyref>
 	</xsd:element>
 </xsd:schema>
