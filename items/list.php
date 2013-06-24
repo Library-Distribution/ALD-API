@@ -203,7 +203,6 @@ try
 	}
 
 	if ($post_filter) { # shorten data as specified by parameters
-		sort($data); # sort to have a continuing index
 		$offset = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 		if (isset($_GET['count']) && strtolower($_GET['count']) != 'all') {
 			$data = array_slice($data, $offset, (int)$_GET['count']);
