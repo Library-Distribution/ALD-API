@@ -5,6 +5,7 @@ require_once "../util.php";
 require_once '../SortHelper.php';
 require_once '../FilterHelper.php';
 require_once "../User.php";
+require_once '../Item.php';
 require_once "../Assert.php";
 require_once "../modules/semver/semver.php";
 require_once 'ItemType.php';
@@ -51,7 +52,7 @@ try
 	if (isset($_GET["version"]))
 	{
 		$version = strtolower($_GET["version"]);
-		if (!in_array($version, array("latest", "first")))
+		if (!in_array($version, array(Item::VERSION_LATEST, Item::VERSION_FIRST)))
 		{
 			throw new HttpException(400);
 		}
@@ -138,7 +139,7 @@ try
 			$name = $item["name"];
 			if (isset($versions[$name])) # a version of this item has already been processed
 			{
-				if (($version == "latest" && semver_compare($versions[$name], $item["version"]) == 1) || ($version == "first" && semver_compare($versions[$name], $item["version"]) == -1)) # the other version is higher/lower - delete the current item from output
+				if (($version == Item::VERSION_LATEST && semver_compare($versions[$name], $item["version"]) == 1) || ($version == Item::VERSION_FIRST && semver_compare($versions[$name], $item["version"]) == -1)) # the other version is higher/lower - delete the current item from output
 				{
 					unset($data[$index]);
 				}

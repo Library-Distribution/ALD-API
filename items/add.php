@@ -64,7 +64,7 @@ try
 	# check if there's any version of the item yet
 	if (Item::exists($pack_name))
 	{
-		$owner = User::getName(Item::getUser($pack_name, "latest"));
+		$owner = User::getName(Item::getUser($pack_name, Item::VERSION_LATEST));
 		if ($owner != $user)
 		{
 			throw new HttpException(403, "The user '$user' is not allowed to update the item '$pack_name'");

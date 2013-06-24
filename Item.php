@@ -7,6 +7,9 @@ require_once dirname(__FILE__) . '/SortHelper.php';
 
 class Item
 {
+	const VERSION_LATEST = 'latest';
+	const VERSION_FIRST = 'first';
+
 	public static function getId($name, $version, $stable = NULL)
 	{
 		$db_connection = db_ensure_connection();
@@ -15,11 +18,11 @@ class Item
 
 		$db_cond = "name = '$name'";
 		$db_join = $db_order = '';
-		if (!$special_version = in_array($version, array("latest", "first")))
+		if (!$special_version = in_array($version, array(self::VERSION_LATEST, self::VERSION_FIRST)))
 		{
 			$db_cond .= " AND version = '$version'";
 		} else {
-			$db_order = ' ORDER BY `position`' . ($version == 'latest' ? 'DESC' : 'ASC');
+			$db_order = ' ORDER BY `position`' . ($version == self::VERSION_LATEST ? 'DESC' : 'ASC');
 			$db_join = ' LEFT JOIN `semver_index` USING (`version`)';
 			SortHelper::PrepareSemverSorting(DB_TABLE_ITEMS, 'version');
 		}
