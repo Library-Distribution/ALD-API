@@ -77,7 +77,7 @@ try
 		'description'  => $package->definition->GetDescription(),
 		'authors'      => $package->definition->GetAuthors(),
 		'dependencies' => $package->definition->GetDependencies(),
-		'requirements' => $package->definition->GetRequirements(),
+		'targets'      => $package->definition->GetTargets(),
 		'files'        => array(
 			'src'  => $package->definition->GetSourceFiles(),
 			'doc'  => $package->definition->GetDocFiles(),
