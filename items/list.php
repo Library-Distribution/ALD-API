@@ -1,5 +1,7 @@
 <?php
 require_once "../modules/HttpException/HttpException.php";
+require_once '../modules/ALD.php/ALDPackage.php';
+require_once '../modules/ALD.php/ALDVersionSwitch.php';
 require_once "../db.php";
 require_once "../util.php";
 require_once '../SortHelper.php';
@@ -9,6 +11,7 @@ require_once "../Assert.php";
 require_once "../modules/semver/semver.php";
 require_once 'ItemType.php';
 require_once '../sql2array.php';
+require_once '../config/upload.php'; # import upload settings, including upload folder!
 
 # this complicated query ensures items without any ratings are considered to be rated 0
 define('SQL_QUERY_RATING', '(SELECT CASE WHEN ' . DB_TABLE_ITEMS . '.id IN (SELECT item FROM ' . DB_TABLE_RATINGS . ') THEN (SELECT ROUND(AVG(rating), 1) FROM ' . DB_TABLE_RATINGS . ' WHERE ' . DB_TABLE_RATINGS . '.item = ' . DB_TABLE_ITEMS . '.id) ELSE 0 END)');
@@ -56,6 +59,20 @@ try
 			throw new HttpException(400);
 		}
 	}
+
+	# special target filtering, no MySQL involved thus not in FilterHelper
+	$target_filters = array('language-encoding' => array('unicode', 'ansi'), 'language-architecture' => array('x32', 'x64', 'x128'), 'system-architecture' => array('x32', 'x64', 'x128'));
+	foreach ($target_filters AS $field => $allowed) {
+		if (isset($_GET[$field])) {
+			if (!in_array($strtolower($_GET[$field]), $allowed)) {
+				throw new HttpException(400);
+			}
+		}
+	}
+
+	$target_filter = isset($_GET['language-version']) || isset($lang_encoding) || isset($lang_architecture)
+		|| isset($sys_architecture) || isset($_GET['system-version']) || isset($_GET['system-type']);
+	$post_filter = isset($version) || $target_filter;
 
 	# retrieve sorting parameters
 	$sort_by_rating = $sort_by_version = false;
@@ -106,11 +123,11 @@ try
 	}
 
 	# retrieve data limits
-	if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
+	if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all" && !isset($post_filter))
 	{
 		$db_limit = "LIMIT " . $db_connection->real_escape_string($_GET["count"]);
 	}
-	if (isset($_GET["start"]) && !isset($version)) # if version ("latest" or "first") is set, the data is shortened after being filtered
+	if (isset($_GET["start"]) && !isset($post_filter))
 	{
 		if (!$db_limit)
 		{
@@ -152,20 +169,45 @@ try
 			else # no version has yet been processed, indicate this one as first
 				$versions[$name] = $item["version"];
 		}
-		sort($data); # sort to have a continuing index
+	}
 
-		# shorten data as specified by parameters
-		$offset = 0;
-		if (isset($_GET["start"]))
-		{
-			$offset = $_GET["start"];
+	if ($target_filter) {
+		ALDPackageDefinition::SetSchemaLocation(dirname(__FILE__) . '/../schema/package.xsd');
+		foreach ($data AS $index => $item) {
+			$package = new ALDPackage(UPLOAD_FOLDER . $item['id'] . '.zip');
+			$match = true;
+
+			foreach ($package->definition->GetTargets() AS $target) {
+				$match = false;
+
+				if (isset($_GET['language-version']) && !empty($target['language-version'])) {
+					$switch = new ALDVersionSwitch($target['language-version']);
+					if (!$switch->matches($_GET['language-version'])) {
+						continue;
+					}
+				}
+				foreach (array('language-architecture', 'language-encoding', 'system-architecture', 'system-version', 'system-type') AS $field) {
+					if (isset($_GET[$field]) && !empty($target[$field]) && strcasecmp($_GET[$field], $target[$field]) != 0) {
+						continue;
+					}
+				}
+
+				$match = true;
+				break;
+			}
+
+			if (!$match) {
+				unset($data[$index]);
+			}
 		}
-		if (isset($_GET["count"]) && strtolower($_GET["count"]) != "all")
-		{
-			$data = array_slice($data, $offset, $_GET["count"]);
-		}
-		else
-		{
+	}
+
+	if ($post_filter) { # shorten data as specified by parameters
+		sort($data); # sort to have a continuing index
+		$offset = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		if (isset($_GET['count']) && strtolower($_GET['count']) != 'all') {
+			$data = array_slice($data, $offset, (int)$_GET['count']);
+		} else {
 			$data = array_slice($data, $offset);
 		}
 	}
