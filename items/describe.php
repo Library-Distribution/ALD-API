@@ -74,6 +74,7 @@ try
 		'version'      => $package->definition->GetVersion(),
 		'type'         => $package->definition->GetType(),
 		'homepage'     => $package->definition->GetHomepage(),
+		'summary'      => $package->definition->GetSummary(),
 		'description'  => $package->definition->GetDescription(),
 		'authors'      => $package->definition->GetAuthors(),
 		'dependencies' => $package->definition->GetDependencies(),
