@@ -5,10 +5,14 @@ php:
   - "5.3"
   - "5.2"
 
+install:
+  - sudo apt-get install apache2
+
 services:
   - mysql
 
 before_script:
+  - ./tests/setup/apache.sh
   - ./tests/setup/php-pear.sh
   - ./tests/setup/db-mysql.sh
   - ./tests/setup/profile.sh travis
