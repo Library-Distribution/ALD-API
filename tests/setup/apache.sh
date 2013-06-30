@@ -9,4 +9,5 @@ sudo sed -i -e "s/TRAVIS_BUILD_DIR/'$TRAVIS_BUILD_DIR'/g" /etc/apache2/sites-ena
 sudo service apache2 restart
 
 # debug:
+apache2ctl -S
 curl -i http://localhost/items/list
