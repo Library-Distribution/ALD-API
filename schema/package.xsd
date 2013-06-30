@@ -42,6 +42,14 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
+	<xsd:simpleType name="access">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="read"/>
+			<xsd:enumeration value="write"/>
+			<xsd:enumeration value="read+write"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
 	<!-- I. VERSIONING -->
 	<!-- a. semantic versioning -->
 	<xsd:simpleType name="semverType">
@@ -240,6 +248,25 @@
 		</xsd:sequence>
 	</xsd:complexType>
 
+	<xsd:element name="repository">
+		<xsd:complexType>
+			<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+				<xsd:element name="url">
+					<xsd:complexType>
+						<xsd:simpleContent>
+							<xsd:extension base="xsd:anyURI">
+								<xsd:attribute use="required" type="xsd:string" name="protocol"/>
+								<xsd:attribute use="required" type="ald:access" name="access"/>
+							</xsd:extension>
+						</xsd:simpleContent>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute use="required" type="xsd:string" name="type"/>
+			<xsd:attribute use="required" type="ald:internetURL" name="view-url"/>
+		</xsd:complexType>
+	</xsd:element>
+
 	<!-- root -->
 	<xsd:element name="package">
 		<xsd:complexType>
@@ -277,6 +304,13 @@
 						<xsd:sequence>
 							<xsd:element name="doc" type="ald:file-list-type" minOccurs="1" maxOccurs="1"/> <!-- the list of documentation files -->
 							<xsd:element name="src" type="ald:file-list-type" minOccurs="1" maxOccurs="1"/> <!-- the list of source files -->
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="development" minOccurs="0" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element ref="ald:repository" minOccurs="1" maxOccurs="unbounded"/>
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>

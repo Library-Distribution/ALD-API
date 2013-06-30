@@ -84,6 +84,7 @@ try
 			'doc'  => $package->definition->GetDocFiles(),
 			'logo' => $package->definition->GetLogo()
 		),
+		'development'  => $package->definition->GetDevelopment(),
 		'tags'         => $package->definition->GetTags(),
 		'links'        => $package->definition->GetLinks(),
 
