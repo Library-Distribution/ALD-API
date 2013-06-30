@@ -10,4 +10,4 @@ sudo service apache2 restart
 
 # debug:
 apache2ctl -S
-curl -i http://localhost/items/list
+curl -i -f http://localhost/items/list
