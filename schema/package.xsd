@@ -255,7 +255,6 @@
 					<xsd:complexType>
 						<xsd:simpleContent>
 							<xsd:extension base="xsd:anyURI">
-								<xsd:attribute use="required" type="xsd:string" name="protocol"/>
 								<xsd:attribute use="required" type="ald:access" name="access"/>
 							</xsd:extension>
 						</xsd:simpleContent>
