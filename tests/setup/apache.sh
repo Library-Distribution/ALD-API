@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-sudo a2enmod rewrite headers
+sudo a2enmod rewrite headers php5
 sudo cp tests/setup/vhost.conf /etc/apache2/sites-enabled/default
 
 TRAVIS_BUILD_DIR="${TRAVIS_BUILD_DIR//\//\\/}" # escape for below
