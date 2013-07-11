@@ -54,10 +54,12 @@ class ContentNegotiator {
 		return DEFAULT_MIME_TYPE;
 	}
 
-	public static function Output(array $data, $namespace) {
-		$mime = self::MimeType();
+	public static function Output($mime, $data, $namespace) {
 		$converter = self::get_converter($mime);
-		$content = $converter->convert($data, $namespace); # canRun() is checked by <SupportedMimeTypes> already
+		if (!$converter->canRun()) {
+			throw new HttpException(500);
+		}
+		$content = $converter->convert($data, $namespace);
 
 		header('Content-Type: ' . $mime);
 		echo $content;
