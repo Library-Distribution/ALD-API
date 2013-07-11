@@ -31,7 +31,7 @@ class ContentNegotiator {
 			}
 			self::$converter_instances[$class] = new $class();
 			if (!(self::$converter_instances[$class] instanceof OutputConverter)) {
-				throw new HttpException(500, NULL, 'Unsupported converter for mime type "' . $mime . '"!');
+				throw new HttpException(500, 'Unsupported converter for mime type "' . $mime . '"!');
 			}
 		}
 
@@ -49,7 +49,7 @@ class ContentNegotiator {
 					return $suggested_mime;
 				}
 			}
-			throw new HttpException(406, array('Content-Type' => implode($mimes, ',')));
+			throw new HttpException(406, NULL, array('Content-Type' => implode($mimes, ',')));
 		}
 		return DEFAULT_MIME_TYPE;
 	}
