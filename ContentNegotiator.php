@@ -22,7 +22,7 @@ class ContentNegotiator {
 		return $mimes;
 	}
 
-	private static get_converter($mime) {
+	private static function get_converter($mime) {
 		$class = self::$output_handlers[$mime];
 
 		if (!isset(self::$converter_instances[$class])) {
