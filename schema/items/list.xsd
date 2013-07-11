@@ -9,13 +9,19 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
+	<xsd:simpleType name="semverType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="(\d+)\.(\d+)\.(\d+)(\-([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?(\+([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
 	<xsd:element name="item-list">
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element name="item" minOccurs="0" maxOccurs="unbounded">
 					<xsd:complexType>
 						<xsd:attribute use="required" type="xsd:string" name="name"/>
-						<xsd:attribute use="required" type="xsd:string" name="version"/>
+						<xsd:attribute use="required" type="ald:semverType" name="version"/>
 						<xsd:attribute use="required" type="ald:guid-type" name="id"/>
 					</xsd:complexType>
 				</xsd:element>
