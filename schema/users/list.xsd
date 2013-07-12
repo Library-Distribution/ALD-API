@@ -5,14 +5,14 @@
 
 	<xsd:simpleType name="guid-type"> <!-- defines the type of a GUID -->
 		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="[a-fA-F0-9]{32}"/> <!-- update: do not use any format, just the raw number -->
+			<xsd:pattern value="[a-fA-F0-9]{32}"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 
 	<xsd:element name="user-list">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="user" minOccurs="0" maxOccurs="1">
+				<xsd:element name="user" minOccurs="0" maxOccurs="unbounded">
 					<xsd:complexType>
 						<xsd:attribute use="required" name="name" type="xsd:string"/>
 						<xsd:attribute use="required" name="id" type="ald:guid-type"/>
