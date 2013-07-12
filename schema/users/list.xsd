@@ -9,16 +9,28 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
-	<xsd:element name="user-list">
+	<xsd:element name="users">
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element name="user" minOccurs="0" maxOccurs="unbounded">
 					<xsd:complexType>
-						<xsd:attribute use="required" name="name" type="xsd:string"/>
-						<xsd:attribute use="required" name="id" type="ald:guid-type"/>
+						<xsd:simpleContent>
+							<xsd:extension base="xsd:string">
+								<xsd:attribute use="required" name="id" type="ald:guid-type"/>
+							</xsd:extension>
+						</xsd:simpleContent>
 					</xsd:complexType>
 				</xsd:element>
 			</xsd:sequence>
 		</xsd:complexType>
+
+		<xsd:unique name="user-name">
+			<xsd:selector xpath="ald:user"/>
+			<xsd:field xpath="."/>
+		</xsd:unique>
+		<xsd:unique name="user-id">
+			<xsd:selector xpath="ald:user"/>
+			<xsd:field xpath="@ald:id"/>
+		</xsd:unique>
 	</xsd:element>
 </xsd:schema>
