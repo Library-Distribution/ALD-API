@@ -1,0 +1,58 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:ald="ald://api/stdlib/items/schema/2012"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		targetNamespace="ald://api/stdlib/items/schema/2012">
+
+	<xsd:simpleType name="guid-type">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[a-fA-F0-9]{32}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="semverType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="(\d+)\.(\d+)\.(\d+)(\-([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?(\+([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="stdlib">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="item" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="version" minOccurs="1" maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="release" minOccurs="1" maxOccurs="unbounded" type="ald:semverType"/>
+									</xsd:sequence>
+									<xsd:attribute use="required" type="ald:semverType" name="version"/>
+									<xsd:attribute use="required" type="ald:guid-type"  name="id"/>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+						<xsd:attribute use="required" type="xsd:string" name="name"/>
+					</xsd:complexType>
+
+					<xsd:unique name="item-version">
+						<xsd:selector xpath="ald:version"/>
+						<xsd:field xpath="@ald:version"/>
+					</xsd:unique>
+					<xsd:unique name="release-version">
+						<xsd:selector xpath="ald:version/ald:release"/>
+						<xsd:field xpath="."/>
+					</xsd:unique>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+
+		<xsd:unique name="item-name">
+			<xsd:selector xpath="ald:item"/>
+			<xsd:field xpath="@ald:name"/>
+		</xsd:unique>
+		<xsd:unique name="item-id">
+			<xsd:selector xpath="ald:item/ald:version"/>
+			<xsd:field xpath="@ald:id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>
