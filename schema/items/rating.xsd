@@ -1,0 +1,36 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:ald="ald://api/items/rating/schema/2012"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		targetNamespace="ald://api/items/rating/schema/2012">
+
+	<xsd:simpleType name="guid-type"> <!-- defines the type of a GUID -->
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[a-fA-F0-9]{32}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="ratings">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="rating" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:simpleContent>
+							<xsd:extension base="xsd:nonNegativeInteger">
+								<xsd:attribute use="required" type="ald:guid-type" name="user-id"/>
+								<xsd:attribute use="required" type="xsd:string"    name="user-name"/>
+							</xsd:extension>
+						</xsd:simpleContent>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="user-name">
+			<xsd:selector xpath="ald:rating"/>
+			<xsd:field xpath="@ald:user-name"/>
+		</xsd:unique>
+		<xsd:unique name="user-id">
+			<xsd:selector xpath="ald:rating"/>
+			<xsd:field xpath="@ald:user-id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>
