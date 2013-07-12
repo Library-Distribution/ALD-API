@@ -9,5 +9,9 @@ class JsonConverter implements OutputConverter {
 	public function convert($data, $namespace = NULL) {
 		return json_encode($data);
 	}
+
+	public function getMimes() {
+		return array('application/json');
+	}
 }
 ?>
