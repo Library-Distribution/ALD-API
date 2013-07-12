@@ -1,0 +1,36 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:ald="ald://api/stdlib/candidates/list/schema/2012"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		targetNamespace="ald://api/stdlib/candidates/list/schema/2012">
+
+	<xsd:simpleType name="guid-type">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[a-fA-F0-9]{32}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="candidates">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="candidate" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:simpleContent>
+							<xsd:extension base="ald:guid-type">
+								<xsd:attribute use="required" type="xsd:nonNegativeInteger" name="id"/>
+							</xsd:extension>
+						</xsd:simpleContent>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+
+		<xsd:unique name="item-id">
+			<xsd:selector xpath="ald:candidate"/>
+			<xsd:field xpath="."/>
+		</xsd:unique>
+		<xsd:unique name="id">
+			<xsd:selector xpath="ald:candidate"/>
+			<xsd:field xpath="@ald:id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>
