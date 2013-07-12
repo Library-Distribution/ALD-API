@@ -1,0 +1,24 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:ald="ald://api/stdlib/releases/list/schema/2012"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		targetNamespace="ald://api/stdlib/releases/list/schema/2012">
+
+	<xsd:simpleType name="semverType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="(\d+)\.(\d+)\.(\d+)(\-([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?(\+([0-9A-Za-z\-]+\.)*([0-9A-Za-z\-]+))?"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="releases">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="release" minOccurs="0" maxOccurs="unbounded" type="ald:semverType"/>
+			</xsd:sequence>
+		</xsd:complexType>
+
+		<xsd:unique name="release-version">
+			<xsd:selector xpath="ald:release"/>
+			<xsd:field xpath="."/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>
