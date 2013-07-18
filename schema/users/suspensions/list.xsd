@@ -1,0 +1,39 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:ald="ald://api/users/suspensions/list/schema/2012"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		targetNamespace="ald://api/users/suspensions/list/schema/2012">
+
+	<xsd:simpleType name="guid-type">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[a-fA-F0-9]{32}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="emptyType">
+		<xsd:restriction base="xsd:string">
+			<xsd:length value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="nillable-dateTime">
+		<xsd:union memberTypes="xsd:dateTime ald:emptyType"/>
+	</xsd:simpleType>
+
+	<xsd:element name="suspensions">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="suspension" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute type="xsd:nonNegativeInteger" name="id"         use="required"/>
+						<xsd:attribute type="xsd:dateTime"           name="created"    use="required"/>
+						<xsd:attribute type="ald:nillable-dateTime"  name="expires"    use="required"/>
+						<xsd:attribute type="xsd:boolean"            name="infinite"   use="required"/>
+						<xsd:attribute type="xsd:boolean"            name="restricted" use="required"/>
+						<xsd:attribute type="xsd:string"             name="reason"     use="required"/>
+						<xsd:attribute type="xsd:boolean"            name="active"     use="required"/>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
